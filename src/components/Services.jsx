@@ -1,295 +1,400 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 
-const Services = () => {
-  const [currentCard, setCurrentCard] = useState(0);
-  const [foamDirection, setFoamDirection] = useState('none');
+const Services = ({ active, currentCard, setCurrentCard, onComplete }) => {
+  const isTransitioning = useRef(false);
+  const containerRef = useRef(null);
+  const lastScrollTime = useRef(0);
 
   const services = [
     {
       id: 1,
-      title: "Limpieza",
-      image: "https://via.placeholder.com/100?text=Trapeador",
-      description: "Ofrecemos un servicio integral de limpieza para hogares, oficinas, comunidades y locales comerciales. Utilizamos productos de alta calidad y técnicas innovadoras para garantizar espacios impecables y saludables. Nos adaptamos a sus necesidades, proporcionando limpieza periódica o puntual con un equipo profesional y eficiente."
+      title: "Limpieza Residencial",
+      image: "🏠",
+      description: "Servicios integrales de limpieza para hogares con tecnología avanzada y productos eco-friendly",
+      color: "#4a90e2",
+      bgGradient: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)"
     },
     {
       id: 2,
-      title: "Limpieza de cambios turísticos",
-      image: "https://via.placeholder.com/100?text=Hotel",
-      description: "Nos encargamos de la limpieza y preparación de alojamientos turísticos entre estancias. Garantizamos espacios impecables, ordenados y listos para recibir a nuevos huéspedes, cumpliendo con los más altos estándares de higiene y rapidez para optimizar la rotación de clientes."
+      title: "Turismo & Airbnb",
+      image: "🏨",
+      description: "Limpieza especializada entre huéspedes con protocolos de higiene premium",
+      color: "#e74c3c",
+      bgGradient: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)"
     },
     {
       id: 3,
-      title: "Limpiezas forestales",
-      image: "https://via.placeholder.com/100?text=Árboles",
-      description: "Realizamos limpiezas forestales para prevenir incendios y mantener el equilibrio ecológico. Nuestro equipo elimina restos vegetales, maleza y residuos en terrenos, garantizando un entorno seguro y limpio, cumpliendo con la normativa vigente."
+      title: "Servicios Forestales",
+      image: "🌲",
+      description: "Mantenimiento ecológico y prevención de incendios con equipo especializado",
+      color: "#27ae60",
+      bgGradient: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)"
     },
     {
       id: 4,
-      title: "Limpieza de cristales",
-      image: "https://via.placeholder.com/100?text=Cristales",
-      description: "Nos especializamos en la limpieza de cristales, utilizando productos de alta calidad y técnicas avanzadas para obtener resultados excepcionales. Ya sea para su hogar, oficina o negocio, nuestros profesionales aseguran que sus cristales luzcan perfectos, sin rayas ni residuos."
+      title: "Cristales Premium",
+      image: "✨",
+      description: "Limpieza de cristales con técnicas nanotecnológicas para resultados impecables",
+      color: "#9b59b6",
+      bgGradient: "linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)"
     },
     {
       id: 5,
-      title: "Terrenos",
-      image: "https://via.placeholder.com/100?text=Terrenos",
-      description: "Ofrecemos terrenos en venta en Girona y alrededores. Disponemos de diferentes opciones según sus necesidades, desde solares para construcción hasta terrenos rústicos. Le asesoramos en todo el proceso para que encuentre la mejor opción para su inversión."
+      title: "Gestión de Terrenos",
+      image: "🏗️",
+      description: "Consultoría y venta de terrenos con asesoramiento integral personalizado",
+      color: "#f39c12",
+      bgGradient: "linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%)"
     }
   ];
 
+  // Notificar estado de completado
   useEffect(() => {
-    const handleScroll = () => {
-      const servicesSection = document.getElementById('services');
-      if (!servicesSection) return;
+    if (currentCard === services.length - 1) {
+      onComplete(true);
+    } else {
+      onComplete(false);
+    }
+  }, [currentCard, onComplete, services.length]);
 
-      const sectionTop = servicesSection.offsetTop;
-      const sectionHeight = servicesSection.offsetHeight;
-      const scrollPosition = window.scrollY;
-      const windowHeight = window.innerHeight;
-      
-      // Calcular el progreso del scroll dentro de la sección
-      const sectionStart = sectionTop - windowHeight / 2;
-      const sectionEnd = sectionTop + sectionHeight - windowHeight / 2;
-      const scrollProgress = Math.max(0, Math.min(1, 
-        (scrollPosition - sectionStart) / (sectionEnd - sectionStart)
-      ));
-      
-      // Determinar qué carta debe mostrarse basado en el progreso
-      const totalCards = services.length;
-      const cardIndex = Math.floor(scrollProgress * totalCards);
-      const newCurrentCard = Math.min(cardIndex, totalCards - 1);
-      
-      setCurrentCard(newCurrentCard);
-      
-      // Efecto de espuma
-      if (scrollProgress > 0.1 && scrollProgress < 0.9) {
-        setFoamDirection('up');
-      } else {
-        setFoamDirection('down');
+  // Control del scroll con debounce
+  useEffect(() => {
+    if (!active) return;
+
+    const handleWheel = (e) => {
+      const now = Date.now();
+      if (isTransitioning.current || now - lastScrollTime.current < 800) {
+        e.preventDefault();
+        return;
       }
+
+      // Permitir que el evento se propague a App.jsx si estamos en los límites
+      if (
+        (e.deltaY < 0 && currentCard === 0) || // Scroll hacia arriba en la primera tarjeta
+        (e.deltaY > 0 && currentCard === services.length - 1) // Scroll hacia abajo en la última tarjeta
+      ) {
+        return; // No prevenir el evento, dejar que App.jsx lo maneje
+      }
+
+      // Manejar transiciones internas de tarjetas
+      e.preventDefault();
+      isTransitioning.current = true;
+      lastScrollTime.current = now;
+
+      if (e.deltaY > 0 && currentCard < services.length - 1) {
+        setCurrentCard(prev => {
+          console.log(`Moving to next card: ${prev + 1}`);
+          return prev + 1;
+        });
+      } else if (e.deltaY < 0 && currentCard > 0) {
+        setCurrentCard(prev => {
+          console.log(`Moving to previous card: ${prev - 1}`);
+          return prev - 1;
+        });
+      }
+
+      setTimeout(() => {
+        isTransitioning.current = false;
+      }, 800);
     };
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Initial check
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [services.length]);
+    document.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      document.removeEventListener('wheel', handleWheel);
+      isTransitioning.current = false;
+    };
+  }, [active, currentCard, setCurrentCard, services.length]);
+
+  // Efectos de mouse 3D
+  const handle3DEffect = (e, cardElement) => {
+    const rect = cardElement.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    
+    const rotateX = (y - centerY) / 15;
+    const rotateY = (centerX - x) / 15;
+    
+    cardElement.style.transform = `
+      perspective(1000px) 
+      rotateX(${rotateX}deg) 
+      rotateY(${rotateY}deg) 
+      scale3d(1.05, 1.05, 1.05)
+    `;
+  };
+
+  const resetCard = (cardElement) => {
+    cardElement.style.transform = 'perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)';
+  };
 
   return (
     <section
       id="services"
+      ref={containerRef}
       style={{
-        padding: '4rem 2rem',
-        backgroundColor: '#fff',
+        height: '100vh',
+        background: services[currentCard]?.bgGradient || 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
-        minHeight: '200vh' // Altura suficiente para permitir scroll
+        transition: 'background 1s cubic-bezier(0.4, 0, 0.2, 1)'
       }}
     >
-      {/* Efecto de espuma */}
-      <div
-        style={{
-          position: 'absolute',
-          top: foamDirection === 'up' ? '0' : 'auto',
-          bottom: foamDirection === 'down' ? '0' : 'auto',
-          left: 0,
-          right: 0,
-          height: foamDirection !== 'none' ? '100px' : '0',
-          background: 'linear-gradient(to bottom, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0.7) 50%, rgba(255,255,255,0) 100%)',
-          boxShadow: '0 0 20px rgba(255,255,255,0.8)',
-          transform: foamDirection === 'up' ? 'translateY(-100%)' : foamDirection === 'down' ? 'translateY(100%)' : 'none',
-          transition: 'transform 0.8s ease-in-out, height 0.8s ease-in-out',
-          zIndex: 10,
-        }}
-      />
-      
-      <h2 style={{ 
-        textAlign: 'center', 
-        fontSize: '2rem', 
-        marginBottom: '3rem', 
-        color: '#333', 
-        zIndex: 5,
-        position: 'relative'
-      }}>
-        Nuestros servicios de limpieza en Girona
-      </h2>
-      
-      {/* Container de carta única centrada */}
       <div style={{ 
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        minHeight: '500px',
-        perspective: '1000px'
+        position: 'absolute', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        bottom: 0,
+        overflow: 'hidden',
+        pointerEvents: 'none'
       }}>
-        
-        {/* Stack de cartas */}
-        <div style={{
-          position: 'relative',
-          width: '400px',
-          height: '500px'
-        }}>
-          {services.map((service, index) => {
-            const isActive = index === currentCard;
-            const isBelow = index < currentCard;
-            const isAbove = index > currentCard;
-            const isEven = index % 2 === 0;
-            
-            return (
+        {[...Array(25)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              position: 'absolute',
+              width: Math.random() * 4 + 2 + 'px',
+              height: Math.random() * 4 + 2 + 'px',
+              borderRadius: '50%',
+              backgroundColor: 'rgba(255,255,255,0.4)',
+              left: Math.random() * 100 + '%',
+              top: Math.random() * 100 + '%',
+              animation: `float ${Math.random() * 4 + 3}s ease-in-out infinite alternate`,
+              animationDelay: Math.random() * 2 + 's'
+            }}
+          />
+        ))}
+      </div>
+
+      <h2 style={{
+        position: 'absolute',
+        top: '8%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        fontSize: '3.5rem',
+        color: 'white',
+        textShadow: '0 4px 20px rgba(0,0,0,0.4)',
+        fontWeight: '800',
+        zIndex: 10,
+        letterSpacing: '2px',
+        textAlign: 'center',
+        opacity: active ? 1 : 0,
+        transition: 'all 0.8s ease'
+      }}>
+        Servicios de Élite
+      </h2>
+
+      <div style={{
+        position: 'relative',
+        width: '500px',
+        height: '600px',
+        perspective: '1500px'
+      }}>
+        {services.map((service, index) => {
+          const isActive = index === currentCard;
+          const offset = index - currentCard;
+          const isVisible = Math.abs(offset) <= 2;
+          
+          return (
+            <div
+              key={service.id}
+              style={{
+                position: 'absolute',
+                width: '100%',
+                height: '100%',
+                transformStyle: 'preserve-3d',
+                transition: 'all 1s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                transform: isActive
+                  ? 'translateX(0) translateZ(0) rotateY(0deg) scale(1)'
+                  : `translateX(${offset * 120}px) translateZ(${Math.abs(offset) * -250}px) rotateY(${offset * 20}deg) scale(${1 - Math.abs(offset) * 0.15})`,
+                opacity: isVisible ? (isActive ? 1 : 0.3 - Math.abs(offset) * 0.15) : 0,
+                zIndex: isActive ? 100 : (100 - Math.abs(offset)),
+                pointerEvents: isActive ? 'auto' : 'none'
+              }}
+            >
               <div
-                key={service.id}
                 style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
                   width: '100%',
                   height: '100%',
-                  transition: 'all 0.8s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-                  transform: isActive 
-                    ? 'translateX(0) translateY(0) rotateY(0deg) rotateZ(0deg) scale(1)' 
-                    : isBelow 
-                    ? `translateX(0) translateY(${index * -2}px) rotateZ(${index * -1}deg) scale(0.98)`
-                    : `translateX(${isEven ? '-120vw' : '120vw'}) translateY(-50px) rotateY(${isEven ? '-45deg' : '45deg'}) rotateZ(${isEven ? '-15deg' : '15deg'}) scale(0.9)`,
-                  opacity: isAbove ? 0 : 1,
-                  zIndex: isActive ? 10 : (services.length - index),
-                  transformOrigin: 'center center'
+                  background: 'rgba(255,255,255,0.95)',
+                  borderRadius: '25px',
+                  padding: '2.5rem',
+                  boxShadow: isActive 
+                    ? '0 35px 70px rgba(0,0,0,0.25), 0 0 0 1px rgba(255,255,255,0.1)'
+                    : '0 15px 30px rgba(0,0,0,0.15)',
+                  backdropFilter: 'blur(20px)',
+                  border: `3px solid ${service.color}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  position: 'relative',
+                  overflow: 'hidden',
+                  cursor: 'pointer',
+                  transition: 'all 0.4s ease'
                 }}
+                onMouseMove={(e) => isActive && handle3DEffect(e, e.currentTarget)}
+                onMouseLeave={(e) => isActive && resetCard(e.currentTarget)}
               >
-                {/* Carta */}
-                <div
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    padding: '1.5rem',
-                    borderRadius: '15px',
-                    backgroundColor: '#f9f9f9',
-                    boxShadow: isActive 
-                      ? '0 20px 40px rgba(0,0,0,0.15), 0 0 0 2px rgba(255,255,255,0.2)' 
-                      : '0 4px 15px rgba(0,0,0,0.05)',
-                    textAlign: 'center',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'space-between',
-                    border: `2px solid ${isActive ? '#4a90e2' : '#e9ecef'}`,
-                    background: isActive 
-                      ? 'linear-gradient(145deg, #ffffff 0%, #f8f9fa 100%)' 
-                      : '#f9f9f9',
-                    position: 'relative',
-                    overflow: 'hidden'
-                  }}
-                >
-                  {/* Efecto de brillo cuando se activa */}
-                  {isActive && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '-50%',
-                        left: '-50%',
-                        width: '200%',
-                        height: '200%',
-                        background: 'linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.4) 50%, transparent 70%)',
-                        transform: 'translateX(100%)',
-                        animation: 'shine 1.5s ease-in-out',
-                        pointerEvents: 'none'
-                      }}
-                    />
-                  )}
-                  
-                  {/* Contenido de la carta */}
-                  <div style={{ position: 'relative', zIndex: 2 }}>
-                    <img 
-                      src={service.image} 
-                      alt={service.title} 
-                      style={{ 
-                        marginBottom: '1rem',
-                        borderRadius: '50%',
-                        border: `3px solid ${isActive ? '#4a90e2' : '#e9ecef'}`,
-                        transition: 'all 0.3s ease',
-                        transform: isActive ? 'scale(1.1)' : 'scale(1)'
-                      }} 
-                    />
-                    <h3 style={{ 
-                      color: isActive ? '#4a90e2' : '#333',
-                      fontSize: '1.4rem',
-                      marginBottom: '1rem',
-                      fontWeight: '600',
-                      transition: 'color 0.3s ease'
-                    }}>
-                      {service.title}
-                    </h3>
+                <div style={{
+                  position: 'absolute',
+                  top: '-50%',
+                  left: '-50%',
+                  width: '200%',
+                  height: '200%',
+                  background: `linear-gradient(45deg, transparent 30%, ${service.color}25 50%, transparent 70%)`,
+                  transform: isActive ? 'translateX(100%)' : 'translateX(-100%)',
+                  transition: 'transform 2.5s ease-in-out',
+                  pointerEvents: 'none'
+                }} />
+
+                <div style={{ textAlign: 'center', zIndex: 2 }}>
+                  <div style={{
+                    fontSize: '4.5rem',
+                    marginBottom: '1.5rem',
+                    filter: 'drop-shadow(0 6px 12px rgba(0,0,0,0.3))',
+                    transform: isActive ? 'scale(1)' : 'scale(0.8)',
+                    transition: 'transform 0.5s ease'
+                  }}>
+                    {service.image}
                   </div>
                   
-                  <p style={{ 
-                    fontSize: '0.95rem',
-                    lineHeight: '1.6',
-                    color: '#666',
-                    position: 'relative',
-                    zIndex: 2,
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center'
+                  <h3 style={{
+                    color: service.color,
+                    fontSize: '2rem',
+                    fontWeight: '800',
+                    marginBottom: '1.5rem',
+                    textShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                    lineHeight: '1.2'
                   }}>
-                    {service.description}
-                  </p>
-                  
-                  {/* Indicador de carta activa */}
-                  {isActive && (
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '15px',
-                        right: '15px',
-                        width: '12px',
-                        height: '12px',
-                        borderRadius: '50%',
-                        background: 'linear-gradient(45deg, #4a90e2, #7b68ee)',
-                        boxShadow: '0 0 10px rgba(74, 144, 226, 0.5)',
-                        animation: 'pulse 2s infinite'
-                      }}
-                    />
-                  )}
+                    {service.title}
+                  </h3>
+                </div>
+
+                <p style={{
+                  color: '#333',
+                  lineHeight: '1.8',
+                  fontSize: '1rem',
+                  textAlign: 'center',
+                  zIndex: 2,
+                  marginBottom: '2rem'
+                }}>
+                  {service.description}
+                </p>
+
+                {isActive && (
+                  <button style={{
+                    background: `linear-gradient(135deg, ${service.color}, ${service.color}dd)`,
+                    color: 'white',
+                    border: 'none',
+                    padding: '1rem 2rem',
+                    borderRadius: '50px',
+                    fontSize: '1rem',
+                    fontWeight: '700',
+                    cursor: 'pointer',
+                    transform: 'translateY(0)',
+                    transition: 'all 0.3s ease',
+                    boxShadow: `0 12px 24px ${service.color}50`,
+                    alignSelf: 'center',
+                    letterSpacing: '0.5px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.transform = 'translateY(-3px) scale(1.05)';
+                    e.target.style.boxShadow = `0 18px 36px ${service.color}70`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.transform = 'translateY(0) scale(1)';
+                    e.target.style.boxShadow = `0 12px 24px ${service.color}50`;
+                  }}>
+                    Solicitar Servicio
+                  </button>
+                )}
+
+                <div style={{
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  width: '45px',
+                  height: '45px',
+                  borderRadius: '50%',
+                  background: isActive 
+                    ? `linear-gradient(45deg, ${service.color}, ${service.color}cc)`
+                    : 'rgba(0,0,0,0.1)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  color: 'white',
+                  fontWeight: 'bold',
+                  fontSize: '1.3rem',
+                  transform: `scale(${isActive ? 1 : 0.8})`,
+                  transition: 'all 0.4s ease',
+                  boxShadow: isActive ? `0 8px 16px ${service.color}40` : 'none'
+                }}>
+                  {index + 1}
                 </div>
               </div>
-            );
-          })}
-        </div>
-        
-        {/* Indicador de progreso */}
-        <div style={{
-          position: 'absolute',
-          right: '20px',
-          top: '50%',
-          transform: 'translateY(-50%)',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '10px'
-        }}>
-          {services.map((_, index) => (
-            <div
-              key={index}
-              style={{
-                width: '8px',
-                height: '8px',
-                borderRadius: '50%',
-                backgroundColor: index === currentCard ? '#4a90e2' : '#ddd',
-                transition: 'all 0.3s ease',
-                transform: index === currentCard ? 'scale(1.5)' : 'scale(1)'
-              }}
-            />
-          ))}
-        </div>
+            </div>
+          );
+        })}
       </div>
-      
-      {/* Estilos de animación */}
+
+      <div style={{
+        position: 'absolute',
+        bottom: '10%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        display: 'flex',
+        gap: '15px',
+        zIndex: 200
+      }}>
+        {services.map((service, index) => (
+          <div
+            key={index}
+            onClick={() => !isTransitioning.current && setCurrentCard(index)}
+            style={{
+              width: index === currentCard ? '40px' : '15px',
+              height: '15px',
+              borderRadius: '10px',
+              background: index === currentCard 
+                ? `linear-gradient(45deg, ${service.color}, white)` 
+                : 'rgba(255,255,255,0.5)',
+              cursor: 'pointer',
+              transition: 'all 0.4s ease',
+              boxShadow: index === currentCard ? `0 4px 12px ${service.color}60` : 'none',
+              border: index === currentCard ? `2px solid white` : '2px solid transparent'
+            }}
+          />
+        ))}
+      </div>
+
+      <div style={{
+        position: 'absolute',
+        bottom: '3%',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        color: 'white',
+        fontSize: '0.9rem',
+        opacity: 0.8,
+        textAlign: 'center',
+        textShadow: '0 2px 4px rgba(0,0,0,0.6)',
+        fontWeight: '500'
+      }}>
+        🖱️ Scroll para navegar | Hover sobre las cartas activas
+      </div>
+
       <style jsx>{`
-        @keyframes shine {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+        @keyframes float {
+          0% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+          100% { transform: translateY(-25px) rotate(180deg); opacity: 1; }
         }
         
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.2); }
+          50% { opacity: 0.8; transform: scale(1.05); }
         }
       `}</style>
     </section>
