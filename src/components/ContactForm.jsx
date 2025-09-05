@@ -1,37 +1,245 @@
-// components/ContactForm.js
-import React, { useEffect, useState } from 'react';
+"use client"
+
+import { useEffect, useState } from "react"
+
+const MAP_SRC =
+  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2998.9419846866697!2d2.833073776892635!3d41.98027967122127!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12ba6bfd8b7acaf9%3A0xcd08aad0ee421b8a!2sPals%2C%20Girona!5e0!3m2!1ses!2ses!4v1695089089169!5m2!1ses!2ses"
 
 const ContactForm = () => {
-  const [isVisible, setIsVisible] = useState(false);
+  const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 1500) { // Adjust threshold as needed
-        setIsVisible(true);
-      }
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+      if (window.scrollY > 900) setIsVisible(true)
+    }
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
 
   return (
-    <section id="contact" style={{
-      padding: '4rem 2rem',
-      backgroundColor: '#fff',
-      transition: 'opacity 1s ease-in-out, transform 1s ease-in-out',
-      opacity: isVisible ? 1 : 0,
-      transform: isVisible ? 'translateY(0)' : 'translateY(50px)',
-    }}>
-      <h2 style={{ textAlign: 'center', fontSize: '2rem', marginBottom: '3rem', color: '#333' }}>Contáctanos</h2>
-      <form style={{ maxWidth: '600px', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-        <input type="text" placeholder="Nombre" style={{ padding: '1rem', borderRadius: '5px', border: '1px solid #ddd', fontSize: '1rem' }} />
-        <input type="email" placeholder="Email" style={{ padding: '1rem', borderRadius: '5px', border: '1px solid #ddd', fontSize: '1rem' }} />
-        <input type="text" placeholder="Asunto" style={{ padding: '1rem', borderRadius: '5px', border: '1px solid #ddd', fontSize: '1rem' }} />
-        <textarea placeholder="Mensaje" rows="5" style={{ padding: '1rem', borderRadius: '5px', border: '1px solid #ddd', fontSize: '1rem' }}></textarea>
-        <button type="submit" style={{ padding: '1rem', backgroundColor: '#4a90e2', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', transition: 'background-color 0.3s' }}>Enviar</button>
-      </form>
-    </section>
-  );
-};
+    <section id="contact" className={`contact-hero2${isVisible ? " visible" : ""}`}>
+      <div className="contact-hero2-map-background">
+        <iframe
+          title="Ubicación"
+          src={MAP_SRC}
+          width="100%"
+          height="100%"
+          style={{ border: 0 }}
+          allowFullScreen=""
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+        />
+      </div>
 
-export default ContactForm;
+      {/* No overlay oscurecedor para dejar el mapa en full color */}
+
+      <div className="contact-hero2-content">
+        <form className="contact-hero2-form">
+          <h2>Contáctanos</h2>
+          <div className="subtitle">¿Tienes una consulta? ¡Escríbenos!</div>
+          <input type="text" placeholder="Nombre" required />
+          <input type="email" placeholder="Email" required />
+          <input type="text" placeholder="Asunto" required />
+          <textarea placeholder="Mensaje" rows="4" required />
+          <button type="submit">Enviar</button>
+        </form>
+      </div>
+
+      <style>{`
+        .contact-hero2 {
+          position: relative;
+          width: 100vw;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          padding: 0;
+          opacity: 0;
+          transition: opacity 1.2s ease-in-out;
+          overflow: hidden;
+        }
+        
+        .contact-hero2.visible { 
+          opacity: 1; 
+        }
+
+        .contact-hero2-map-background {
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          z-index: 1;
+        }
+
+        .contact-hero2-map-background iframe {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          pointer-events: auto;
+        }
+
+        .contact-hero2-content {
+          position: absolute;
+          left: 2rem;
+          top: 50%;
+          transform: translateY(-50%);
+          z-index: 3;
+          width: 100%;
+          max-width: 450px;
+          pointer-events: none;
+        }
+
+        .contact-hero2-form {
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          gap: 1.5rem;
+          background: rgba(54, 54, 54, 0.19); /* MÁS oscuro pero aún transparente */
+          border-radius: 24px;
+          padding: 2.5rem 2rem;
+          box-shadow: 
+            0 25px 50px rgba(0, 0, 0, 0.22),
+            0 0 0 1px rgba(255, 255, 255, 0.19);
+          backdrop-filter: blur(5px); /* BLUR más fuerte */
+          -webkit-backdrop-filter: blur(30px) saturate(170%);
+          border: 1px solid rgba(8, 8, 8, 0.26);
+          transform: translateY(0);
+          transition: all 0.3s ease;
+          pointer-events: auto;
+        }
+
+        .contact-hero2-form:hover {
+          transform: translateY(-5px);
+          box-shadow: 
+            0 35px 70px rgba(0, 0, 0, 0.20),
+            0 0 0 1px rgba(255, 255, 255, 0.26);
+        }
+
+        .contact-hero2-form h2 {
+          font-size: 2.5rem;
+          font-weight: 700;
+          color: #fff;
+          margin: 0 0 0.5rem 0;
+          text-align: center;
+          text-shadow: 0 2px 8px rgba(0,0,0,0.26);
+        }
+
+        .contact-hero2-form .subtitle {
+          font-size: 1.1rem;
+          color:rgb(252, 252, 252);
+          text-align: center;
+          margin-bottom: 1rem;
+          font-weight: 500;
+        }
+
+        .contact-hero2-form input,
+        .contact-hero2-form textarea {
+          width: 100%;
+          max-width: 100%;
+          box-sizing: border-box;
+          padding: 1rem 1.25rem;
+          background: rgba(255, 255, 255, 0.95);
+          border: 2px solid rgba(88, 88, 88, 0.3);
+          border-radius: 12px;
+          font-size: 1rem;
+          color: #24334d;
+          backdrop-filter: blur(2px);
+          transition: all 0.3s;
+          box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        }
+
+        .contact-hero2-form input:focus,
+        .contact-hero2-form textarea:focus {
+          outline: none;
+          border-color: #667eea;
+          background: rgba(255,255,255,0.97);
+          box-shadow: 
+            0 0 0 3px rgba(102, 126, 234, 0.11),
+            0 8px 25px rgba(0,0,0,0.14);
+          transform: translateY(-2px);
+        }
+
+        .contact-hero2-form input::placeholder,
+        .contact-hero2-form textarea::placeholder {
+          color: #8e9daf;
+          font-weight: 500;
+        }
+
+        .contact-hero2-form textarea {
+          resize: vertical;
+          min-height: 120px;
+          font-family: inherit;
+        }
+
+        .contact-hero2-form button {
+          margin-top: 0.5rem;
+          padding: 1.1rem 2rem;
+          background: linear-gradient(135deg,rgba(129, 149, 241, 0.8) 0%,hsla(237, 31.50%, 48.60%, 0.86) 100%);
+          color: #fff;
+          font-size: 1rem;
+          font-weight: 600;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.28);
+          transition: all 0.3s;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .contact-hero2-form button:hover {
+          background: linear-gradient(hsl(237, 31.50%, 48.60%) 100%, 135deg,rgb(129, 149, 241) 0%);
+          transform: translateY(-2px);
+          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.39);
+        }
+
+        .contact-hero2-form button:active {
+          transform: translateY(0);
+        }
+
+        @media (max-width: 1024px) {
+          .contact-hero2-content {
+            left: 1.5rem;
+            max-width: 400px;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .contact-hero2-content {
+            position: relative;
+            left: auto;
+            top: auto;
+            transform: none;
+            max-width: 100%;
+            padding: 2rem 1rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+          }
+          .contact-hero2-form {
+            padding: 2rem 1.5rem;
+            max-width: 400px;
+          }
+          .contact-hero2-form h2 {
+            font-size: 2rem;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .contact-hero2-content {
+            padding: 1rem;
+          }
+          .contact-hero2-form {
+            padding: 1.5rem 1rem;
+          }
+          .contact-hero2-form h2 {
+            font-size: 1.8rem;
+          }
+        }
+      `}</style>
+    </section>
+  )
+}
+
+export default ContactForm

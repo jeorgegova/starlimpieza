@@ -2,92 +2,74 @@ import React, { useState, useEffect, useRef } from 'react';
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Services from './components/Services';
-import Testimonials from './components/Testimonials';
+import HorizontalTimelineTestimonials from './components/Testimonials';
 import ContactForm from './components/ContactForm';
 import Footer from './components/Footer';
-
-const SECTIONS = ['hero', 'services', 'testimonials', 'contact'];
+import AboutUs from './components/AboutUs';
 
 function App() {
-  const [activeSection, setActiveSection] = useState(0);
-  const [servicesComplete, setServicesComplete] = useState(false);
-  const [serviceCard, setServiceCard] = useState(0);
-  const isScrolling = useRef(false);
-  const lastScrollTime = useRef(0);
+  const [currentSection, setCurrentSection] = useState('hero');
+  const sectionsRef = useRef({});
 
-  const scrollToSection = (index) => {
-    const sectionId = SECTIONS[index];
+  // Función para scroll suave a una sección específica
+  const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      isScrolling.current = true;
-      element.scrollIntoView({ behavior: 'smooth' });
-      setTimeout(() => {
-        isScrolling.current = false;
-      }, 800); // Reducido a 800ms para alinearse con Services
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
     }
   };
 
+  // Intersection Observer para detectar la sección actual
   useEffect(() => {
-    const onWheel = (e) => {
-      const now = Date.now();
-      if (isScrolling.current || now - lastScrollTime.current < 800) {
-        e.preventDefault();
-        return;
-      }
-
-      lastScrollTime.current = now;
-      console.log(`App: activeSection=${activeSection}, serviceCard=${serviceCard}, servicesComplete=${servicesComplete}, deltaY=${e.deltaY}`);
-
-      // Si estamos en Services (sección 1)
-      if (activeSection === 1) {
-        // Solo permitir cambios de sección en los límites
-        if (e.deltaY > 0 && servicesComplete) {
-          e.preventDefault();
-          setActiveSection(2); // Ir a Testimonials
-        } else if (e.deltaY < 0 && serviceCard === 0) {
-          e.preventDefault();
-          setActiveSection(0); // Ir a Hero
-        }
-        // Dejar que Services maneje el scroll internamente
-        return;
-      }
-
-      // Para otras secciones
-      e.preventDefault();
-      if (e.deltaY > 0) {
-        setActiveSection((prev) => Math.min(prev + 1, SECTIONS.length - 1));
-      } else if (e.deltaY < 0) {
-        setActiveSection((prev) => Math.max(prev - 1, 0));
-      }
+    const observerOptions = {
+      root: null,
+      rootMargin: '-50% 0px -50% 0px', // Activa cuando la sección está en el centro
+      threshold: 0
     };
 
-    window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
-  }, [activeSection, servicesComplete, serviceCard]);
+    const observerCallback = (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setCurrentSection(entry.target.id);
+        }
+      });
+    };
 
-  useEffect(() => {
-    scrollToSection(activeSection);
-  }, [activeSection]);
+    const observer = new IntersectionObserver(observerCallback, observerOptions);
+
+    // Observar todas las secciones
+const sections = ['hero', 'services', 'aboutUs', 'testimonials', 'contact'];
+
+    sections.forEach((sectionId) => {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
-    <>
+    <div className="scroll-smooth">
       <Navbar
-        onNavigate={(section) => {
-          const index = SECTIONS.indexOf(section);
-          if (index >= 0) setActiveSection(index);
-        }}
+        currentSection={currentSection}
+        onNavigate={scrollToSection}
       />
-      <Hero active={activeSection === 0} />
-      <Services
-        active={activeSection === 1}
-        currentCard={serviceCard}
-        setCurrentCard={setServiceCard}
-        onComplete={setServicesComplete}
-      />
-      <Testimonials active={activeSection === 2} />
-      <ContactForm active={activeSection === 3} />
+      
+      <main>
+        <Hero />
+        <Services />
+        <AboutUs />
+        <HorizontalTimelineTestimonials />
+        <ContactForm />
+      </main>
+      
       <Footer />
-    </>
+    </div>
   );
 }
 

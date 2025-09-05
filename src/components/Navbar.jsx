@@ -92,6 +92,7 @@ const Navbar = () => {
           {[
             { name: 'Inicio', href: '#hero' },
             { name: 'Servicios', href: '#services' },
+            { name: 'Nuestra Empresa', href: '#aboutUs' },
             { name: 'Testimonios', href: '#testimonials' },
             { name: 'Contacto', href: '#contact' }
           ].map((item, index) => (
@@ -213,6 +214,7 @@ const Navbar = () => {
           {[
             { name: 'Inicio', id: 'hero' },
             { name: 'Servicios', id: 'services' },
+            { name: 'Nuestra Empresa', id: 'aboutUs' },
             { name: 'Testimonios', id: 'testimonials' },
             { name: 'Contacto', id: 'contact' }
           ].map((item, index) => (
