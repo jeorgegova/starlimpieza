@@ -1,11 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Navbar from './components/Navbar';
-import Hero from './components/Hero';
-import Services from './components/Services';
-import HorizontalTimelineTestimonials from './components/Testimonials';
-import ContactForm from './components/ContactForm';
-import Footer from './components/Footer';
-import AboutUs from './components/AboutUs';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import Navbar from './components/LandingPage/Navbar';
+import Hero from './components/LandingPage/Hero';
+import Services from './components/LandingPage/Services';
+import HorizontalTimelineTestimonials from './components/LandingPage/Testimonials';
+import ContactForm from './components/LandingPage/ContactForm';
+import Footer from './components/LandingPage/Footer';
+import AboutUs from './components/LandingPage/AboutUs';
+import Reserva from './components/Recervas';
 
 function App() {
   const [currentSection, setCurrentSection] = useState('hero');
@@ -41,7 +43,7 @@ function App() {
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
     // Observar todas las secciones
-const sections = ['hero', 'services', 'aboutUs', 'testimonials', 'contact'];
+    const sections = ['hero', 'services', 'aboutUs', 'testimonials', 'contact'];
 
     sections.forEach((sectionId) => {
       const element = document.getElementById(sectionId);
@@ -54,22 +56,27 @@ const sections = ['hero', 'services', 'aboutUs', 'testimonials', 'contact'];
   }, []);
 
   return (
-    <div className="scroll-smooth">
-      <Navbar
-        currentSection={currentSection}
-        onNavigate={scrollToSection}
-      />
-      
-      <main>
-        <Hero />
-        <Services />
-        <AboutUs />
-        <HorizontalTimelineTestimonials />
-        <ContactForm />
-      </main>
-      
-      <Footer />
-    </div>
+    <Router>
+      <div className="scroll-smooth">
+        <Navbar currentSection={currentSection} onNavigate={scrollToSection} />
+        <Routes>
+          <Route 
+            path="/" 
+            element={
+              <main>
+                <Hero />
+                <Services />
+                <AboutUs />
+                <HorizontalTimelineTestimonials />
+                <ContactForm />
+              </main>
+            } 
+          />
+          <Route path="/reservas" element={<Reserva />} />
+        </Routes>
+        <Footer />
+      </div>
+    </Router>
   );
 }
 

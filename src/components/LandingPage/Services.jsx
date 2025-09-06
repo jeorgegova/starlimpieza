@@ -1,15 +1,17 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import img1 from "../assets/img1.png";
-import img2 from "../assets/img2.png";
-import img3 from "../assets/img3.png";
-import img4 from "../assets/img4.png";
-import img5 from "../assets/img5.png";
+import img1 from "../../assets/img1.png";
+import img2 from "../../assets/img2.png";
+import img3 from "../../assets/img3.png";
+import img4 from "../../assets/img4.png";
+import img5 from "../../assets/img5.png";
+import { useNavigate } from "react-router-dom";
 
 const backgrounds = [img1, img2, img3, img4, img5];
 
 const Services = () => {
+  const navigate = useNavigate();
   const [currentCard, setCurrentCard] = useState(0);
   const [prevBgIndex, setPrevBgIndex] = useState(0);
   const [transitioning, setTransitioning] = useState(false);
@@ -298,6 +300,7 @@ const Services = () => {
                         e.target.style.transform = "translateY(0)";
                         e.target.style.boxShadow = `0 4px 12px ${service.color}30`;
                       }}
+                      onClick={() => navigate('/reservas')}
                     >
                       Solicitar Servicio
                     </button>

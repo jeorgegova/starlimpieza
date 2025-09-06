@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import burbuja from '../assets/burbuja.png';
-import logo from '../assets/logo.png';
-import videoHome from '../assets/videoHome.mp4';
+import burbuja from '../../assets/burbuja.png';
+import logo from '../../assets/logo.png';
+import videoHome from '../../assets/videoHome.mp4';
 
 const Hero = () => {
     const [isVisible, setIsVisible] = useState(false);
