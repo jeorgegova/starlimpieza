@@ -31,8 +31,6 @@ const ContactForm = () => {
         />
       </div>
 
-      {/* No overlay oscurecedor para dejar el mapa en full color */}
-
       <div className="contact-hero2-content">
         <form className="contact-hero2-form">
           <h2>Contáctanos</h2>
@@ -57,27 +55,21 @@ const ContactForm = () => {
           transition: opacity 1.2s ease-in-out;
           overflow: hidden;
         }
-        
         .contact-hero2.visible { 
           opacity: 1; 
         }
-
         .contact-hero2-map-background {
           position: absolute;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
+          top: 0; left: 0;
+          width: 100%; height: 100%;
           z-index: 1;
         }
-
         .contact-hero2-map-background iframe {
           width: 100%;
           height: 100%;
           object-fit: cover;
           pointer-events: auto;
         }
-
         .contact-hero2-content {
           position: absolute;
           left: 2rem;
@@ -88,33 +80,26 @@ const ContactForm = () => {
           max-width: 450px;
           pointer-events: none;
         }
-
         .contact-hero2-form {
           width: 100%;
           display: flex;
           flex-direction: column;
           gap: 1.5rem;
-          background: rgba(54, 54, 54, 0.19); /* MÁS oscuro pero aún transparente */
+          background: rgba(54, 54, 54, 0.19);
           border-radius: 24px;
           padding: 2.5rem 2rem;
-          box-shadow: 
-            0 25px 50px rgba(0, 0, 0, 0.22),
-            0 0 0 1px rgba(255, 255, 255, 0.19);
-          backdrop-filter: blur(5px); /* BLUR más fuerte */
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.19);
+          backdrop-filter: blur(5px);
           -webkit-backdrop-filter: blur(30px) saturate(170%);
           border: 1px solid rgba(8, 8, 8, 0.26);
           transform: translateY(0);
           transition: all 0.3s ease;
           pointer-events: auto;
         }
-
         .contact-hero2-form:hover {
           transform: translateY(-5px);
-          box-shadow: 
-            0 35px 70px rgba(0, 0, 0, 0.20),
-            0 0 0 1px rgba(255, 255, 255, 0.26);
+          box-shadow: 0 35px 70px rgba(0, 0, 0, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.26);
         }
-
         .contact-hero2-form h2 {
           font-size: 2.5rem;
           font-weight: 700;
@@ -123,15 +108,13 @@ const ContactForm = () => {
           text-align: center;
           text-shadow: 0 2px 8px rgba(0,0,0,0.26);
         }
-
         .contact-hero2-form .subtitle {
           font-size: 1.1rem;
-          color:rgb(252, 252, 252);
+          color: rgb(252, 252, 252);
           text-align: center;
           margin-bottom: 1rem;
           font-weight: 500;
         }
-
         .contact-hero2-form input,
         .contact-hero2-form textarea {
           width: 100%;
@@ -147,30 +130,24 @@ const ContactForm = () => {
           transition: all 0.3s;
           box-shadow: 0 4px 15px rgba(0,0,0,0.08);
         }
-
         .contact-hero2-form input:focus,
         .contact-hero2-form textarea:focus {
           outline: none;
           border-color: #667eea;
           background: rgba(255,255,255,0.97);
-          box-shadow: 
-            0 0 0 3px rgba(102, 126, 234, 0.11),
-            0 8px 25px rgba(0,0,0,0.14);
+          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.11), 0 8px 25px rgba(0,0,0,0.14);
           transform: translateY(-2px);
         }
-
         .contact-hero2-form input::placeholder,
         .contact-hero2-form textarea::placeholder {
           color: #8e9daf;
           font-weight: 500;
         }
-
         .contact-hero2-form textarea {
           resize: vertical;
           min-height: 120px;
           font-family: inherit;
         }
-
         .contact-hero2-form button {
           margin-top: 0.5rem;
           padding: 1.1rem 2rem;
@@ -186,55 +163,65 @@ const ContactForm = () => {
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
-
         .contact-hero2-form button:hover {
           background: linear-gradient(hsl(237, 31.50%, 48.60%) 100%, 135deg,rgb(129, 149, 241) 0%);
           transform: translateY(-2px);
           box-shadow: 0 15px 40px rgba(102, 126, 234, 0.39);
         }
-
         .contact-hero2-form button:active {
           transform: translateY(0);
         }
-
+        /* Tablet */
         @media (max-width: 1024px) {
           .contact-hero2-content {
-            left: 1.5rem;
-            max-width: 400px;
+            left: auto;
+            top: 10vh;
+            transform: none;
+            margin: 0 auto;
+            right: 0;
+            max-width: 430px;
           }
         }
-
+        /* Tablet & móvil: El formulario se coloca centrado verticalmente, encima del mapa (z-index mayor), con width limitada */
         @media (max-width: 768px) {
+          .contact-hero2 {
+            align-items: flex-start;
+            min-height: 600px;
+          }
           .contact-hero2-content {
-            position: relative;
-            left: auto;
-            top: auto;
+            position: static;
             transform: none;
-            max-width: 100%;
-            padding: 2rem 1rem;
+            max-width: 100vw;
+            width: 100%;
+            top: auto;
+            left: 0;
+            padding: 2rem 0.5rem;
             display: flex;
             justify-content: center;
-            align-items: center;
-            height: 100vh;
+            align-items: flex-start;
+            height: auto !important;
+            margin: 0 auto;
+            background: none;
           }
           .contact-hero2-form {
-            padding: 2rem 1.5rem;
-            max-width: 400px;
+            padding: 2rem 1rem;
+            max-width: 390px;
+            border-radius: 16px;
           }
           .contact-hero2-form h2 {
-            font-size: 2rem;
+            font-size: 1.55rem;
           }
         }
-
-        @media (max-width: 480px) {
+        @media (max-width: 500px) {
           .contact-hero2-content {
-            padding: 1rem;
+            padding: 1rem 0.2rem;
           }
           .contact-hero2-form {
-            padding: 1.5rem 1rem;
+            padding: 1.1rem 0.5rem;
+            border-radius: 11px;
           }
           .contact-hero2-form h2 {
-            font-size: 1.8rem;
+            font-size: 1.14rem;
           }
         }
       `}</style>
