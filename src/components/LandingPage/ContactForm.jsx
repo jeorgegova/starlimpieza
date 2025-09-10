@@ -1,12 +1,14 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { useNavigate } from "react-router-dom"
 
 const MAP_SRC =
-  "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2998.9419846866697!2d2.833073776892635!3d41.98027967122127!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x12ba6bfd8b7acaf9%3A0xcd08aad0ee421b8a!2sPals%2C%20Girona!5e0!3m2!1ses!2ses!4v1695089089169!5m2!1ses!2ses"
+  "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d742.3130216254883!2d3.1533424520107025!3d41.908939298115264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDHCsDU0JzMyLjIiTiAzwrAwOScxNC40IkU!5e0!3m2!1ses!2sco!4v1757478879723!5m2!1ses!2sco"
 
 const ContactForm = () => {
   const [isVisible, setIsVisible] = useState(false)
+  const navigate = useNavigate()
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,8 +31,14 @@ const ContactForm = () => {
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />
+        {/* Botón SOLO DENTRO DEL BLOQUE */}
+        <button
+          className="reservar-float-btn"
+          onClick={() => navigate("/reservas")}
+        >
+          Reservar
+        </button>
       </div>
-
       <div className="contact-hero2-content">
         <form className="contact-hero2-form">
           <h2>Contáctanos</h2>
@@ -63,12 +71,63 @@ const ContactForm = () => {
           top: 0; left: 0;
           width: 100%; height: 100%;
           z-index: 1;
+          /* Importante para poner button sobre el mapa */
+          pointer-events: none;
         }
         .contact-hero2-map-background iframe {
           width: 100%;
           height: 100%;
           object-fit: cover;
           pointer-events: auto;
+        }
+        .reservar-float-btn {
+          position: absolute;
+          top: 14vh;
+          right: 3vw;
+          z-index: 10;
+          padding: 1.1rem 2.2rem;
+          background: linear-gradient(135deg,rgba(130,130,130,0.34) 0%,rgba(60,60,60,0.36) 100%);
+          color: #fff;
+          font-size: 1.1rem;
+          font-weight: 700;
+          border: green 1px solid;
+          border-radius: 18px;
+          cursor: pointer;
+          box-shadow: 0 12px 38px rgba(69, 69, 92, 0.13), 0 0 0 1.5px rgba(255,255,255,0.13);
+          backdrop-filter: blur(8px) saturate(180%);
+          -webkit-backdrop-filter: blur(8px) saturate(180%);
+          transition: all 0.32s cubic-bezier(.31,.74,.56,1.17);
+          text-transform: uppercase;
+          letter-spacing: 1px;
+          filter: drop-shadow(0 12px 40px rgba(66,66,80,.08));
+          animation: float-bounce 2.6s ease-in-out infinite alternate;
+          pointer-events: auto; /* permite click sobre botón! */
+        }
+        @keyframes float-bounce {
+          0%   { transform: translateY(0); box-shadow: 0 10px 28px rgba(62,62,80,0.13);}
+          100% { transform: translateY(-9px) scale(1.035); box-shadow: 0 24px 50px rgba(122,122,144,0.18);}
+        }
+        .reservar-float-btn:hover {
+          background: linear-gradient(120deg,rgba(72,72,88,0.7) 0%,rgba(170,170,170,0.50) 100%);
+          color: #e7eeff;
+          transform: translateY(-3px) scale(1.065);
+          box-shadow: 0 22px 62px rgba(100, 148, 238, 0.22);
+          animation: pulseGlow 1.0s infinite alternate, float-bounce 2.6s ease-in-out infinite alternate;
+        }
+        @keyframes pulseGlow {
+          0% { filter: drop-shadow(0 0 0px #6b80fa99);}
+          100% { filter: drop-shadow(0 0 16px #88a7fa44);}
+        }
+        @media (max-width:600px) {
+          .reservar-float-btn {
+            top: unset;
+            bottom: 14vh;
+            right: 4vw;
+            left: unset;
+            padding: 1.1rem 1.1rem;
+            font-size: 1rem;
+            border-radius: 13px;
+          }
         }
         .contact-hero2-content {
           position: absolute;
@@ -171,7 +230,6 @@ const ContactForm = () => {
         .contact-hero2-form button:active {
           transform: translateY(0);
         }
-        /* Tablet */
         @media (max-width: 1024px) {
           .contact-hero2-content {
             left: auto;
@@ -182,7 +240,6 @@ const ContactForm = () => {
             max-width: 430px;
           }
         }
-        /* Tablet & móvil: El formulario se coloca centrado verticalmente, encima del mapa (z-index mayor), con width limitada */
         @media (max-width: 768px) {
           .contact-hero2 {
             align-items: flex-start;

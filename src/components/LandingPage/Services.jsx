@@ -280,7 +280,7 @@ const Services = () => {
                       }}
                       onClick={() => navigate("/reservas")}
                     >
-                      Solicitar Servicio
+                      Reservar
                     </button>
                   )}
                 </div>

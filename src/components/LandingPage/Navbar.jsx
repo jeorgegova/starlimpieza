@@ -128,12 +128,11 @@ const Navbar = () => {
           user-select: none;
         }
         .navbar-logo img {
-          height: 44px;
+          height: 80px;
           width: auto;
           max-width: 180px;
           border-radius: 12px;
-          box-shadow: 0 2px 14px rgba(30,116,216,0.07);
-          background: white;
+          background: none;
           padding: 3px 8px;
           transition: box-shadow 0.3s;
         }
@@ -266,7 +265,7 @@ const Navbar = () => {
         }
         @media (max-width: 800px) {
           .navbar-logo img {
-            height: 38px;
+            height: 44px;
           }
         }
         @media (max-width: 768px) {
@@ -283,7 +282,7 @@ const Navbar = () => {
         }
         @media (max-width: 480px) {
           .navbar-logo img {
-            height: 32px;
+            height: 38px;
             padding: 2px 4px;
             max-width: 100px;
           }
