@@ -86,14 +86,14 @@ const ContactForm = () => {
           right: 3vw;
           z-index: 10;
           padding: 1.1rem 2.2rem;
-          background: linear-gradient(135deg,rgba(130,130,130,0.34) 0%,rgba(60,60,60,0.36) 100%);
+          background: linear-gradient(135deg,rgba(32, 18, 226, 0.34) 0%,rgba(0, 0, 0, 0.36) 100%);
           color: #fff;
           font-size: 1.1rem;
           font-weight: 700;
           border: green 1px solid;
           border-radius: 18px;
           cursor: pointer;
-          box-shadow: 0 12px 38px rgba(69, 69, 92, 0.13), 0 0 0 1.5px rgba(255,255,255,0.13);
+          box-shadow: 0 12px 38px rgba(0, 0, 0, 0.13), 0 0 0 1.5px rgba(32, 18, 226, 0.34);
           backdrop-filter: blur(8px) saturate(180%);
           -webkit-backdrop-filter: blur(8px) saturate(180%);
           transition: all 0.32s cubic-bezier(.31,.74,.56,1.17);
