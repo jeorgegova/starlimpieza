@@ -1,17 +1,18 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { useNavigate } from "react-router-dom" // Import useNavigate from react-router-dom
+import { useNavigate } from "react-router-dom"
 
-// ✅ Importar las imágenes directamente
 import img1 from "../../assets/img1.png"
 import img2 from "../../assets/img2.png"
 import img3 from "../../assets/img3.png"
 import img4 from "../../assets/img4.png"
 import img5 from "../../assets/img5.png"
+import img6 from "../../assets/img6.png"
+import img7 from "../../assets/img7.png"
 
-// ✅ Usarlas en el array
-const backgrounds = [img1, img2, img3, img4, img5]
+const backgrounds = [img1, img2, img3, img4, img5, img6, img7]
+
 const Services = () => {
   const navigate = useNavigate()
   const [currentCard, setCurrentCard] = useState(0)
@@ -22,11 +23,12 @@ const Services = () => {
   const [arrowAnimated, setArrowAnimated] = useState(false)
   const isTransitioning = useRef(false)
   const containerRef = useRef(null)
+  const autoSlideTimer = useRef(null)
 
   const services = [
     {
       id: 1,
-      title: "Limpieza Residencial",
+      title: "Limpieza de casas",
       image: "🏠",
       description: "Servicios integrales de limpieza para hogares con tecnología avanzada y productos eco-friendly",
       color: "#64748b",
@@ -50,7 +52,7 @@ const Services = () => {
     },
     {
       id: 4,
-      title: "Cristales Premium",
+      title: "Limpiezas de Cristales",
       image: "✨",
       description: "Limpieza de cristales con técnicas nanotecnológicas para resultados impecables",
       color: "#0284c7",
@@ -58,13 +60,46 @@ const Services = () => {
     },
     {
       id: 5,
-      title: "Gestión de Terrenos",
-      image: "🏗️",
-      description: "Consultoría y venta de terrenos con asesoramiento integral personalizado",
+      title: "Limpiezas de Garajes",
+      image: "🚗",
+      description: "Siempre disponibles para una limpieza impecable. Mantenimiento de garajes comunitarios y privados para evitar suciedad y plagas.",
+      color: "#dc2626",
+      bgColor: "#fef2f2",
+    },
+    {
+      id: 6,
+      title: "Restaurantes",
+      image: "🍽️",
+      description: "El brillo no solo está en el plato. Limpieza especializada para restaurantes, incluyendo campanas de cocina y desengrase.",
       color: "#ea580c",
       bgColor: "#fff7ed",
     },
+    {
+      id: 7,
+      title: "Comunidades",
+      image: "🏘️",
+      description: "No limpie, solo llámenos. Servicios de limpieza para comunidades con equipos especializados y supervisión de calidad.",
+      color: "#7c2d12",
+      bgColor: "#fefbf3",
+    },
   ]
+
+  // Manejo de auto-slide que se reinicia después de cada cambio manual
+  const startAutoSlide = () => {
+    // Limpia el timer previo si existe
+    if (autoSlideTimer.current) clearTimeout(autoSlideTimer.current);
+    // Inicia un nuevo timer
+    autoSlideTimer.current = setTimeout(() => {
+      setCurrentCard(prev => (prev + 1) % services.length)
+    }, 4000)
+  }
+
+  // Inicia el timer solo cuando está visible
+  useEffect(() => {
+    if (isActive) startAutoSlide()
+    return () => clearTimeout(autoSlideTimer.current)
+    // eslint-disable-next-line
+  }, [currentCard, isActive, services.length])
 
   // Crossfade de fondo
   useEffect(() => {
@@ -97,6 +132,7 @@ const Services = () => {
     return () => observer.disconnect()
   }, [])
 
+  // Cambio manual de slide, reinicia el timer automático
   const handleCardClick = (index) => {
     if (!isTransitioning.current) {
       isTransitioning.current = true
@@ -104,6 +140,8 @@ const Services = () => {
       setTimeout(() => {
         isTransitioning.current = false
       }, 800)
+      // Reinicia el timer de auto-slide con cada cambio manual
+      startAutoSlide()
     }
   }
 
@@ -111,9 +149,7 @@ const Services = () => {
   const handlePrevCard = () => handleCardClick(currentCard === 0 ? services.length - 1 : currentCard - 1)
 
   const handleMouseEffect = (e, cardElement) => {
-    // Skip 3D effects on mobile for better performance
     if (window.innerWidth <= 768) return
-
     const rect = cardElement.getBoundingClientRect()
     const x = e.clientX - rect.left
     const y = e.clientY - rect.top
@@ -139,12 +175,10 @@ const Services = () => {
       ref={containerRef}
       className={`services-section${isActive ? " focused" : ""}${showEntrance ? " animate-in" : ""}`}
       style={{
-          
-          width: "95%",
-          height: "100%",
-        }}
+        width: "95%",
+        height: "100%",
+      }}
     >
-      {/* ... existing background code ... */}
       <div
         className="crossfade-bg"
         style={{
@@ -290,7 +324,6 @@ const Services = () => {
         })}
       </div>
 
-      {/* ... existing navigation dots and instructions ... */}
       <div className="nav-dots">
         {services.map((service, index) => (
           <div
@@ -300,8 +333,9 @@ const Services = () => {
           />
         ))}
       </div>
-      <div className="nav-inst">Usa las flechas o indicadores para navegar entre servicios</div>
-
+      <div className="nav-inst">
+        Cambia automáticamente cada 4 segundos o usa las flechas/dots
+      </div>
       <style>{`
         .services-section {
           min-height: 100vh;
@@ -321,6 +355,37 @@ const Services = () => {
           opacity: 1;
           transform: none;
           pointer-events: auto;
+        }
+
+        /* ✅ Auto-slide progress indicator */
+        .auto-slide-indicator {
+          position: absolute;
+          top: 12%;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 200px;
+          height: 3px;
+          background: rgba(100, 116, 139, 0.2);
+          border-radius: 2px;
+          overflow: hidden;
+          z-index: 10;
+        }
+
+        .progress-bar {
+          height: 100%;
+          background: linear-gradient(90deg, #475569, #64748b);
+          border-radius: 2px;
+          animation: progress 4s linear infinite;
+          transform-origin: left;
+        }
+
+        .progress-bar.paused {
+          animation-play-state: paused;
+        }
+
+        @keyframes progress {
+          from { transform: scaleX(0); }
+          to { transform: scaleX(1); }
         }
         
         /* Mobile-first card container */
@@ -585,6 +650,11 @@ const Services = () => {
             font-size: 2rem;
           }
           
+          .auto-slide-indicator {
+            top: 15%;
+            width: 250px;
+          }
+          
           .nav-arrow.left { left: 5%; }
           .nav-arrow.right { right: 5%; }
         }
@@ -627,6 +697,11 @@ const Services = () => {
           .services-title {
             font-size: 2.5rem;
             top: 8%;
+          }
+          
+          .auto-slide-indicator {
+            top: 18%;
+            width: 300px;
           }
           
           .nav-arrow {
