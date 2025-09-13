@@ -1,33 +1,34 @@
 import React, { useRef, useEffect, useState } from 'react';
 
+// MOCK de reseñas Google (ajusta o agrega más si lo necesitas)
 const testimonials = [
   {
-    text: "Hemos contratado sus servicios en varias ocasiones, siempre han sido puntuales, profesionales y con un trato muy personal, siempre pendientes de todos los detalles. Lo recomendamos!",
-    author: "fincas turismopals",
+    text: "Excelente atención y muy buen ambiente. ¡Volveré pronto!",
+    author_name: "María Gómez",
+    rating: 5,
+    relative_time_description: "Hace 3 semanas",
   },
   {
-    text: "Excelente servicio! Tengo perros y gatos y el sofá me quedó como nuevo. Muy profesionales en su trabajo, todo hecho impecable.",
-    author: "Jade.S",
+    text: "Buen lugar, aunque a veces está muy lleno. Recomiendo reservar.",
+    author_name: "Juan Pérez",
+    rating: 4,
+    relative_time_description: "Hace 2 meses",
   },
   {
-    text: "Perfecto trato y mejor atencion, una limpieza en mi piso y terraza perfecta en todos los aspectos.",
-    author: "Esteve Sandoval Alavedra",
+    text: "El servicio estuvo bien, pero el menú podría ser más variado.",
+    author_name: "Ana Torres",
+    rating: 3,
+    relative_time_description: "Hace 1 mes",
   },
   {
-    text: "Estamos muy contentos con los servicios de esta empresa. Los recomendamos ampliamente.",
-    author: "Isabelle Brunet",
-  },
-  {
-    text: "Grandes profesionales! Un servicio de 5 estrellas, los contratamos para limpiar nuestra casa y también nos ayudaron con otras dudas que teníamos muy amablemente! Sin dudas los volveremos a llamar.",
-    author: "Lisse Ramírez",
-  },
-  {
-    text: "Personal muy profesional. Hace tiempo que nos hace la limpieza y estamos satisfechos. Lo recomendamos!",
-    author: "Laura",
+    text: "Atención increíble y limpieza impecable. ¡Muy recomendado!",
+    author_name: "Esteban S.",
+    rating: 5,
+    relative_time_description: "Hace 5 meses",
   }
 ];
 
-const mod = (a, b) => ((a % b) + b) % b; // para indexado cíclico (prev/next)
+const mod = (a, b) => ((a % b) + b) % b; // para indexado cíclico
 
 const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
   const [current, setCurrent] = useState(0);
@@ -43,13 +44,9 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
           setIsVisible(entry.isIntersecting);
         });
       },
-      { threshold: 0.3 } // Se activa cuando el 30% de la sección está visible
+      { threshold: 0.3 }
     );
-
-    if (sectionRef.current) {
-      observer.observe(sectionRef.current);
-    }
-
+    if (sectionRef.current) observer.observe(sectionRef.current);
     return () => observer.disconnect();
   }, []);
 
@@ -59,24 +56,19 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
       clearInterval(timerRef.current);
       return;
     }
-
     timerRef.current = setInterval(() => {
       setCurrent(prev => mod(prev + 1, testimonials.length));
     }, interval);
-
     return () => clearInterval(timerRef.current);
   }, [isVisible, interval]);
 
-  // Resetear al primer testimonio cuando la sección se vuelve visible
+  // Reset al primer testimonio cuando se vuelve visible
   useEffect(() => {
-    if (isVisible) {
-      setCurrent(0);
-    }
+    if (isVisible) setCurrent(0);
   }, [isVisible]);
 
   const goto = idx => {
     setCurrent(idx);
-    // Reiniciar el timer después de navegación manual
     clearInterval(timerRef.current);
     if (isVisible) {
       timerRef.current = setInterval(() => {
@@ -88,11 +80,8 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
   const next = () => goto(mod(current + 1, testimonials.length));
   const prev = () => goto(mod(current - 1, testimonials.length));
 
-  // Pausa el autoplay al hacer hover
-  const handleMouseEnter = () => {
-    clearInterval(timerRef.current);
-  };
-
+  // Pausa autoplay al hacer hover
+  const handleMouseEnter = () => clearInterval(timerRef.current);
   const handleMouseLeave = () => {
     if (isVisible) {
       timerRef.current = setInterval(() => {
@@ -101,7 +90,7 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
     }
   };
 
-  // Calcula cartas a mostrar (centro, izquierda, derecha, puede variar para más blur aún)
+  // Estado de cada carta
   const getCardState = idx => {
     if (idx === current) return "active";
     if (idx === mod(current - 1, testimonials.length)) return "left";
@@ -124,7 +113,7 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
         justifyContent: "center",
       }}
     >
-      <h2>Lo que dicen nuestros clientes</h2>
+      <h2>Lo que dicen nuestros clientes en Google</h2>
 
       <div className="timeline-slider-arrows" style={{ marginBottom: 8 }}>
         <button onClick={prev} aria-label="Anterior" className="slider-arrow">{'‹'}</button>
@@ -149,8 +138,20 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
                 <div className="timeline-horizontal-dot" />
               </div>
               <div className="timeline-horizontal-content">
+                {/* Estrellas Google */}
+                <div style={{ marginBottom: '0.4rem', color: '#e0a800', fontWeight: 700 }}>
+                  {Array.from({ length: t.rating }).map((_, i) => <span key={i}>★</span>)}
+                  {Array.from({ length: 5 - t.rating }).map((_, i) => <span key={i} style={{ color: '#e0a80055' }}>★</span>)}
+                </div>
                 <p>{t.text}</p>
-                <p className="author">- {t.author}</p>
+                <p className="author">
+                  - {t.author_name}
+                  <span style={{
+                    fontSize: ".97em", color: "#7a8698", fontStyle: "normal", marginLeft: "0.5em"
+                  }}>
+                    {t.relative_time_description}
+                  </span>
+                </p>
               </div>
             </div>
           );
@@ -172,7 +173,7 @@ const HorizontalTimelineTestimonials = ({ interval = 3500 }) => {
       {/* Indicador de progreso del autoplay */}
       <div className="progress-indicator">
         <div
-          key={current}                      // ← Esto fuerza el reinicio de la animación
+          key={current}
           className="progress-bar"
           style={{
             animationDuration: `${interval}ms`,

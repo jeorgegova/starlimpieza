@@ -7,7 +7,7 @@ import HorizontalTimelineTestimonials from './components/LandingPage/Testimonial
 import ContactForm from './components/LandingPage/ContactForm';
 import Footer from './components/LandingPage/Footer';
 import AboutUs from './components/LandingPage/AboutUs';
-import Reserva from './components/Recervas';
+import Reserva from './components/Reservas/Reservas';
 
 function App() {
   const [currentSection, setCurrentSection] = useState('hero');

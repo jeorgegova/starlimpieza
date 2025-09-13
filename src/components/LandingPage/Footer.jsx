@@ -154,7 +154,7 @@ const Footer = ({ onNavigate }) => {
                 <span>📞</span>
                 <div>
                   <p style={styles.contactLabel}>Teléfono</p>
-                  <p>+34 XXX XXX XXX</p>
+                  <p>+34 643513174</p>
                 </div>
               </div>
               <div style={styles.contactItem}>

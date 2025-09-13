@@ -68,7 +68,7 @@ const Services = () => {
     },
     {
       id: 6,
-      title: "Restaurantes",
+      title: "Limpieza de Cocinas",
       image: "🍽️",
       description: "El brillo no solo está en el plato. Limpieza especializada para restaurantes, incluyendo campanas de cocina y desengrase.",
       color: "#ea580c",

@@ -64,7 +64,7 @@ const AboutUs = () => {
           <p>
             En <b>Star Limpiezas</b> somos una empresa especializada en limpieza y mantenimiento.
             Nuestro equipo profesional trabaja con compromiso y eficiencia para ofrecer soluciones adaptadas a cada cliente.
-            Con años de experiencia, garantizamos resultados impecables en limpieza general, cambios turísticos, limpiezas forestales, transporte de materiales y venta de terrenos.
+            Con años de experiencia, garantizamos resultados impecables en limpiurísticos, limpiezas forestales.
           </p>
           <span className="about-bold">
             Nuestra prioridad es la satisfacción del cliente—asegurando un servicio puntual, seguro y de calidad.
