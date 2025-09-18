@@ -41,8 +41,8 @@ const ContactForm = () => {
       </div>
       <div className="contact-hero2-content">
         <form className="contact-hero2-form">
-          <h2>Contáctanos</h2>
-          <div className="subtitle">¿Tienes una consulta? ¡Escríbenos!</div>
+          <h2>Contáctenos</h2>
+          <div className="subtitle">¿Tiene alguna duda? ¡Escríbanos!</div>
           <input type="text" placeholder="Nombre" required />
           <input type="email" placeholder="Email" required />
           <input type="text" placeholder="Asunto" required />
@@ -140,7 +140,7 @@ const ContactForm = () => {
           pointer-events: none;
         }
         .contact-hero2-form {
-          width: 100%;
+          width: 85%;
           display: flex;
           flex-direction: column;
           gap: 1.5rem;

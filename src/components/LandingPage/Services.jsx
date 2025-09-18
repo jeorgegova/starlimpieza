@@ -29,7 +29,7 @@ const Services = () => {
     {
       id: 1,
       title: "Limpieza de casas",
-      image: "🏠",
+      image: img1,
       description: "Servicios integrales de limpieza para hogares con tecnología avanzada y productos eco-friendly",
       color: "#64748b",
       bgColor: "#f8fafc",
@@ -37,7 +37,7 @@ const Services = () => {
     {
       id: 2,
       title: "Turismo & Airbnb",
-      image: "🏨",
+      image: img2,
       description: "Limpieza especializada entre huéspedes con protocolos de higiene premium",
       color: "#475569",
       bgColor: "#f1f5f9",
@@ -45,7 +45,7 @@ const Services = () => {
     {
       id: 3,
       title: "Servicios Forestales",
-      image: "🌲",
+      image: img3,
       description: "Mantenimiento ecológico y prevención de incendios con equipo especializado",
       color: "#059669",
       bgColor: "#f0fdf4",
@@ -53,7 +53,7 @@ const Services = () => {
     {
       id: 4,
       title: "Limpiezas de Cristales",
-      image: "✨",
+      image: img4,
       description: "Limpieza de cristales con técnicas nanotecnológicas para resultados impecables",
       color: "#0284c7",
       bgColor: "#f0f9ff",
@@ -61,15 +61,15 @@ const Services = () => {
     {
       id: 5,
       title: "Limpiezas de Garajes",
-      image: "🚗",
+      image: img5,
       description: "Siempre disponibles para una limpieza impecable. Mantenimiento de garajes comunitarios y privados para evitar suciedad y plagas.",
       color: "#dc2626",
       bgColor: "#fef2f2",
     },
     {
       id: 6,
-      title: "Limpieza de Cocinas",
-      image: "🍽️",
+      title: "Limpieza de Restaurantes",
+      image: img6,
       description: "El brillo no solo está en el plato. Limpieza especializada para restaurantes, incluyendo campanas de cocina y desengrase.",
       color: "#ea580c",
       bgColor: "#fff7ed",
@@ -77,7 +77,7 @@ const Services = () => {
     {
       id: 7,
       title: "Comunidades",
-      image: "🏘️",
+      image: img7,
       description: "No limpie, solo llámenos. Servicios de limpieza para comunidades con equipos especializados y supervisión de calidad.",
       color: "#7c2d12",
       bgColor: "#fefbf3",
@@ -280,7 +280,7 @@ const Services = () => {
                 onMouseLeave={(e) => isActiveCard && resetCard(e.currentTarget)}
               >
                 <div className="service-icon-section">
-                  <div className="service-emoji">{service.image}</div>
+                  <img src={service.image} alt={service.title} className="service-emoji" />
                   <div
                     className="service-number"
                     style={{
@@ -421,7 +421,10 @@ const Services = () => {
         }
         
         .service-emoji {
-          font-size: 2.5rem;
+          width: 2.5rem;
+          height: 2.5rem;
+          border-radius: 50%;
+          object-fit: cover;
           margin-bottom: 0.5rem;
           transition: transform 0.3s ease;
         }
@@ -677,7 +680,8 @@ const Services = () => {
           }
           
           .service-emoji {
-            font-size: 3rem;
+            width: 3rem;
+            height: 3rem;
           }
           
           .service-number {
