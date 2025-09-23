@@ -85,6 +85,26 @@ const calendarStyles = `
   }
 `
 
+const responsiveModalStyles = `
+  @media (max-width: 768px) {
+    .reservation-modal {
+      padding: 1rem !important;
+      min-width: 95vw !important;
+      max-width: 95vw !important;
+      max-height: 95vh !important;
+      margin: 1rem !important;
+    }
+    .reservation-modal-buttons {
+      flex-direction: column !important;
+      gap: 0.5rem !important;
+    }
+    .reservation-modal-buttons button {
+      width: 100% !important;
+      min-width: unset !important;
+    }
+  }
+`
+
 export default function ReservaMejorada() {
   // Estados principales
   const [service, setService] = useState(servicesOptions[0].value)
@@ -125,13 +145,35 @@ export default function ReservaMejorada() {
   const [editDate, setEditDate] = useState("")
   const [editService, setEditService] = useState("")
 
+  // Estados para modal de reserva
+  const [showReservationModal, setShowReservationModal] = useState(false)
+  const [reservationLocation, setReservationLocation] = useState("")
+  const [reservationAddress, setReservationAddress] = useState("")
+  const [reservationPhone, setReservationPhone] = useState("")
+
+  // Ubicaciones desde la base de datos
+  const [locationOptions, setLocationOptions] = useState([])
+
   useEffect(() => {
     fetchAllReservations()
+    fetchLocations()
     if (user) {
       fetchUserReservations()
     }
     setSelectedDate(null)
   }, [service, user])
+
+  // Prevenir scroll del body cuando el modal está abierto
+  useEffect(() => {
+    if (showReservationModal) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'unset';
+    }
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [showReservationModal]);
 
   useEffect(() => {
     const mappedEvents = [...reservedEvents]
@@ -191,6 +233,13 @@ export default function ReservaMejorada() {
     }
   }
 
+  async function fetchLocations() {
+    const { data, error } = await supabase.from("location").select("*")
+    if (!error && data) {
+      setLocationOptions(data)
+    }
+  }
+
   function handleSelectSlot({ start }) {
     const selected = new Date(start.setHours(0, 0, 0, 0))
     const today = new Date()
@@ -217,6 +266,10 @@ export default function ReservaMejorada() {
     }
 
     setSelectedDate(start)
+    setShowReservationModal(true)
+    setReservationLocation("")
+    setReservationAddress(user.address || "")
+    setReservationPhone(user.phone || "")
   }
 
   async function handleLogin(e) {
@@ -327,12 +380,20 @@ export default function ReservaMejorada() {
       return
     }
 
+    if (!reservationLocation || !reservationAddress || !reservationPhone) {
+      alert("Por favor completa todos los campos requeridos")
+      return
+    }
+
     const { error } = await supabase.from("user_services").insert([
       {
         user_id: user.id,
         service_name: service,
         assigned_date: selectedDate.toISOString().slice(0, 10),
         status: "confirmed",
+        location_id: reservationLocation,
+        address: reservationAddress,
+        phone: reservationPhone,
       },
     ])
 
@@ -343,6 +404,10 @@ export default function ReservaMejorada() {
       fetchAllReservations()
       fetchUserReservations()
       setSelectedDate(null)
+      setShowReservationModal(false)
+      setReservationLocation("")
+      setReservationAddress("")
+      setReservationPhone("")
     }
   }
 
@@ -398,7 +463,7 @@ export default function ReservaMejorada() {
 
   return (
     <>
-      <style>{calendarStyles}</style>
+      <style>{calendarStyles + responsiveModalStyles}</style>
 
       {/* Botón flotante de autenticación */}
       {!user && (
@@ -811,22 +876,14 @@ export default function ReservaMejorada() {
             </div>
 
             {/* Sección de confirmación de reserva */}
-            <div
-              style={{
-                background: selectedDate ? "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)" : "#f8fafc",
-                padding: "2rem",
-                borderRadius: 16,
-                border: selectedDate ? "2px solid #3b82f6" : "1px solid #e2e8f0",
-                marginBottom: "2rem",
-              }}
-            >
+            {selectedDate && (
               <div
                 style={{
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "space-between",
-                  flexWrap: "wrap",
-                  gap: "1rem",
+                  background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+                  padding: "2rem",
+                  borderRadius: 16,
+                  border: "2px solid #3b82f6",
+                  marginBottom: "2rem",
                 }}
               >
                 <div>
@@ -838,47 +895,25 @@ export default function ReservaMejorada() {
                       fontSize: "1.1rem",
                     }}
                   >
-                    📋 Resumen de tu reserva:
+                    📋 Fecha seleccionada:
                   </h4>
                   <div style={{ color: "#64748b" }}>
                     <strong>Servicio:</strong> {selectedService?.label}
                     <br />
                     <strong>Fecha:</strong>{" "}
-                    {selectedDate
-                      ? selectedDate.toLocaleDateString("es-ES", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })
-                      : "No seleccionada"}
+                    {selectedDate.toLocaleDateString("es-ES", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })}
                   </div>
+                  <p style={{ color: "#64748b", marginTop: "1rem" }}>
+                    Haz clic en la fecha nuevamente o selecciona otra para cambiar la selección.
+                  </p>
                 </div>
-                <button
-                  style={{
-                    background: selectedDate && user ? "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)" : "#94a3b8",
-                    color: "#fff",
-                    fontWeight: 700,
-                    padding: "1rem 2rem",
-                    border: "none",
-                    borderRadius: 12,
-                    cursor: selectedDate && user ? "pointer" : "not-allowed",
-                    fontSize: "1.1rem",
-                    boxShadow: selectedDate && user ? "0 8px 24px rgba(34,197,94,0.3)" : "none",
-                    transition: "all 0.3s ease",
-                    minWidth: 200,
-                  }}
-                  onClick={handleReserve}
-                  disabled={!selectedDate || !user}
-                >
-                  {!user
-                    ? "👤 Inicia sesión para reservar"
-                    : !selectedDate
-                      ? "📅 Selecciona una fecha"
-                      : "✅ Confirmar Reserva"}
-                </button>
               </div>
-            </div>
+            )}
           </>
         )}
 
@@ -953,6 +988,15 @@ export default function ReservaMejorada() {
                               month: "long",
                               day: "numeric",
                             })}
+                          </div>
+                          <div style={{ marginBottom: "0.25rem" }}>
+                            📍 <strong>Ubicación:</strong> {locationOptions.find(l => l.id === reservation.location_id)?.location || "Desconocida"}
+                          </div>
+                          <div style={{ marginBottom: "0.25rem" }}>
+                            🏠 <strong>Dirección:</strong> {reservation.address}
+                          </div>
+                          <div style={{ marginBottom: "0.25rem" }}>
+                            📞 <strong>Teléfono:</strong> {reservation.phone}
                           </div>
                           <div style={{ marginBottom: "0.25rem" }}>
                             ⏰ <strong>Estado:</strong>{" "}
@@ -1147,9 +1191,12 @@ export default function ReservaMejorada() {
                               day: "numeric",
                             })}
                           </div>
+                          <div>📍 Ubicación: {locationOptions.find(l => l.id === reservation.location_id)?.location || "Desconocida"}</div>
+                          <div>🏠 Dirección: {reservation.address}</div>
+                          <div>📞 Teléfono reserva: {reservation.phone}</div>
                           <div>@{reservation.users?.username}</div>
-                          {reservation.users?.phone && <div>{reservation.users.phone}</div>}
-                          {reservation.users?.email && <div>{reservation.users.email}</div>}
+                          {reservation.users?.phone && <div>📞 Teléfono usuario: {reservation.users.phone}</div>}
+                          {reservation.users?.email && <div>✉️ {reservation.users.email}</div>}
                           <div>ID: #{reservation.id}</div>
                         </div>
                       </div>
@@ -1823,6 +1870,7 @@ export default function ReservaMejorada() {
             </div>
 
             <div
+              className="reservation-modal-buttons"
               style={{
                 display: "flex",
                 gap: "1rem",
@@ -1950,6 +1998,266 @@ export default function ReservaMejorada() {
                 Eliminar
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de detalles de reserva */}
+      {showReservationModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 11000,
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowReservationModal(false)}
+        >
+          <div
+            className="reservation-modal"
+            style={{
+              background: "#fff",
+              padding: "2.5rem",
+              borderRadius: 24,
+              minWidth: 500,
+              maxWidth: 600,
+              maxHeight: "90vh",
+              overflowY: "auto",
+              boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+              position: "relative",
+              border: "1px solid #e5e7eb",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              <h3
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 800,
+                  color: "#1f2937",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                📋 Detalles de la Reserva
+              </h3>
+              <p style={{ color: "#64748b" }}>Completa la información para confirmar tu reserva</p>
+            </div>
+
+            {/* Resumen de la reserva */}
+            <div
+              style={{
+                background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+                padding: "1.5rem",
+                borderRadius: 16,
+                marginBottom: "2rem",
+                border: "1px solid #3b82f6",
+              }}
+            >
+              <h4 style={{ color: "#1f2937", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+                📋 Resumen:
+              </h4>
+              <div style={{ color: "#64748b" }}>
+                <strong>Servicio:</strong> {selectedService?.label}
+                <br />
+                <strong>Fecha:</strong>{" "}
+                {selectedDate
+                  ? selectedDate.toLocaleDateString("es-ES", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : ""}
+              </div>
+            </div>
+
+            {/* Información de precios */}
+            <div
+              style={{
+                background: service === "Limpieza de casas" ? "linear-gradient(135deg, #dcfce7 0%, #bbf7d0 100%)" : "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+                padding: "1.5rem",
+                borderRadius: 16,
+                marginBottom: "2rem",
+                border: service === "Limpieza de casas" ? "1px solid #22c55e" : "1px solid #f59e0b",
+              }}
+            >
+              <h4 style={{ color: "#1f2937", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+                💰 Información de Precios:
+              </h4>
+              {service === "Limpieza de casas" ? (
+                <div style={{ color: "#166534" }}>
+                  <strong>Precio: 20€ por hora</strong>
+                  <br />
+                  Se cobra por horas con un mínimo de 4 horas. Vendrán 2 personas (cada persona realiza 2 horas de trabajo).
+                </div>
+              ) : (
+                <div style={{ color: "#92400e" }}>
+                  <strong>Precio: Por cotización</strong>
+                  <br />
+                  Se enviará una cotización detallada al confirmar la reserva.
+                </div>
+              )}
+            </div>
+
+            {/* Formulario */}
+            <form>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  📍 Ubicación *
+                </label>
+                <select
+                  value={reservationLocation}
+                  onChange={(e) => setReservationLocation(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    backgroundColor: "#fff",
+                    transition: "all 0.3s ease",
+                  }}
+                  required
+                >
+                  <option value="">Selecciona una ubicación</option>
+                  {locationOptions.map((loc) => (
+                    <option key={loc.id} value={loc.id}>
+                      {loc.location}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  🏠 Dirección *
+                </label>
+                <input
+                  type="text"
+                  value={reservationAddress}
+                  onChange={(e) => setReservationAddress(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    transition: "all 0.3s ease",
+                  }}
+                  placeholder="Ej: Calle Mayor 123, Girona"
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: "2rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  📞 Teléfono *
+                </label>
+                <input
+                  type="tel"
+                  value={reservationPhone}
+                  onChange={(e) => setReservationPhone(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    transition: "all 0.3s ease",
+                  }}
+                  placeholder="+34 123 456 789"
+                  required
+                />
+              </div>
+
+              {/* Política de cancelaciones */}
+              <div
+                style={{
+                  background: "#fef2f2",
+                  padding: "1rem",
+                  borderRadius: 12,
+                  marginBottom: "2rem",
+                  border: "1px solid #fecaca",
+                }}
+              >
+                <strong style={{ color: "#dc2626" }}>⚠️ Política de Cancelaciones:</strong>
+                <p style={{ color: "#dc2626", margin: "0.5rem 0 0 0", fontSize: "0.9rem" }}>
+                  Cancelaciones con menos de 48 horas pierden la mitad del dinero. Cancelaciones con menos de 24 horas pierden todo el dinero.
+                </p>
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  justifyContent: "center",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setShowReservationModal(false)}
+                  style={{
+                    background: "#f8fafc",
+                    color: "#64748b",
+                    border: "1px solid #e2e8f0",
+                    borderRadius: 12,
+                    padding: "1rem 2rem",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    fontSize: "1rem",
+                  }}
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleReserve}
+                  style={{
+                    background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                    color: "#fff",
+                    fontWeight: 700,
+                    border: "none",
+                    borderRadius: 12,
+                    fontSize: "1rem",
+                    padding: "1rem 2rem",
+                    cursor: "pointer",
+                    transition: "all 0.3s ease",
+                    boxShadow: "0 8px 24px rgba(34,197,94,0.3)",
+                  }}
+                >
+                  ✅ Confirmar Reserva
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       )}
