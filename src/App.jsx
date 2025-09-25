@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
 import Navbar from './components/LandingPage/Navbar';
 import Hero from './components/LandingPage/Hero';
 import Services from './components/LandingPage/Services';
@@ -8,19 +8,40 @@ import ContactForm from './components/LandingPage/ContactForm';
 import Footer from './components/LandingPage/Footer';
 import AboutUs from './components/LandingPage/AboutUs';
 import Reserva from './components/Reservas/Reservas';
+import JobApplicationForm from './components/JobApplication/JobApplicationForm';
+import CookieConsent from './components/CookieConsent';
 
 function App() {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [currentSection, setCurrentSection] = useState('hero');
+  const [showJobModal, setShowJobModal] = useState(false);
   const sectionsRef = useRef({});
 
   // Función para scroll suave a una sección específica
   const scrollToSection = (sectionId) => {
     const element = document.getElementById(sectionId);
     if (element) {
-      element.scrollIntoView({ 
-        behavior: 'smooth',
-        block: 'start'
-      });
+      const navbarHeight = 80;
+      const elementPosition = element.offsetTop - navbarHeight;
+      window.scrollTo({ top: elementPosition, behavior: 'smooth' });
+    }
+  };
+
+  // Función para manejar navegación (scroll, route, o modal)
+  const handleNavigation = (id) => {
+    if (id.startsWith('/')) {
+      navigate(id);
+    } else if (id === 'job-modal') {
+      setShowJobModal(true);
+    } else {
+      // Scroll to section
+      if (location.pathname !== '/') {
+        navigate('/');
+        setTimeout(() => scrollToSection(id), 400);
+      } else {
+        scrollToSection(id);
+      }
     }
   };
 
@@ -56,27 +77,29 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <div className="scroll-smooth">
-        <Navbar currentSection={currentSection} onNavigate={scrollToSection} />
-        <Routes>
-          <Route 
-            path="/" 
-            element={
-              <main>
-                <Hero />
-                <Services />
-                <AboutUs />
-                <HorizontalTimelineTestimonials />
-                <ContactForm />
-              </main>
-            } 
-          />
-          <Route path="/reservas" element={<Reserva />} />
-        </Routes>
-        <Footer />
-      </div>
-    </Router>
+    <div className="scroll-smooth">
+      <Navbar currentSection={currentSection} navigationHandler={handleNavigation} />
+      <Routes>
+         <Route
+           path="/"
+           element={
+             <main>
+               <Hero />
+               <Services />
+               <AboutUs />
+               <HorizontalTimelineTestimonials />
+               <ContactForm />
+             </main>
+           }
+         />
+         <Route path="/reservas" element={<Reserva />} />
+       </Routes>
+       <Footer onNavigate={handleNavigation} />
+       <CookieConsent />
+       {showJobModal && (
+         <JobApplicationForm onClose={() => setShowJobModal(false)} />
+       )}
+    </div>
   );
 }
 

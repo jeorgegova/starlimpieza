@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import logo from '../../assets/logo.png';
 
-const Navbar = () => {
+const Navbar = ({ navigationHandler }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
   const location = useLocation();
@@ -16,24 +16,10 @@ const Navbar = () => {
 
   const toggleMenu = () => setIsMenuOpen(!isMenuOpen);
 
-  const handleNavClick = (sectionId) => {
+  const handleNavClick = (item) => {
     if (isMenuOpen) setIsMenuOpen(false);
 
-    const scrollToSection = () => {
-      const element = document.getElementById(sectionId);
-      if (element) {
-        const navbarHeight = 80;
-        const elementPosition = element.offsetTop - navbarHeight;
-        window.scrollTo({ top: elementPosition, behavior: 'smooth' });
-      }
-    };
-
-    if (location.pathname !== '/') {
-      navigate('/');
-      setTimeout(scrollToSection, 400);
-    } else {
-      scrollToSection();
-    }
+    navigationHandler(item.id);
   };
 
   const menuItems = [
@@ -41,30 +27,31 @@ const Navbar = () => {
     { name: 'Servicios', id: 'services' },
     { name: 'Nuestra Empresa', id: 'aboutUs' },
     { name: 'Testimonios', id: 'testimonials' },
-    { name: 'Contacto', id: 'contact' }
+    { name: 'Contacto', id: 'contact' },
+    { name: 'Trabaja con nosotros', id: 'job-modal' }
   ];
 
   return (
     <nav className="navbar">
       <div className="navbar-container">
         {/* Logo replace text */}
-        <div className="navbar-logo" onClick={() => handleNavClick('hero')}>
+        <div className="navbar-logo" onClick={() => navigationHandler('hero')}>
           <img src={logo} alt="Logo Star Limpiezas" />
         </div>
 
         <ul className={`navbar-menu desktop-menu`}>
-          {menuItems.map(item => (
-            <li key={item.name} className="navbar-menu-item">
-              <a
-                href={`#${item.id}`}
-                onClick={e => { e.preventDefault(); handleNavClick(item.id); }}
-                tabIndex={0}
-              >
-                {item.name}
-              </a>
-            </li>
-          ))}
-        </ul>
+           {menuItems.map(item => (
+             <li key={item.name} className="navbar-menu-item">
+               <a
+                 href="#"
+                 onClick={e => { e.preventDefault(); handleNavClick(item); }}
+                 tabIndex={0}
+               >
+                 {item.name}
+               </a>
+             </li>
+           ))}
+         </ul>
 
         {/* Hamburger */}
         <button
@@ -83,20 +70,20 @@ const Navbar = () => {
       {/* Mobile Dropdown Menu */}
       <div className={`navbar-dropdown${isMenuOpen ? ' open' : ''}`} style={{ display: isMobile ? 'block' : 'none' }}>
         <ul>
-          {menuItems.map((item, idx) => (
-            <li key={item.name} style={{
-              transition: `all 0.35s cubic-bezier(.42,0,.58,1) ${idx * 0.04}s`
-            }}>
-              <button
-                onClick={() => handleNavClick(item.id)}
-                className="navbar-dropdown-link"
-                tabIndex={0}
-              >
-                {item.name}
-              </button>
-            </li>
-          ))}
-        </ul>
+           {menuItems.map((item, idx) => (
+             <li key={item.name} style={{
+               transition: `all 0.35s cubic-bezier(.42,0,.58,1) ${idx * 0.04}s`
+             }}>
+               <button
+                 onClick={() => handleNavClick(item)}
+                 className="navbar-dropdown-link"
+                 tabIndex={0}
+               >
+                 {item.name}
+               </button>
+             </li>
+           ))}
+         </ul>
       </div>
 
       {/* --- CSS Styling (media-queries included) --- */}

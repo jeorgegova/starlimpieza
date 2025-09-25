@@ -1,0 +1,221 @@
+import React, { useState, useEffect } from 'react';
+import CookieSettings from './CookieSettings';
+import PrivacyPolicy from './PrivacyPolicy';
+
+const CookieConsent = () => {
+  const [showConsent, setShowConsent] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showPrivacyPolicy, setShowPrivacyPolicy] = useState(false);
+
+  useEffect(() => {
+    // Always show cookie consent on page load
+    setShowConsent(true);
+  }, []);
+
+  const acceptAllCookies = () => {
+    setShowConsent(false);
+  };
+
+  const openSettings = () => {
+    setShowSettings(true);
+  };
+
+  const openPrivacyPolicy = () => {
+    setShowPrivacyPolicy(true);
+  };
+
+  const closeSettings = () => {
+    setShowSettings(false);
+  };
+
+  const closePrivacyPolicy = () => {
+    setShowPrivacyPolicy(false);
+  };
+
+  if (!showConsent) return null;
+
+  return (
+    <>
+      <style>
+        {`
+          .cookie-consent-modal {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-top: 1px solid #e2e8f0;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.08);
+            z-index: 1000;
+            padding: 1.5rem;
+            animation: slideUp 0.5s ease-out;
+          }
+
+          .cookie-consent-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+            flex-wrap: wrap;
+          }
+
+          .cookie-consent-text {
+            flex: 1;
+            min-width: 300px;
+          }
+
+          .cookie-consent-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+          }
+
+          .cookie-consent-description {
+            color: #64748b;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 0;
+          }
+
+          .cookie-consent-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+          }
+
+          .cookie-consent-accept {
+            background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+          }
+
+          .cookie-consent-accept:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(34, 197, 94, 0.4);
+          }
+
+          .cookie-consent-settings {
+            background: transparent;
+            color: #64748b;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+
+          .cookie-consent-settings:hover {
+            background: #f8fafc;
+            border-color: #cbd5e1;
+          }
+
+          @keyframes slideUp {
+            from {
+              transform: translateY(100%);
+              opacity: 0;
+            }
+            to {
+              transform: translateY(0);
+              opacity: 1;
+            }
+          }
+
+          @media (max-width: 768px) {
+            .cookie-consent-modal {
+              padding: 1rem;
+            }
+            .cookie-consent-content {
+              flex-direction: column;
+              text-align: center;
+              gap: 1.5rem;
+            }
+            .cookie-consent-buttons {
+              width: 100%;
+              justify-content: center;
+            }
+            .cookie-consent-accept,
+            .cookie-consent-decline {
+              flex: 1;
+              max-width: 140px;
+            }
+          }
+        `}
+      </style>
+
+      <div className="cookie-consent-modal">
+        <div className="cookie-consent-content">
+          <div className="cookie-consent-text">
+            <div className="cookie-consent-title">
+              🍪 Cookies y Privacidad
+            </div>
+            <div className="cookie-consent-description">
+              Utilizamos cookies propias y de terceros para mejorar tu experiencia,
+              analizar el tráfico web y personalizar el contenido. Consulta nuestra{' '}
+              <button
+                onClick={openPrivacyPolicy}
+                style={{
+                  color: '#3b82f6',
+                  textDecoration: 'underline',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: 'inherit',
+                  padding: 0,
+                  fontFamily: 'inherit'
+                }}
+              >
+                política de privacidad
+              </button>{' '}
+              para más información sobre cómo utilizamos tus datos.
+            </div>
+          </div>
+
+          <div className="cookie-consent-buttons">
+            <button
+              className="cookie-consent-settings"
+              onClick={openSettings}
+            >
+              ⚙️ Ajustes
+            </button>
+            <button
+              className="cookie-consent-accept"
+              onClick={acceptAllCookies}
+            >
+              ✅ Aceptar Todas
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Cookie Settings Modal */}
+      {showSettings && (
+        <CookieSettings
+          onClose={closeSettings}
+          onAcceptAll={acceptAllCookies}
+        />
+      )}
+
+      {/* Privacy Policy Modal */}
+      {showPrivacyPolicy && (
+        <PrivacyPolicy onClose={closePrivacyPolicy} />
+      )}
+    </>
+  );
+};
+
+export default CookieConsent;

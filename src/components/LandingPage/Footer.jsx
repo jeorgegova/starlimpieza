@@ -170,24 +170,27 @@ const Footer = ({ onNavigate }) => {
 
         {/* Navegación */}
         <div style={styles.nav}>
-          <div style={styles.navBtns}>
-            <button style={styles.navBtn} onClick={() => onNavigate("hero")}>
-              Inicio
-            </button>
-            <button style={styles.navBtn} onClick={() => onNavigate("services")}>
-              Servicios
-            </button>
-            <button
-              style={styles.navBtn}
-              onClick={() => onNavigate("testimonials")}
-            >
-              Testimonios
-            </button>
-            <button style={styles.navBtn} onClick={() => onNavigate("contact")}>
-              Contacto
-            </button>
-          </div>
-        </div>
+           <div style={styles.navBtns}>
+             <button style={styles.navBtn} onClick={() => onNavigate("hero")}>
+               Inicio
+             </button>
+             <button style={styles.navBtn} onClick={() => onNavigate("services")}>
+               Servicios
+             </button>
+             <button
+               style={styles.navBtn}
+               onClick={() => onNavigate("testimonials")}
+             >
+               Testimonios
+             </button>
+             <button style={styles.navBtn} onClick={() => onNavigate("contact")}>
+               Contacto
+             </button>
+             <button style={styles.navBtn} onClick={() => onNavigate("job-modal")}>
+               Trabaja con nosotros
+             </button>
+           </div>
+         </div>
 
         {/* Copy */}
         <div style={styles.copy}>
