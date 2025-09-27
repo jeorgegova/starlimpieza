@@ -205,7 +205,7 @@ const Navbar = ({ navigationHandler }) => {
           opacity: 1;
           pointer-events: auto;
           visibility: visible;
-          max-height: 360px;
+          max-height: 500px;
           transition: all 0.38s cubic-bezier(.42,0,.58,1);
         }
         .navbar-dropdown ul {

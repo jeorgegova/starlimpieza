@@ -22,6 +22,17 @@ const servicesOptions = [
 ]
 
 const calendarStyles = `
+  @keyframes slideDown {
+    from {
+      transform: translateX(-50%) translateY(-100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  }
+
   .rbc-calendar {
     background-color: #fff;
     border-radius: 16px;
@@ -145,14 +156,26 @@ export default function ReservaMejorada() {
   const [editDate, setEditDate] = useState("")
   const [editService, setEditService] = useState("")
 
+  const [showReservationDetailModal, setShowReservationDetailModal] = useState(false)
+  const [reservationDetail, setReservationDetail] = useState(null)
+
+  // Estados para alertas en pantalla
+  const [alertMessage, setAlertMessage] = useState("")
+  const [alertType, setAlertType] = useState("") // "success" or "error"
+
   // Estados para modal de reserva
   const [showReservationModal, setShowReservationModal] = useState(false)
   const [reservationLocation, setReservationLocation] = useState("")
   const [reservationAddress, setReservationAddress] = useState("")
   const [reservationPhone, setReservationPhone] = useState("")
+  const [reservationShift, setReservationShift] = useState("")
 
   // Ubicaciones desde la base de datos
   const [locationOptions, setLocationOptions] = useState([])
+
+  useEffect(() => {
+    window.scrollTo(0, 0)
+  }, [])
 
   useEffect(() => {
     fetchAllReservations()
@@ -181,8 +204,8 @@ export default function ReservaMejorada() {
       // Agregar reservas del usuario actual con diferente color
       const userEvents = userReservations.map((r) => ({
         title: "Mi Reserva",
-        start: new Date(r.assigned_date),
-        end: new Date(r.assigned_date),
+        start: new Date(r.assigned_date + 'T12:00:00'),
+        end: new Date(r.assigned_date + 'T12:00:00'),
         allDay: true,
         resource: "my-reservation",
         reservationData: r,
@@ -191,6 +214,17 @@ export default function ReservaMejorada() {
     }
     setEvents(mappedEvents)
   }, [reservedEvents, userReservations, user])
+
+  // Auto-clear alert after 5 seconds
+  useEffect(() => {
+    if (alertMessage) {
+      const timer = setTimeout(() => {
+        setAlertMessage("")
+        setAlertType("")
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [alertMessage])
 
   async function fetchAllReservations() {
     setLoading(true)
@@ -209,8 +243,8 @@ export default function ReservaMejorada() {
         .filter((r) => !user || r.user_id !== user.id) // Excluir reservas del usuario actual
         .map((r) => ({
           title: "Reservado",
-          start: new Date(r.assigned_date),
-          end: new Date(r.assigned_date),
+          start: new Date(r.assigned_date + 'T12:00:00'),
+          end: new Date(r.assigned_date + 'T12:00:00'),
           allDay: true,
           resource: "reserved",
         }))
@@ -246,18 +280,51 @@ export default function ReservaMejorada() {
     today.setHours(0, 0, 0, 0)
 
     if (selected < today) {
-      alert("No puedes reservar fechas pasadas")
+      setAlertMessage("No puedes reservar fechas pasadas")
+      setAlertType("error")
       return
     }
 
-    const isReserved = events.some((ev) => {
-      const evStart = new Date(ev.start.setHours(0, 0, 0, 0))
-      return evStart.getTime() === selected.getTime()
-    })
+    const dateStr = `${selected.getFullYear()}-${String(selected.getMonth() + 1).padStart(2, '0')}-${String(selected.getDate()).padStart(2, '0')}`
+
+    let isReserved = false
+    if (service === "Limpieza de casas") {
+      const reservationsOnDate = allReservations.filter(r =>
+        r.assigned_date === dateStr &&
+        r.service_name === "Limpieza de casas" &&
+        (!user || r.user_id !== user.id)
+      )
+      isReserved = reservationsOnDate.length >= 2
+    } else {
+      const reservationsOnDate = allReservations.filter(r =>
+        r.assigned_date === dateStr &&
+        r.service_name === service &&
+        (!user || r.user_id !== user.id)
+      )
+      isReserved = reservationsOnDate.length > 0
+    }
 
     if (isReserved) {
-      alert("Esta fecha ya está ocupada. Por favor elige otra fecha.")
+      if (service === "Limpieza de casas") {
+        setAlertMessage("Esta fecha ya tiene dos reservas para Limpieza de casas. Por favor elige otra fecha.")
+        setAlertType("error")
+      } else {
+        setAlertMessage("Esta fecha ya está ocupada. Por favor elige otra fecha.")
+        setAlertType("error")
+      }
       return
+    }
+
+    // Check if user already has 2 reservations on this date for Limpieza de casas
+    if (service === "Limpieza de casas" && user) {
+      const userReservationsOnDate = userReservations.filter(r =>
+        r.assigned_date === dateStr && r.service_name === "Limpieza de casas"
+      )
+      if (userReservationsOnDate.length >= 2) {
+        setAlertMessage("Ya hay dos reservas para esta fecha.")
+        setAlertType("error")
+        return
+      }
     }
 
     if (!user) {
@@ -270,6 +337,7 @@ export default function ReservaMejorada() {
     setReservationLocation("")
     setReservationAddress(user.address || "")
     setReservationPhone(user.phone || "")
+    setReservationShift("")
   }
 
   async function handleLogin(e) {
@@ -345,7 +413,8 @@ export default function ReservaMejorada() {
     setUser(newUser)
     clearAuthFields()
     setShowAuthModal(false)
-    alert("¡Cuenta creada exitosamente! Has iniciado sesión automáticamente.")
+    setAlertMessage("¡Cuenta creada exitosamente! Has iniciado sesión automáticamente.")
+    setAlertType("success")
   }
 
   function clearAuthFields() {
@@ -371,36 +440,71 @@ export default function ReservaMejorada() {
 
   async function handleReserve() {
     if (!selectedDate) {
-      alert("Por favor selecciona una fecha para reservar")
+      setAlertMessage("Por favor selecciona una fecha para reservar")
+      setAlertType("error")
       return
     }
 
     if (!user) {
-      alert("Debes iniciar sesión para hacer una reserva")
+      setAlertMessage("Debes iniciar sesión para hacer una reserva")
+      setAlertType("error")
       return
     }
 
     if (!reservationLocation || !reservationAddress || !reservationPhone) {
-      alert("Por favor completa todos los campos requeridos")
+      setAlertMessage("Por favor completa todos los campos requeridos")
+      setAlertType("error")
       return
     }
 
+    if (service === "Limpieza de casas" && !reservationShift) {
+      setAlertMessage("Por favor selecciona una jornada")
+      setAlertType("error")
+      return
+    }
+
+    if (service === "Limpieza de casas") {
+      const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
+      const { data: existingShift, error: shiftError } = await supabase
+        .from("user_services")
+        .select("id")
+        .eq("assigned_date", dateStr)
+        .eq("service_name", "Limpieza de casas")
+        .eq("shift", reservationShift)
+
+      if (shiftError) {
+        setAlertMessage("Error al verificar disponibilidad: " + shiftError.message)
+        setAlertType("error")
+        return
+      }
+
+      if (existingShift.length > 0) {
+        setAlertMessage("Esta jornada ya está reservada para esta fecha. Por favor elige otra jornada o fecha.")
+        setAlertType("error")
+        return
+      }
+    }
+
+    const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
     const { error } = await supabase.from("user_services").insert([
       {
         user_id: user.id,
         service_name: service,
-        assigned_date: selectedDate.toISOString().slice(0, 10),
+        assigned_date: dateStr,
         status: "confirmed",
         location_id: reservationLocation,
         address: reservationAddress,
         phone: reservationPhone,
+        ...(service === "Limpieza de casas" && { shift: reservationShift }),
       },
     ])
 
     if (error) {
-      alert("Error al crear la reserva: " + error.message)
+      setAlertMessage("Error al crear la reserva: " + error.message)
+      setAlertType("error")
     } else {
-      alert("¡Reserva creada exitosamente!")
+      setAlertMessage("¡Reserva creada exitosamente!")
+      setAlertType("success")
       fetchAllReservations()
       fetchUserReservations()
       setSelectedDate(null)
@@ -408,6 +512,7 @@ export default function ReservaMejorada() {
       setReservationLocation("")
       setReservationAddress("")
       setReservationPhone("")
+      setReservationShift("")
     }
   }
 
@@ -415,9 +520,11 @@ export default function ReservaMejorada() {
     const { error } = await supabase.from("user_services").delete().eq("id", reservationId)
 
     if (error) {
-      alert("Error al eliminar la reserva")
+      setAlertMessage("Error al eliminar la reserva")
+      setAlertType("error")
     } else {
-      alert("Reserva eliminada exitosamente")
+      setAlertMessage("Reserva eliminada exitosamente")
+      setAlertType("success")
       fetchAllReservations()
       fetchUserReservations()
       setShowDeleteModal(false)
@@ -427,7 +534,8 @@ export default function ReservaMejorada() {
 
   async function handleEditReservation() {
     if (!editDate || !editService) {
-      alert("Por favor completa todos los campos")
+      setAlertMessage("Por favor completa todos los campos")
+      setAlertType("error")
       return
     }
 
@@ -440,9 +548,11 @@ export default function ReservaMejorada() {
       .eq("id", reservationToEdit.id)
 
     if (error) {
-      alert("Error al actualizar la reserva: " + error.message)
+      setAlertMessage("Error al actualizar la reserva: " + error.message)
+      setAlertType("error")
     } else {
-      alert("Reserva actualizada exitosamente")
+      setAlertMessage("Reserva actualizada exitosamente")
+      setAlertType("success")
       fetchAllReservations()
       fetchUserReservations()
       setShowEditModal(false)
@@ -457,6 +567,11 @@ export default function ReservaMejorada() {
     setEditDate(reservation.assigned_date)
     setEditService(reservation.service_name)
     setShowEditModal(true)
+  }
+
+  function openReservationDetail(reservation) {
+    setReservationDetail(reservation)
+    setShowReservationDetailModal(true)
   }
 
   const selectedService = servicesOptions.find((s) => s.value === service)
@@ -551,6 +666,51 @@ export default function ReservaMejorada() {
             que mejor te convenga.
           </p>
         </div>
+
+        {/* Alerta en pantalla */}
+        {alertMessage && (
+          <div
+            style={{
+              position: "fixed",
+              top: 100,
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 13000,
+              maxWidth: 500,
+              width: "90%",
+              padding: "1rem 1.5rem",
+              borderRadius: 12,
+              boxShadow: "0 10px 40px rgba(0,0,0,0.15)",
+              border: alertType === "success" ? "1px solid #22c55e" : "1px solid #ef4444",
+              backgroundColor: alertType === "success" ? "#f0fdf4" : "#fef2f2",
+              color: alertType === "success" ? "#166534" : "#dc2626",
+              fontWeight: 600,
+              textAlign: "center",
+              animation: "slideDown 0.3s ease-out",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
+              <span style={{ fontSize: "1.2rem" }}>
+                {alertType === "success" ? "✅" : "❌"}
+              </span>
+              <span>{alertMessage}</span>
+              <button
+                onClick={() => setAlertMessage("")}
+                style={{
+                  marginLeft: "auto",
+                  background: "none",
+                  border: "none",
+                  fontSize: "1.2rem",
+                  cursor: "pointer",
+                  color: "inherit",
+                  opacity: 0.7,
+                }}
+              >
+                ×
+              </button>
+            </div>
+          </div>
+        )}
 
         {/* Información del usuario */}
         {user && (
@@ -849,11 +1009,19 @@ export default function ReservaMejorada() {
                     checkDate.setHours(0, 0, 0, 0)
 
                     const isPast = checkDate < today
-                    const isReserved = events.some((ev) => {
+                    const eventsOnDate = events.filter((ev) => {
                       const evDate = new Date(ev.start)
                       evDate.setHours(0, 0, 0, 0)
                       return evDate.getTime() === checkDate.getTime()
                     })
+
+                    let isReserved = false
+                    if (service === "Limpieza de casas") {
+                      const reservedOnDate = eventsOnDate.filter(ev => ev.resource === "reserved")
+                      isReserved = reservedOnDate.length >= 2
+                    } else {
+                      isReserved = eventsOnDate.length > 0
+                    }
 
                     return {
                       style: {
@@ -875,45 +1043,6 @@ export default function ReservaMejorada() {
               )}
             </div>
 
-            {/* Sección de confirmación de reserva */}
-            {selectedDate && (
-              <div
-                style={{
-                  background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
-                  padding: "2rem",
-                  borderRadius: 16,
-                  border: "2px solid #3b82f6",
-                  marginBottom: "2rem",
-                }}
-              >
-                <div>
-                  <h4
-                    style={{
-                      fontWeight: 700,
-                      color: "#1f2937",
-                      marginBottom: "0.5rem",
-                      fontSize: "1.1rem",
-                    }}
-                  >
-                    📋 Fecha seleccionada:
-                  </h4>
-                  <div style={{ color: "#64748b" }}>
-                    <strong>Servicio:</strong> {selectedService?.label}
-                    <br />
-                    <strong>Fecha:</strong>{" "}
-                    {selectedDate.toLocaleDateString("es-ES", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })}
-                  </div>
-                  <p style={{ color: "#64748b", marginTop: "1rem" }}>
-                    Haz clic en la fecha nuevamente o selecciona otra para cambiar la selección.
-                  </p>
-                </div>
-              </div>
-            )}
           </>
         )}
 
@@ -957,7 +1086,9 @@ export default function ReservaMejorada() {
                       border: "1px solid #e5e7eb",
                       boxShadow: "0 4px 12px rgba(0,0,0,0.05)",
                       transition: "all 0.3s ease",
+                      cursor: "pointer",
                     }}
+                    onClick={() => openReservationDetail(reservation)}
                   >
                     <div
                       style={{
@@ -1016,15 +1147,27 @@ export default function ReservaMejorada() {
                       </div>
                       <div
                         style={{
-                          background: new Date(reservation.assigned_date) < new Date() ? "#fef2f2" : "#f0f9ff",
-                          color: new Date(reservation.assigned_date) < new Date() ? "#dc2626" : "#2563eb",
+                          background: (() => {
+                            const today = new Date()
+                            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+                            return reservation.assigned_date < todayStr ? "#fef2f2" : "#f0f9ff"
+                          })(),
+                          color: (() => {
+                            const today = new Date()
+                            const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+                            return reservation.assigned_date < todayStr ? "#dc2626" : "#2563eb"
+                          })(),
                           padding: "0.5rem 1rem",
                           borderRadius: 8,
                           fontSize: "0.85rem",
                           fontWeight: 600,
                         }}
                       >
-                        {new Date(reservation.assigned_date) < new Date() ? "✅ Completada" : "⏳ Próxima"}
+                        {(() => {
+                          const today = new Date()
+                          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`
+                          return reservation.assigned_date < todayStr ? "✅ Completada" : "⏳ Próxima"
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -1251,85 +1394,6 @@ export default function ReservaMejorada() {
           </div>
         )}
 
-        {/* Mostrar todas las reservas para usuarios no logueados */}
-        {!user && (
-          <div style={{ marginTop: "2rem" }}>
-            <h3
-              style={{
-                fontWeight: 700,
-                fontSize: "1.2rem",
-                color: "#1f2937",
-                marginBottom: "1rem",
-              }}
-            >
-              📊 Reservas actuales para: {selectedService?.label}
-            </h3>
-
-            {allReservations.length === 0 ? (
-              <div
-                style={{
-                  textAlign: "center",
-                  padding: "2rem",
-                  background: "#f8fafc",
-                  borderRadius: 16,
-                  border: "1px solid #e2e8f0",
-                  color: "#64748b",
-                }}
-              >
-                🎉 ¡No hay reservas! Todas las fechas están disponibles.
-              </div>
-            ) : (
-              <div
-                style={{
-                  display: "grid",
-                  gap: "0.75rem",
-                  maxHeight: "300px",
-                  overflowY: "auto",
-                  padding: "1rem",
-                  background: "#f8fafc",
-                  borderRadius: 16,
-                  border: "1px solid #e2e8f0",
-                }}
-              >
-                {allReservations.map((r) => (
-                  <div
-                    key={r.id}
-                    style={{
-                      background: "#fff",
-                      padding: "1rem",
-                      borderRadius: 12,
-                      border: "1px solid #e5e7eb",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "1rem",
-                    }}
-                  >
-                    <span style={{ fontSize: "1.5rem" }}>📅</span>
-                    <div>
-                      <div
-                        style={{
-                          fontWeight: 600,
-                          color: "#1f2937",
-                          marginBottom: "0.25rem",
-                        }}
-                      >
-                        {new Date(r.assigned_date).toLocaleDateString("es-ES", {
-                          weekday: "long",
-                          year: "numeric",
-                          month: "long",
-                          day: "numeric",
-                        })}
-                      </div>
-                      <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
-                        Reservado por: {r.users?.name || "Usuario"}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
       </div>
 
       {/* Modal de autenticación mejorado */}
@@ -2198,6 +2262,39 @@ export default function ReservaMejorada() {
                 />
               </div>
 
+              {service === "Limpieza de casas" && (
+                <div style={{ marginBottom: "2rem" }}>
+                  <label
+                    style={{
+                      fontWeight: 600,
+                      color: "#374151",
+                      display: "block",
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    🕐 Jornada *
+                  </label>
+                  <select
+                    value={reservationShift}
+                    onChange={(e) => setReservationShift(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "0.75rem",
+                      borderRadius: 12,
+                      border: "2px solid #e5e7eb",
+                      fontSize: "1rem",
+                      backgroundColor: "#fff",
+                      transition: "all 0.3s ease",
+                    }}
+                    required
+                  >
+                    <option value="">Selecciona una jornada</option>
+                    <option value="mañana">Mañana</option>
+                    <option value="tarde">Tarde</option>
+                  </select>
+                </div>
+              )}
+
               {/* Política de cancelaciones */}
               <div
                 style={{
@@ -2258,6 +2355,136 @@ export default function ReservaMejorada() {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de detalles de reserva */}
+      {showReservationDetailModal && reservationDetail && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 11000,
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowReservationDetailModal(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              padding: "2rem",
+              borderRadius: 20,
+              maxWidth: 500,
+              width: "90%",
+              boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+              border: "1px solid #e5e7eb",
+              position: "relative",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              onClick={() => setShowReservationDetailModal(false)}
+              style={{
+                position: "absolute",
+                top: 10,
+                right: 10,
+                background: "none",
+                border: "none",
+                fontSize: "1.5rem",
+                cursor: "pointer",
+                color: "#64748b",
+              }}
+            >
+              ×
+            </button>
+            <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+              <h3
+                style={{
+                  fontSize: "1.3rem",
+                  fontWeight: 700,
+                  color: "#1f2937",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                Detalles de la Reserva
+              </h3>
+              <p style={{ color: "#64748b", lineHeight: 1.5 }}>
+                Reserva #{reservationDetail.id}
+              </p>
+            </div>
+
+            <div style={{ marginBottom: "1.5rem" }}>
+              <h4 style={{ color: "#1f2937", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+                📋 Servicio: {servicesOptions.find((s) => s.value === reservationDetail.service_name)?.label || reservationDetail.service_name}
+              </h4>
+              <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
+                <div style={{ marginBottom: "0.25rem" }}>
+                  📅 <strong>Fecha:</strong>{" "}
+                  {new Date(reservationDetail.assigned_date).toLocaleDateString("es-ES", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </div>
+                {reservationDetail.shift && (
+                  <div style={{ marginBottom: "0.25rem" }}>
+                    🕐 <strong>Jornada:</strong> {reservationDetail.shift === "mañana" ? "Mañana" : "Tarde"}
+                  </div>
+                )}
+                <div style={{ marginBottom: "0.25rem" }}>
+                  📍 <strong>Ubicación:</strong> {locationOptions.find(l => l.id === reservationDetail.location_id)?.location || "Desconocida"}
+                </div>
+                <div style={{ marginBottom: "0.25rem" }}>
+                  🏠 <strong>Dirección:</strong> {reservationDetail.address}
+                </div>
+                <div style={{ marginBottom: "0.25rem" }}>
+                  📞 <strong>Teléfono:</strong> {reservationDetail.phone}
+                </div>
+                <div style={{ marginBottom: "0.25rem" }}>
+                  ⏰ <strong>Estado:</strong>{" "}
+                  <span
+                    style={{
+                      color: reservationDetail.status === "confirmed" ? "#22c55e" : "#f59e0b",
+                      fontWeight: 600,
+                    }}
+                  >
+                    {reservationDetail.status === "confirmed" ? "Confirmada" : "Pendiente"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                onClick={() => setShowReservationDetailModal(false)}
+                style={{
+                  background: "#f8fafc",
+                  color: "#64748b",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 12,
+                  padding: "0.75rem 1.5rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}
