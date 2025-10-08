@@ -189,6 +189,7 @@ GROUP BY service_type;
 -- Create discount configuration table
 CREATE TABLE IF NOT EXISTS public.service_discount_config (
   id uuid NOT NULL DEFAULT extensions.uuid_generate_v4(),
+  user_id uuid REFERENCES public.users(id) ON DELETE CASCADE,
   service_type text NOT NULL,
   services_required integer NOT NULL,
   discount_percentage decimal(5,2) NOT NULL,
@@ -196,12 +197,13 @@ CREATE TABLE IF NOT EXISTS public.service_discount_config (
   updated_at timestamp with time zone DEFAULT now(),
 
   CONSTRAINT service_discount_config_pkey PRIMARY KEY (id),
-  CONSTRAINT service_discount_config_unique UNIQUE (service_type, services_required),
+  CONSTRAINT service_discount_config_user_service_unique UNIQUE (user_id, service_type, services_required),
   CONSTRAINT service_discount_config_services_required_check CHECK (services_required > 0),
   CONSTRAINT service_discount_config_discount_percentage_check CHECK (discount_percentage >= 0 AND discount_percentage <= 100)
 ) TABLESPACE pg_default;
 
 -- Create indexes
+CREATE INDEX IF NOT EXISTS idx_service_discount_config_user_id ON public.service_discount_config(user_id);
 CREATE INDEX IF NOT EXISTS idx_service_discount_config_service_type ON public.service_discount_config(service_type);
 CREATE INDEX IF NOT EXISTS idx_service_discount_config_services_required ON public.service_discount_config(services_required);
 
@@ -218,8 +220,11 @@ CREATE POLICY "Admins can manage discount configurations" ON public.service_disc
         )
     );
 
-CREATE POLICY "Everyone can read discount configurations" ON public.service_discount_config
-    FOR SELECT USING (true);
+CREATE POLICY "Users can view their own discount configurations" ON public.service_discount_config
+    FOR SELECT USING (user_id = auth.uid());
+
+CREATE POLICY "Everyone can read global discount configurations" ON public.service_discount_config
+    FOR SELECT USING (user_id IS NULL);
 
 -- ===========================================
 -- SECTION 8: Discount Calculation Functions
@@ -274,6 +279,7 @@ BEGIN
         us.user_id = p_user_id
         AND us.service_name = sdc.service_type
         AND us.status = 'completed'
+    WHERE sdc.user_id = p_user_id OR sdc.user_id IS NULL
     GROUP BY sdc.service_type, sdc.services_required
     HAVING COUNT(us.id) >= sdc.services_required
     ORDER BY sdc.service_type, MAX(sdc.discount_percentage) DESC;
@@ -305,30 +311,41 @@ $$;
 -- SECTION 9: Default Discount Configurations
 -- =========================================--
 
--- Insert default discount configurations
-INSERT INTO public.service_discount_config (service_type, services_required, discount_percentage) VALUES
-('Limpieza de casas', 3, 5.00),
-('Limpieza de casas', 5, 10.00),
-('Limpieza de casas', 10, 15.00),
-('Turismo & Airbnb', 2, 5.00),
-('Turismo & Airbnb', 5, 10.00),
-('Turismo & Airbnb', 8, 15.00),
-('Servicios Forestales', 3, 7.00),
-('Servicios Forestales', 6, 12.00),
-('Cristales Premium', 2, 5.00),
-('Cristales Premium', 4, 10.00),
-('Gestión de Terrenos', 2, 6.00),
-('Gestión de Terrenos', 4, 12.00),
-('Limpiezas de Garajes', 3, 5.00),
-('Limpiezas de Garajes', 6, 10.00),
-('Limpieza de Cocinas', 2, 5.00),
-('Limpieza de Cocinas', 4, 10.00),
-('Comunidades', 3, 8.00),
-('Comunidades', 6, 15.00)
-ON CONFLICT (service_type, services_required) DO NOTHING;
+-- Insert default global discount configurations
+INSERT INTO public.service_discount_config (user_id, service_type, services_required, discount_percentage) VALUES
+(NULL, 'Limpieza de casas', 3, 5.00),
+(NULL, 'Limpieza de casas', 5, 10.00),
+(NULL, 'Limpieza de casas', 10, 15.00),
+(NULL, 'Turismo & Airbnb', 2, 5.00),
+(NULL, 'Turismo & Airbnb', 5, 10.00),
+(NULL, 'Turismo & Airbnb', 8, 15.00),
+(NULL, 'Servicios Forestales', 3, 7.00),
+(NULL, 'Servicios Forestales', 6, 12.00),
+(NULL, 'Cristales Premium', 2, 5.00),
+(NULL, 'Cristales Premium', 4, 10.00),
+(NULL, 'Gestión de Terrenos', 2, 6.00),
+(NULL, 'Gestión de Terrenos', 4, 12.00),
+(NULL, 'Limpiezas de Garajes', 3, 5.00),
+(NULL, 'Limpiezas de Garajes', 6, 10.00),
+(NULL, 'Limpieza de Cocinas', 2, 5.00),
+(NULL, 'Limpieza de Cocinas', 4, 10.00),
+(NULL, 'Comunidades', 3, 8.00),
+(NULL, 'Comunidades', 6, 15.00)
+ON CONFLICT (user_id, service_type, services_required) DO NOTHING;
 
 -- ===========================================
--- SECTION 10: Alternative - Personalized Discounts (Optional)
+-- SECTION 10: Grant permissions for RPC functions
+-- =========================================--
+
+-- Grant execute permissions on RPC functions
+GRANT EXECUTE ON FUNCTION get_customer_discounts(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_customer_completed_services(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_service_discount(uuid, text) TO authenticated;
+GRANT EXECUTE ON FUNCTION get_customer_vip_tier(uuid) TO authenticated;
+GRANT EXECUTE ON FUNCTION add_loyalty_points(uuid, text, integer) TO authenticated;
+
+-- ===========================================
+-- SECTION 11: Alternative - Personalized Discounts (Optional)
 -- =========================================--
 
 -- If you want personalized discounts per user instead of global ones,

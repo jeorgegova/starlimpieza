@@ -188,15 +188,20 @@ export default function MyReservationsView({
                       </h4>
                       <span
                         style={{
-                          background: reservation.status === "confirmed" ? "#dcfce7" : "#fef3c7",
-                          color: reservation.status === "confirmed" ? "#166534" : "#92400e",
+                          background:
+                            reservation.status === "confirmed" ? "#dcfce7" :
+                            reservation.status === "completed" ? "#dbeafe" : "#fef3c7",
+                          color:
+                            reservation.status === "confirmed" ? "#166534" :
+                            reservation.status === "completed" ? "#1e40af" : "#92400e",
                           padding: "0.2rem 0.6rem",
                           borderRadius: 16,
                           fontSize: "0.7rem",
                           fontWeight: 600,
                         }}
                       >
-                        {reservation.status === "confirmed" ? "Confirmada" : "Pendiente"}
+                        {reservation.status === "confirmed" ? "Confirmada" :
+                         reservation.status === "completed" ? "Completada" : "Pendiente"}
                       </span>
                     </div>
                     <div style={{ color: "#64748b", fontSize: "0.85rem", lineHeight: 1.4 }}>

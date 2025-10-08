@@ -101,11 +101,14 @@ export default function ReservationDetailModal({
               ⏰ <strong>Estado:</strong>{" "}
               <span
                 style={{
-                  color: reservationDetail.status === "confirmed" ? "#22c55e" : "#f59e0b",
+                  color:
+                    reservationDetail.status === "confirmed" ? "#22c55e" :
+                    reservationDetail.status === "completed" ? "#3b82f6" : "#f59e0b",
                   fontWeight: 600,
                 }}
               >
-                {reservationDetail.status === "confirmed" ? "Confirmada" : "Pendiente"}
+                {reservationDetail.status === "confirmed" ? "Confirmada" :
+                 reservationDetail.status === "completed" ? "Completada" : "Pendiente"}
               </span>
             </div>
           </div>

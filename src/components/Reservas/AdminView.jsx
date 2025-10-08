@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { supabase } from '../../supabaseClient'
 import { servicesOptions } from './constants'
 
 export default function AdminView({
@@ -17,6 +18,43 @@ export default function AdminView({
   const [dateFilter, setDateFilter] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
+  const [loyaltyData, setLoyaltyData] = useState({})
+
+  useEffect(() => {
+    fetchLoyaltyData()
+  }, [allReservations])
+
+  const fetchLoyaltyData = async () => {
+    if (allReservations.length === 0) return
+
+    const userIds = [...new Set(allReservations.map(r => r.user_id).filter(id => id))]
+
+    if (userIds.length === 0) return
+
+    try {
+      const { data, error } = await supabase
+        .from('customer_loyalty')
+        .select('user_id, points')
+        .in('user_id', userIds)
+
+      if (error) throw error
+
+      const loyaltyMap = {}
+      data.forEach(item => {
+        loyaltyMap[item.user_id] = (loyaltyMap[item.user_id] || 0) + item.points
+      })
+      setLoyaltyData(loyaltyMap)
+    } catch (error) {
+      console.error('Error fetching loyalty data:', error)
+    }
+  }
+
+  const getLoyaltyTier = (points) => {
+    if (points >= 100) return { name: "VIP Oro", color: "#FFD700" }
+    if (points >= 50) return { name: "VIP Plata", color: "#C0C0C0" }
+    if (points >= 25) return { name: "VIP Bronce", color: "#CD7F32" }
+    return { name: "Regular", color: "#6B7280" }
+  }
 
   // Filter reservations based on search and filters
   const filteredReservations = allReservations.filter(reservation => {
@@ -508,7 +546,8 @@ export default function AdminView({
                       max-width: 80px !important;
                     }
                     .admin-table th:nth-child(6), .admin-table td:nth-child(6),
-                    .admin-table th:nth-child(7), .admin-table td:nth-child(7) {
+                    .admin-table th:nth-child(7), .admin-table td:nth-child(7),
+                    .admin-table th:nth-child(8), .admin-table td:nth-child(8) {
                       display: none !important;
                     }
                     .action-buttons-mobile {
@@ -663,6 +702,19 @@ export default function AdminView({
                     </th>
                     <th style={{
                       padding: "1rem 1.5rem",
+                      textAlign: "left",
+                      fontWeight: "700",
+                      fontSize: "0.8rem",
+                      textTransform: "uppercase",
+                      letterSpacing: "0.5px",
+                      borderRight: "1px solid rgba(255,255,255,0.1)"
+                    }}>
+                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                        🎁 Lealtad
+                      </span>
+                    </th>
+                    <th style={{
+                      padding: "1rem 1.5rem",
                       textAlign: "center",
                       fontWeight: "700",
                       fontSize: "0.8rem",
@@ -791,6 +843,31 @@ export default function AdminView({
                           {reservation.status === "confirmed" ? "Confirmada" :
                            reservation.status === "completed" ? "Completada" : "Pendiente"}
                         </span>
+                      </td>
+                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
+                        {(() => {
+                          const points = loyaltyData[reservation.user_id] || 0
+                          const tier = getLoyaltyTier(points)
+                          return (
+                            <div style={{ textAlign: "center" }}>
+                              <div style={{
+                                fontSize: "0.9rem",
+                                fontWeight: "600",
+                                color: tier.color,
+                                marginBottom: "0.25rem"
+                              }}>
+                                {tier.name}
+                              </div>
+                              <div style={{
+                                fontSize: "0.8rem",
+                                color: "#64748b",
+                                fontFamily: "monospace"
+                              }}>
+                                {points} pts
+                              </div>
+                            </div>
+                          )
+                        })()}
                       </td>
                       <td style={{ padding: "1rem 1.5rem", textAlign: "center" }}>
                         <div className="action-buttons-mobile" style={{ display: "flex", gap: "0.5rem", justifyContent: "center", alignItems: "center" }}>

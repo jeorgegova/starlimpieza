@@ -543,6 +543,19 @@ export default function ReservaMejorada() {
   }
 
   async function handleStatusChange(reservationId, newStatus) {
+    // First, get the reservation details to know user_id and service_name
+    const { data: reservation, error: fetchError } = await supabase
+      .from("user_services")
+      .select("user_id, service_name, status")
+      .eq("id", reservationId)
+      .single()
+
+    if (fetchError) {
+      setAlertMessage("Error al obtener detalles de la reserva: " + fetchError.message)
+      setAlertType("error")
+      return
+    }
+
     const { error } = await supabase
       .from("user_services")
       .update({ status: newStatus })
@@ -552,6 +565,19 @@ export default function ReservaMejorada() {
       setAlertMessage("Error al actualizar el estado: " + error.message)
       setAlertType("error")
     } else {
+      // If marking as completed and it wasn't completed before, add loyalty points
+      if (newStatus === 'completed' && reservation.status !== 'completed') {
+        const { error: loyaltyError } = await supabase.rpc('add_loyalty_points', {
+          p_user_id: reservation.user_id,
+          p_service_type: reservation.service_name
+        })
+
+        if (loyaltyError) {
+          console.error('Error adding loyalty points:', loyaltyError)
+          // Don't show error to user, just log it
+        }
+      }
+
       setAlertMessage(`Reserva ${newStatus === 'confirmed' ? 'confirmada' : 'completada'} exitosamente`)
       setAlertType("success")
       fetchAllReservations()

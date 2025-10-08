@@ -74,16 +74,31 @@ export default function UserLoyaltyView({ user }) {
 
   const fetchCompletedServices = async () => {
     try {
-      const { data, error } = await supabase.rpc('get_customer_completed_services', {
-        p_user_id: user.id
-      })
+      console.log('Fetching completed services for user:', user.id)
 
-      if (error) throw error
+      // Query user_services table directly to count completed services
+      const { data: userServices, error } = await supabase
+        .from('user_services')
+        .select('service_name, status')
+        .eq('user_id', user.id)
 
+      if (error) {
+        console.error('Error fetching user services:', error)
+        throw error
+      }
+
+      console.log('All user services:', userServices)
+
+      // Count completed services by service type
       const servicesCount = {}
-      data.forEach(item => {
-        servicesCount[item.service_type] = item.completed_count
+      userServices.forEach(service => {
+        if (service.status === 'completed') {
+          const serviceType = service.service_name
+          servicesCount[serviceType] = (servicesCount[serviceType] || 0) + 1
+        }
       })
+
+      console.log('Completed services count by type:', servicesCount)
       setCompletedServices(servicesCount)
     } catch (error) {
       console.error('Error fetching completed services:', error)
