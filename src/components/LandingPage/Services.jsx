@@ -26,7 +26,7 @@ import restaurantHoodDegreasingService from "../../assets/restaurant-hood-degrea
 import femaleCookCleaning from "../../assets/female-cook-cleaning.jpg"
 import limpiezaZonasComunes from "../../assets/Limpieza-de-zonas-comunes.jpg"
 import mantenimientoInstalaciones from "../../assets/Mantenimiento-e-Instalaciones.jpg"
-import supervisionCalidad from "../../assets/Supervisión-de-calidad.jpg"
+import supervisionCalidad from "../../assets/Supervisioon-de-calidad.jpg"
 import restaurantDiningAreaCleaning from "../../assets/restaurant-dining-area-cleaning.jpg"
 import garagePestControl from "../../assets/garage-pest-control-treatment.jpg"
 import img8 from "../../assets/img8.png"
@@ -37,7 +37,7 @@ const Services = () => {
   const [showModal, setShowModal] = useState(false)
   const [activeSection, setActiveSection] = useState(0)
   const sectionRefs = useRef([])
-  
+
 
   const services = [
     {
