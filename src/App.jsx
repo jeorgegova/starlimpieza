@@ -49,7 +49,7 @@ function App() {
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '-50% 0px -50% 0px', // Activa cuando la sección está en el centro
+      rootMargin: '-40% 0px -60% 0px', // Mejor detección para services
       threshold: 0
     };
 
