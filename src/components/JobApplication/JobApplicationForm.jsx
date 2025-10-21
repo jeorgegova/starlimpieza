@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import emailjs from '@emailjs/browser';
-import { supabase } from '../../supabaseClient';
+import { supabase, supabaseKey } from '../../supabaseClient';
 
 const JobApplicationForm = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,37 +14,42 @@ const JobApplicationForm = ({ onClose }) => {
       const formData = new FormData(e.target);
       const file = formData.get('cv');
 
-      // 👉 Subir archivo a Supabase
+      // 👉 Subir CV a Supabase Storage
       const fileName = `${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
-        .from('cvs') // 🔹 bucket en Supabase
+        .from('cvs')
         .upload(fileName, file);
 
       if (uploadError) throw uploadError;
 
-      // 👉 Obtener URL pública
-      const { data: publicUrl } = supabase.storage
+      const { data: publicUrlData } = supabase.storage
         .from('cvs')
         .getPublicUrl(fileName);
 
-      // 👉 Preparar datos para EmailJS
-      const emailData = {
-        name: formData.get('name'),
-        phone: formData.get('phone'),
-        email: formData.get('email'),
-        has_license: formData.get('has_license') ? 'Sí' : 'No',
-        contract_type: formData.get('contract_type'),
-        skills: formData.get('skills'),
-        cv_url: publicUrl.publicUrl, // 👈 se envía el link, no el archivo
-      };
+      const cv_url = publicUrlData.publicUrl;
 
-      // 👉 Enviar correo
-      await emailjs.send(
-        'service_2g82yt8',  // tu Service ID
-        'template_pfu14kr', // tu Template ID
-        emailData,
-        'wg6VEAFeyepnPJf1L' // tu Public Key
+      // 👉 Enviar datos a la función de Supabase
+      const response = await fetch(
+        'https://gvivprtrbphfvedbiice.supabase.co/functions/v1/send-job-application',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: formData.get('name'),
+            phone: formData.get('phone'),
+            email: formData.get('email'),
+            has_license: formData.get('has_license') ? 'Sí' : 'No',
+            contract_type: formData.get('contract_type'),
+            skills: formData.get('skills'),
+            cv_url,
+          }),
+        }
       );
+
+      const result = await response.json();
+      if (!result.success) throw new Error(result.error);
 
       setMessage('✅ ¡Aplicación enviada exitosamente!');
       e.target.reset();
