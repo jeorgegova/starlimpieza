@@ -88,6 +88,16 @@ export default function ReservationDetailModal({
                 🕐 <strong>Jornada:</strong> {reservationDetail.shift === "mañana" ? "Mañana" : "Tarde"}
               </div>
             )}
+            {reservationDetail.hours && (
+              <div style={{ marginBottom: "0.25rem" }}>
+                ⏱️ <strong>Horas:</strong> {reservationDetail.hours}
+              </div>
+            )}
+            {reservationDetail.hours && (
+              <div style={{ marginBottom: "0.25rem" }}>
+                💰 <strong>Valor del Servicio:</strong> {Math.round(reservationDetail.hours * 20)}€
+              </div>
+            )}
             <div style={{ marginBottom: "0.25rem" }}>
               📍 <strong>Ubicación:</strong> {locationOptions.find(l => l.id === reservationDetail.location_id)?.location || "Desconocida"}
             </div>

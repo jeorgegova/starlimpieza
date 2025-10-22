@@ -3,6 +3,17 @@
 -- Execute this in Supabase SQL Editor to migrate existing schema
 -- ===========================================
 
+-- Add hours column to user_services if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns
+                   WHERE table_schema = 'public'
+                   AND table_name = 'user_services'
+                   AND column_name = 'hours') THEN
+        ALTER TABLE public.user_services ADD COLUMN hours integer DEFAULT 4;
+    END IF;
+END $$;
+
 -- Add user_id column to service_discount_config if it doesn't exist
 DO $$
 BEGIN

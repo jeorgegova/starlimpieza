@@ -79,10 +79,15 @@ export default function ReservaMejorada() {
   const [reservationAddress, setReservationAddress] = useState("")
   const [reservationPhone, setReservationPhone] = useState("")
   const [reservationShift, setReservationShift] = useState("")
+  const [reservationHours, setReservationHours] = useState(4)
   const [isAdminCreating, setIsAdminCreating] = useState(false)
   const [adminSelectedClient, setAdminSelectedClient] = useState(null)
   const [showClientSelectionModal, setShowClientSelectionModal] = useState(false)
   const [allUsers, setAllUsers] = useState([])
+
+  // Estado para modal de confirmación
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+  const [confirmationData, setConfirmationData] = useState(null)
 
   // Ubicaciones desde la base de datos
   const [locationOptions, setLocationOptions] = useState([])
@@ -268,6 +273,7 @@ export default function ReservaMejorada() {
     setReservationAddress(user.address || "")
     setReservationPhone(user.phone || "")
     setReservationShift("")
+    setReservationHours(4)
   }
 
   async function handleLogin(e) {
@@ -384,6 +390,25 @@ export default function ReservaMejorada() {
     setActiveTab("calendar")
   }
 
+  function handleConfirmReserve(applicableDiscount = 0) {
+    // Calculate total cost
+    const totalCost = service === "Limpieza de casas" ? Math.round(reservationHours * 20 * (1 - applicableDiscount / 100)) : null
+
+    // Set confirmation data
+    setConfirmationData({
+      totalCost,
+      service,
+      selectedDate,
+      reservationHours,
+      applicableDiscount,
+      isAdminCreating,
+      adminSelectedClient,
+    })
+
+    // Show confirmation modal
+    setShowConfirmationModal(true)
+  }
+
   async function handleReserve() {
     if (!selectedDate) {
       setAlertMessage("Por favor selecciona una fecha para reservar")
@@ -410,8 +435,8 @@ export default function ReservaMejorada() {
       return
     }
 
-    if (service === "Limpieza de casas" && !reservationShift) {
-      setAlertMessage("Por favor selecciona una jornada")
+    if (service === "Limpieza de casas" && (!reservationShift || !reservationHours)) {
+      setAlertMessage("Por favor selecciona una jornada y las horas de servicio")
       setAlertType("error")
       return
     }
@@ -450,7 +475,7 @@ export default function ReservaMejorada() {
         location_id: reservationLocation,
         address: reservationAddress,
         phone: reservationPhone,
-        ...(service === "Limpieza de casas" && { shift: reservationShift }),
+        ...(service === "Limpieza de casas" && { shift: reservationShift, hours: reservationHours }),
       },
     ])
 
@@ -458,20 +483,30 @@ export default function ReservaMejorada() {
       setAlertMessage("Error al crear la reserva: " + error.message)
       setAlertType("error")
     } else {
-      setAlertMessage(`¡Reserva creada exitosamente${isAdminCreating ? ` para ${adminSelectedClient.name}` : ''}!`)
+      const totalCost = service === "Limpieza de casas" ? Math.round(reservationHours * 20 * (1 - (confirmationData?.applicableDiscount || 0) / 100)) : null
+      setAlertMessage(`¡Reserva creada exitosamente${isAdminCreating ? ` para ${adminSelectedClient.name}` : ''}!${totalCost ? ` Valor a cancelar: ${totalCost}€. El administrador se comunicará para confirmar el servicio y proceder con el pago.` : ''}`)
       setAlertType("success")
+
+      // Close both modals immediately
+      setShowReservationModal(false)
+      setShowConfirmationModal(false)
+
+      // Update calendar view
       fetchAllReservations()
       if (!isAdminCreating) {
         fetchUserReservations()
       }
+
+      // Reset form state
       setSelectedDate(null)
-      setShowReservationModal(false)
       setReservationLocation("")
       setReservationAddress("")
       setReservationPhone("")
       setReservationShift("")
+      setReservationHours(4)
       setIsAdminCreating(false)
       setAdminSelectedClient(null)
+      setConfirmationData(null)
     }
   }
 
@@ -540,6 +575,7 @@ export default function ReservaMejorada() {
     setReservationAddress(client.address || "")
     setReservationPhone(client.phone || "")
     setReservationShift("")
+    setReservationHours(4)
   }
 
   async function handleStatusChange(reservationId, newStatus) {
@@ -766,10 +802,169 @@ export default function ReservaMejorada() {
         setReservationPhone={setReservationPhone}
         reservationShift={reservationShift}
         setReservationShift={setReservationShift}
+        reservationHours={reservationHours}
+        setReservationHours={setReservationHours}
         handleReserve={handleReserve}
         locationOptions={locationOptions}
         user={user}
+        onConfirmReserve={handleConfirmReserve}
       />
+
+      {/* Confirmation Modal */}
+      {showConfirmationModal && confirmationData && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 12000,
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowConfirmationModal(false)}
+        >
+          <div
+            className="confirmation-modal"
+            style={{
+              background: "#fff",
+              padding: "2.5rem",
+              borderRadius: 24,
+              minWidth: 400,
+              maxWidth: 500,
+              boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+              position: "relative",
+              border: "1px solid #e5e7eb",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              <h3
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 800,
+                  color: "#1f2937",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                Confirmar Reserva
+              </h3>
+              <p style={{ color: "#64748b" }}>¿Estás seguro de que deseas confirmar esta reserva?</p>
+            </div>
+
+            <div
+              style={{
+                background: "linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)",
+                padding: "1.5rem",
+                borderRadius: 16,
+                marginBottom: "2rem",
+                border: "1px solid #3b82f6",
+              }}
+            >
+              <h4 style={{ color: "#1f2937", marginBottom: "0.5rem", fontSize: "1.1rem" }}>
+                📋 Detalles de la Reserva:
+              </h4>
+              <div style={{ color: "#64748b" }}>
+                <strong>Servicio:</strong> {confirmationData.service}
+                <br />
+                <strong>Fecha:</strong>{" "}
+                {confirmationData.selectedDate
+                  ? confirmationData.selectedDate.toLocaleDateString("es-ES", {
+                      weekday: "long",
+                      year: "numeric",
+                      month: "long",
+                      day: "numeric",
+                    })
+                  : ""}
+                {confirmationData.service === "Limpieza de casas" && (
+                  <>
+                    <br />
+                    <strong>Horas:</strong> {confirmationData.reservationHours}
+                    <br />
+                    <strong>Valor del Servicio:</strong> {confirmationData.totalCost}€
+                  </>
+                )}
+              </div>
+            </div>
+
+            {confirmationData.totalCost && (
+              <div
+                style={{
+                  background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+                  padding: "1.5rem",
+                  borderRadius: 16,
+                  marginBottom: "2rem",
+                  border: "2px solid #f59e0b",
+                  textAlign: "center",
+                }}
+              >
+                <h4 style={{ color: "#92400e", marginBottom: "0.5rem", fontSize: "1.2rem" }}>
+                  💰 Valor a Cancelar
+                </h4>
+                <div style={{ fontSize: "1.8rem", fontWeight: "bold", color: "#92400e" }}>
+                  {confirmationData.totalCost}€
+                </div>
+                {confirmationData.applicableDiscount > 0 && (
+                  <div style={{ fontSize: "0.9rem", color: "#92400e", marginTop: "0.5rem" }}>
+                    (Incluye {confirmationData.applicableDiscount}% de descuento aplicado)
+                  </div>
+                )}
+                <div style={{ fontSize: "0.9rem", color: "#92400e", marginTop: "1rem" }}>
+                  El administrador del sistema se comunicará para confirmar el servicio y proceder con el proceso de pago.
+                </div>
+              </div>
+            )}
+
+            <div
+              style={{
+                display: "flex",
+                gap: "1rem",
+                justifyContent: "center",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => setShowConfirmationModal(false)}
+                style={{
+                  background: "#f8fafc",
+                  color: "#64748b",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 12,
+                  padding: "1rem 2rem",
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  fontSize: "1rem",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleReserve}
+                style={{
+                  background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                  color: "#fff",
+                  fontWeight: 700,
+                  border: "none",
+                  borderRadius: 12,
+                  fontSize: "1rem",
+                  padding: "1rem 2rem",
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                  boxShadow: "0 8px 24px rgba(34,197,94,0.3)",
+                }}
+              >
+                ✅ Confirmar y Reservar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <ReservationDetailModal
         showReservationDetailModal={showReservationDetailModal}

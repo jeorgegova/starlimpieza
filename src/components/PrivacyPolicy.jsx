@@ -1,13 +1,33 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import './PrivacyPolicy.css';
 
 const PrivacyPolicy = ({ onClose }) => {
+  useEffect(() => {
+    // Prevent body scroll when modal is open
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, []);
+
+  const handleOverlayClick = (e) => {
+    if (e.target === e.currentTarget) {
+      onClose();
+    }
+  };
+
   return (
     <>
-      <div className="privacy-policy-overlay" onClick={onClose}>
+      <div className="privacy-policy-overlay" onClick={handleOverlayClick}>
         <div className="privacy-policy-modal" onClick={(e) => e.stopPropagation()}>
           <div className="privacy-policy-header">
-            <button className="privacy-policy-close" onClick={onClose}>×</button>
+            <button 
+              className="privacy-policy-close" 
+              onClick={onClose}
+              aria-label="Cerrar política de privacidad"
+            >
+              ×
+            </button>
             <h2 className="privacy-policy-title">📋 Política de Privacidad</h2>
           </div>
 
@@ -147,7 +167,7 @@ const PrivacyPolicy = ({ onClose }) => {
               </p>
               <p className="privacy-contact-text">
                 <strong>Email:</strong>{' '}
-                <a href="mailto:privacidad@starlimpieza.com" className="privacy-contact-link">
+                <a href="mailto:info@starlimpiezas.com" className="privacy-contact-link">
                   info@starlimpiezas.com
                 </a>
               </p>

@@ -15,9 +15,12 @@ export default function ReservationModal({
   setReservationPhone,
   reservationShift,
   setReservationShift,
+  reservationHours,
+  setReservationHours,
   handleReserve,
   locationOptions,
   user,
+  onConfirmReserve,
 }) {
   const [applicableDiscount, setApplicableDiscount] = useState(0)
   const [loadingDiscount, setLoadingDiscount] = useState(false)
@@ -93,7 +96,7 @@ export default function ReservationModal({
               marginBottom: "0.5rem",
             }}
           >
-            📋 Detalles de la Reserva
+            Detalles de la Reserva
           </h3>
           <p style={{ color: "#64748b" }}>Completa la información para confirmar tu reserva</p>
         </div>
@@ -144,6 +147,16 @@ export default function ReservationModal({
               <strong>Precio: 20€ por hora</strong>
               <br />
               Se cobra por horas con un mínimo de 4 horas. Vendrán 2 personas (cada persona realiza 2 horas de trabajo).
+              {reservationHours && (
+                <div style={{ marginTop: "0.5rem", fontSize: "1.1rem" }}>
+                  <strong>Costo total: {Math.round(reservationHours * 20 * (1 - applicableDiscount / 100))}€</strong>
+                  {applicableDiscount > 0 && (
+                    <span style={{ color: "#22c55e", marginLeft: "0.5rem" }}>
+                      (con {applicableDiscount}% descuento aplicado)
+                    </span>
+                  )}
+                </div>
+              )}
               {applicableDiscount > 0 && (
                 <div style={{
                   marginTop: "1rem",
@@ -271,36 +284,72 @@ export default function ReservationModal({
           </div>
 
           {service === "Limpieza de casas" && (
-            <div style={{ marginBottom: "2rem" }}>
-              <label
-                style={{
-                  fontWeight: 600,
-                  color: "#374151",
-                  display: "block",
-                  marginBottom: "0.5rem",
-                }}
-              >
-                🕐 Jornada *
-              </label>
-              <select
-                value={reservationShift}
-                onChange={(e) => setReservationShift(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: 12,
-                  border: "2px solid #e5e7eb",
-                  fontSize: "1rem",
-                  backgroundColor: "#fff",
-                  transition: "all 0.3s ease",
-                }}
-                required
-              >
-                <option value="">Selecciona una jornada</option>
-                <option value="mañana">Mañana</option>
-                <option value="tarde">Tarde</option>
-              </select>
-            </div>
+            <>
+              <div style={{ marginBottom: "1.5rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  ⏱️ Horas de servicio *
+                </label>
+                <select
+                  value={reservationHours}
+                  onChange={(e) => setReservationHours(parseInt(e.target.value))}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    backgroundColor: "#fff",
+                    transition: "all 0.3s ease",
+                  }}
+                  required
+                >
+                  <option value="">Selecciona horas</option>
+                  <option value="4">4 horas (mínimo)</option>
+                  <option value="5">5 horas</option>
+                  <option value="6">6 horas</option>
+                  <option value="7">7 horas</option>
+                  <option value="8">8 horas</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: "2rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  🕐 Jornada *
+                </label>
+                <select
+                  value={reservationShift}
+                  onChange={(e) => setReservationShift(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.75rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    backgroundColor: "#fff",
+                    transition: "all 0.3s ease",
+                  }}
+                  required
+                >
+                  <option value="">Selecciona una jornada</option>
+                  <option value="mañana">Mañana</option>
+                  <option value="tarde">Tarde</option>
+                </select>
+              </div>
+            </>
           )}
 
           {/* Política de cancelaciones */}
@@ -346,7 +395,13 @@ export default function ReservationModal({
             </button>
             <button
               type="button"
-              onClick={handleReserve}
+              onClick={() => {
+                if (onConfirmReserve) {
+                  onConfirmReserve(applicableDiscount);
+                } else {
+                  handleReserve();
+                }
+              }}
               style={{
                 background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
                 color: "#fff",
@@ -363,6 +418,32 @@ export default function ReservationModal({
               ✅ Confirmar Reserva
             </button>
           </div>
+
+          {/* Costo total display */}
+          {service === "Limpieza de casas" && reservationHours && (
+            <div
+              style={{
+                marginTop: "2rem",
+                padding: "1.5rem",
+                background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
+                borderRadius: 16,
+                border: "2px solid #f59e0b",
+                textAlign: "center",
+              }}
+            >
+              <h4 style={{ color: "#92400e", marginBottom: "0.5rem", fontSize: "1.2rem" }}>
+                💰 Costo Total del Servicio
+              </h4>
+              <div style={{ fontSize: "1.5rem", fontWeight: "bold", color: "#92400e" }}>
+                {Math.round(reservationHours * 20 * (1 - applicableDiscount / 100))}€
+              </div>
+              {applicableDiscount > 0 && (
+                <div style={{ fontSize: "0.9rem", color: "#92400e", marginTop: "0.5rem" }}>
+                  (Incluye {applicableDiscount}% de descuento aplicado)
+                </div>
+              )}
+            </div>
+          )}
         </form>
       </div>
     </div>
