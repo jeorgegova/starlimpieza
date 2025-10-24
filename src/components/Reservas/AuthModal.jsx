@@ -1,16 +1,17 @@
+"use client"
+
 export default function AuthModal({
   showAuthModal,
   setShowAuthModal,
   authMode,
   setAuthMode,
-  username,
-  setUsername,
+  email,
+  setEmail,
   password,
   setPassword,
   handleLogin,
   loginError,
-  regUsername,
-  setRegUsername,
+  loginLoading,
   regPassword,
   setRegPassword,
   regName,
@@ -24,6 +25,7 @@ export default function AuthModal({
   handleRegister,
   regError,
   regSuccess,
+  regLoading,
   clearAuthFields,
 }) {
   if (!showAuthModal) return null
@@ -50,8 +52,10 @@ export default function AuthModal({
           background: "#fff",
           padding: "2.5rem",
           borderRadius: 24,
-          minWidth: 400,
-          maxWidth: 500,
+          minWidth: 420,
+          maxWidth: 520,
+          maxHeight: "90vh",
+          overflowY: "auto",
           boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
           position: "relative",
           border: "1px solid #e5e7eb",
@@ -63,7 +67,7 @@ export default function AuthModal({
             <div style={{ textAlign: "center", marginBottom: "2rem" }}>
               <h3
                 style={{
-                  fontSize: "1.5rem",
+                  fontSize: "1.75rem",
                   fontWeight: 800,
                   color: "#1f2937",
                   marginBottom: "0.5rem",
@@ -71,7 +75,7 @@ export default function AuthModal({
               >
                 👤 Iniciar Sesión
               </h3>
-              <p style={{ color: "#64748b" }}>Accede a tu cuenta para gestionar tus reservas</p>
+              <p style={{ color: "#64748b", fontSize: "0.95rem" }}>Accede a tu cuenta para gestionar tus reservas</p>
             </div>
 
             {loginError && (
@@ -81,8 +85,9 @@ export default function AuthModal({
                   color: "#dc2626",
                   padding: "1rem",
                   borderRadius: 12,
-                  marginBottom: "1rem",
+                  marginBottom: "1.5rem",
                   border: "1px solid #fecaca",
+                  fontSize: "0.9rem",
                 }}
               >
                 ❌ {loginError}
@@ -97,23 +102,35 @@ export default function AuthModal({
                     color: "#374151",
                     display: "block",
                     marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
                   }}
                 >
-                  Usuario
+                  Correo Electrónico
                 </label>
                 <input
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "0.75rem",
+                    padding: "0.875rem",
                     borderRadius: 12,
                     border: "2px solid #e5e7eb",
                     fontSize: "1rem",
-                    transition: "all 0.3s ease",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#22c55e"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
                   }}
                   required
-                  placeholder="Ingresa tu usuario"
+                  placeholder="tu@email.com"
                 />
               </div>
 
@@ -124,6 +141,7 @@ export default function AuthModal({
                     color: "#374151",
                     display: "block",
                     marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
                   }}
                 >
                   Contraseña
@@ -134,21 +152,33 @@ export default function AuthModal({
                   onChange={(e) => setPassword(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "0.75rem",
+                    padding: "0.875rem",
                     borderRadius: 12,
                     border: "2px solid #e5e7eb",
                     fontSize: "1rem",
-                    transition: "all 0.3s ease",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#22c55e"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
                   }}
                   required
-                  placeholder="Ingresa tu contraseña"
+                  minLength={6}
+                  placeholder="••••••••"
                 />
               </div>
 
               <button
                 type="submit"
+                disabled={loginLoading}
                 style={{
-                  background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                  background: loginLoading ? "#9ca3af" : "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
                   color: "#fff",
                   fontWeight: 700,
                   border: "none",
@@ -156,12 +186,44 @@ export default function AuthModal({
                   fontSize: "1.1rem",
                   padding: "1rem",
                   width: "100%",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  boxShadow: "0 8px 24px rgba(34,197,94,0.3)",
+                  cursor: loginLoading ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  boxShadow: loginLoading ? "none" : "0 8px 24px rgba(34,197,94,0.3)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+                onMouseEnter={(e) => {
+                  if (!loginLoading) {
+                    e.currentTarget.style.transform = "translateY(-2px)"
+                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(34,197,94,0.4)"
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loginLoading) {
+                    e.currentTarget.style.transform = "translateY(0)"
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(34,197,94,0.3)"
+                  }
                 }}
               >
-                🚀 Iniciar Sesión
+                {loginLoading ? (
+                  <>
+                    <div
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        border: "2px solid #ffffff",
+                        borderTop: "2px solid transparent",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite",
+                      }}
+                    />
+                    Iniciando sesión...
+                  </>
+                ) : (
+                  "🚀 Iniciar Sesión"
+                )}
               </button>
             </form>
 
@@ -173,7 +235,7 @@ export default function AuthModal({
                 borderTop: "1px solid #e5e7eb",
               }}
             >
-              <span style={{ color: "#64748b" }}>¿No tienes cuenta? </span>
+              <span style={{ color: "#64748b", fontSize: "0.95rem" }}>¿No tienes cuenta? </span>
               <button
                 style={{
                   background: "none",
@@ -182,6 +244,7 @@ export default function AuthModal({
                   fontWeight: 600,
                   cursor: "pointer",
                   textDecoration: "underline",
+                  fontSize: "0.95rem",
                 }}
                 onClick={() => {
                   setAuthMode("register")
@@ -197,7 +260,7 @@ export default function AuthModal({
             <div style={{ textAlign: "center", marginBottom: "2rem" }}>
               <h3
                 style={{
-                  fontSize: "1.5rem",
+                  fontSize: "1.75rem",
                   fontWeight: 800,
                   color: "#1f2937",
                   marginBottom: "0.5rem",
@@ -205,7 +268,7 @@ export default function AuthModal({
               >
                 ✨ Crear Cuenta
               </h3>
-              <p style={{ color: "#64748b" }}>Únete para gestionar tus reservas fácilmente</p>
+              <p style={{ color: "#64748b", fontSize: "0.95rem" }}>Únete para gestionar tus reservas fácilmente</p>
             </div>
 
             {regError && (
@@ -215,8 +278,9 @@ export default function AuthModal({
                   color: "#dc2626",
                   padding: "1rem",
                   borderRadius: 12,
-                  marginBottom: "1rem",
+                  marginBottom: "1.5rem",
                   border: "1px solid #fecaca",
+                  fontSize: "0.9rem",
                 }}
               >
                 ❌ {regError}
@@ -230,8 +294,9 @@ export default function AuthModal({
                   color: "#166534",
                   padding: "1rem",
                   borderRadius: 12,
-                  marginBottom: "1rem",
+                  marginBottom: "1.5rem",
                   border: "1px solid #bbf7d0",
+                  fontSize: "0.9rem",
                 }}
               >
                 ✅ {regSuccess}
@@ -239,152 +304,168 @@ export default function AuthModal({
             )}
 
             <form onSubmit={handleRegister}>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "1rem",
-                  marginBottom: "1rem",
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      display: "block",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    Usuario *
-                  </label>
-                  <input
-                    value={regUsername}
-                    onChange={(e) => setRegUsername(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      borderRadius: 12,
-                      border: "2px solid #e5e7eb",
-                      fontSize: "1rem",
-                    }}
-                    required
-                    placeholder="usuario123"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      display: "block",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    Contraseña *
-                  </label>
-                  <input
-                    type="password"
-                    value={regPassword}
-                    onChange={(e) => setRegPassword(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      borderRadius: 12,
-                      border: "2px solid #e5e7eb",
-                      fontSize: "1rem",
-                    }}
-                    required
-                    placeholder="••••••••"
-                  />
-                </div>
-              </div>
-
-              <div style={{ marginBottom: "1rem" }}>
+              <div style={{ marginBottom: "1.25rem" }}>
                 <label
                   style={{
                     fontWeight: 600,
                     color: "#374151",
                     display: "block",
                     marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
                   }}
                 >
-                  Nombre completo *
+                  Correo Electrónico *
+                </label>
+                <input
+                  type="email"
+                  value={regEmail}
+                  onChange={(e) => setRegEmail(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.875rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#3b82f6"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
+                  }}
+                  required
+                  placeholder="tu@email.com"
+                />
+              </div>
+
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  Contraseña *
+                </label>
+                <input
+                  type="password"
+                  value={regPassword}
+                  onChange={(e) => setRegPassword(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.875rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#3b82f6"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
+                  }}
+                  required
+                  minLength={6}
+                  placeholder="Mínimo 6 caracteres"
+                />
+                <p
+                  style={{
+                    fontSize: "0.8rem",
+                    color: "#64748b",
+                    marginTop: "0.375rem",
+                    marginLeft: "0.25rem",
+                  }}
+                >
+                  Mínimo 6 caracteres
+                </p>
+              </div>
+
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  Nombre Completo *
                 </label>
                 <input
                   value={regName}
                   onChange={(e) => setRegName(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "0.75rem",
+                    padding: "0.875rem",
                     borderRadius: 12,
                     border: "2px solid #e5e7eb",
                     fontSize: "1rem",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#3b82f6"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
                   }}
                   required
                   placeholder="Juan Pérez"
                 />
               </div>
 
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "1rem",
-                  marginBottom: "1rem",
-                }}
-              >
-                <div>
-                  <label
-                    style={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      display: "block",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    Teléfono
-                  </label>
-                  <input
-                    value={regPhone}
-                    onChange={(e) => setRegPhone(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      borderRadius: 12,
-                      border: "2px solid #e5e7eb",
-                      fontSize: "1rem",
-                    }}
-                    placeholder="+1234567890"
-                  />
-                </div>
-
-                <div>
-                  <label
-                    style={{
-                      fontWeight: 600,
-                      color: "#374151",
-                      display: "block",
-                      marginBottom: "0.5rem",
-                    }}
-                  >
-                    Email
-                  </label>
-                  <input
-                    type="email"
-                    value={regEmail}
-                    onChange={(e) => setRegEmail(e.target.value)}
-                    style={{
-                      width: "100%",
-                      padding: "0.75rem",
-                      borderRadius: 12,
-                      border: "2px solid #e5e7eb",
-                      fontSize: "1rem",
-                    }}
-                    placeholder="juan@email.com"
-                  />
-                </div>
+              <div style={{ marginBottom: "1.25rem" }}>
+                <label
+                  style={{
+                    fontWeight: 600,
+                    color: "#374151",
+                    display: "block",
+                    marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  Teléfono
+                </label>
+                <input
+                  value={regPhone}
+                  onChange={(e) => setRegPhone(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.875rem",
+                    borderRadius: 12,
+                    border: "2px solid #e5e7eb",
+                    fontSize: "1rem",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#3b82f6"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
+                  }}
+                  placeholder="+1234567890"
+                />
               </div>
 
               <div style={{ marginBottom: "2rem" }}>
@@ -394,6 +475,7 @@ export default function AuthModal({
                     color: "#374151",
                     display: "block",
                     marginBottom: "0.5rem",
+                    fontSize: "0.95rem",
                   }}
                 >
                   Dirección
@@ -403,10 +485,21 @@ export default function AuthModal({
                   onChange={(e) => setRegAddress(e.target.value)}
                   style={{
                     width: "100%",
-                    padding: "0.75rem",
+                    padding: "0.875rem",
                     borderRadius: 12,
                     border: "2px solid #e5e7eb",
                     fontSize: "1rem",
+                    transition: "all 0.2s ease",
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "#3b82f6"
+                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "#e5e7eb"
+                    e.target.style.boxShadow = "none"
                   }}
                   placeholder="Calle 123, Ciudad"
                 />
@@ -414,8 +507,9 @@ export default function AuthModal({
 
               <button
                 type="submit"
+                disabled={regLoading}
                 style={{
-                  background: "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                  background: regLoading ? "#9ca3af" : "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
                   color: "#fff",
                   fontWeight: 700,
                   border: "none",
@@ -423,12 +517,44 @@ export default function AuthModal({
                   fontSize: "1.1rem",
                   padding: "1rem",
                   width: "100%",
-                  cursor: "pointer",
-                  transition: "all 0.3s ease",
-                  boxShadow: "0 8px 24px rgba(59,130,246,0.3)",
+                  cursor: regLoading ? "not-allowed" : "pointer",
+                  transition: "all 0.2s ease",
+                  boxShadow: regLoading ? "none" : "0 8px 24px rgba(59,130,246,0.3)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                }}
+                onMouseEnter={(e) => {
+                  if (!regLoading) {
+                    e.currentTarget.style.transform = "translateY(-2px)"
+                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(59,130,246,0.4)"
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!regLoading) {
+                    e.currentTarget.style.transform = "translateY(0)"
+                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(59,130,246,0.3)"
+                  }
                 }}
               >
-                🎉 Crear Cuenta
+                {regLoading ? (
+                  <>
+                    <div
+                      style={{
+                        width: "16px",
+                        height: "16px",
+                        border: "2px solid #ffffff",
+                        borderTop: "2px solid transparent",
+                        borderRadius: "50%",
+                        animation: "spin 1s linear infinite",
+                      }}
+                    />
+                    Creando cuenta...
+                  </>
+                ) : (
+                  "🎉 Crear Cuenta"
+                )}
               </button>
             </form>
 
@@ -440,7 +566,7 @@ export default function AuthModal({
                 borderTop: "1px solid #e5e7eb",
               }}
             >
-              <span style={{ color: "#64748b" }}>¿Ya tienes cuenta? </span>
+              <span style={{ color: "#64748b", fontSize: "0.95rem" }}>¿Ya tienes cuenta? </span>
               <button
                 style={{
                   background: "none",
@@ -449,6 +575,7 @@ export default function AuthModal({
                   fontWeight: 600,
                   cursor: "pointer",
                   textDecoration: "underline",
+                  fontSize: "0.95rem",
                 }}
                 onClick={() => {
                   setAuthMode("login")
