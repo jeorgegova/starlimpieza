@@ -38,19 +38,21 @@ export default function ReservaMejorada() {
   const [user, setUser] = useState(null)
 
   // Estados de autenticación
-  const [showAuthModal, setShowAuthModal] = useState(false)
-  const [authMode, setAuthMode] = useState("login")
-  const [username, setUsername] = useState("")
-  const [password, setPassword] = useState("")
-  const [loginError, setLoginError] = useState("")
-  const [regUsername, setRegUsername] = useState("")
-  const [regPassword, setRegPassword] = useState("")
-  const [regName, setRegName] = useState("")
-  const [regPhone, setRegPhone] = useState("")
-  const [regEmail, setRegEmail] = useState("")
-  const [regAddress, setRegAddress] = useState("")
-  const [regError, setRegError] = useState("")
-  const [regSuccess, setRegSuccess] = useState("")
+    const [showAuthModal, setShowAuthModal] = useState(false)
+    const [authMode, setAuthMode] = useState("login")
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const [loginError, setLoginError] = useState("")
+    const [regPassword, setRegPassword] = useState("")
+    const [regName, setRegName] = useState("")
+    const [regPhone, setRegPhone] = useState("")
+    const [regEmail, setRegEmail] = useState("")
+    const [regAddress, setRegAddress] = useState("")
+    const [regError, setRegError] = useState("")
+    const [regSuccess, setRegSuccess] = useState("")
+    const [regLoading, setRegLoading] = useState(false)
+    const [loginLoading, setLoginLoading] = useState(false)
+    const [initialLoading, setInitialLoading] = useState(true)
 
   // Estados del calendario
   const [calDate, setCalDate] = useState(new Date())
@@ -86,8 +88,12 @@ export default function ReservaMejorada() {
   const [allUsers, setAllUsers] = useState([])
 
   // Estado para modal de confirmación
-  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
-  const [confirmationData, setConfirmationData] = useState(null)
+   const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+   const [confirmationData, setConfirmationData] = useState(null)
+
+  // Estado para modal de registro exitoso
+   const [showRegistrationSuccessModal, setShowRegistrationSuccessModal] = useState(false)
+   const [registeredEmail, setRegisteredEmail] = useState("")
 
   // Ubicaciones desde la base de datos
   const [locationOptions, setLocationOptions] = useState([])
@@ -104,6 +110,56 @@ export default function ReservaMejorada() {
     }
     setSelectedDate(null)
   }, [service, user])
+
+  // Auth state change listener
+  useEffect(() => {
+  const getUserData = async () => {
+    try {
+      const stored = localStorage.getItem("session")
+      if (!stored) {
+        console.log("🚫 No hay sesión guardada")
+        setInitialLoading(false)
+        return
+      }
+
+      const session = JSON.parse(stored)
+      const userId = session?.user?.id
+
+      if (!userId) {
+        console.log("🚫 No se encontró el ID del usuario en localStorage")
+        setInitialLoading(false)
+        return
+      }
+
+      console.log("🟢 ID detectado:", userId)
+
+      // 🔍 Consultar los datos del usuario en la tabla 'users'
+      const { data, error } = await supabase
+        .from("users")
+        .select("*")
+        .eq("id", userId)
+        .single()
+
+      if (error) {
+        console.error("❌ Error consultando usuario:", error.message)
+      } else if (data) {
+        console.log("✅ Usuario encontrado:", data)
+        setUser(data) // 👈 Guarda todos los datos del usuario
+      } else {
+        console.warn("⚠️ No se encontró el usuario en la tabla 'users'")
+      }
+
+    } catch (err) {
+      console.error("⚠️ Error general:", err)
+    } finally {
+      setInitialLoading(false) // 👈 Asegura que el loading se desactive
+    }
+  }
+
+  getUserData()
+}, [])
+
+
 
   // Prevenir scroll del body cuando el modal está abierto
   useEffect(() => {
@@ -149,7 +205,7 @@ export default function ReservaMejorada() {
     setLoading(true)
     const { data, error } = await supabase
       .from("user_services")
-      .select("*, users(name, username, phone, email)")
+      .select("*, users(name, phone, email)")
       .eq("service_name", service)
       .order("assigned_date", { ascending: true })
 
@@ -279,39 +335,64 @@ export default function ReservaMejorada() {
   async function handleLogin(e) {
     e.preventDefault()
     setLoginError("")
+    setLoginLoading(true)
 
-    const { data, error } = await supabase
-      .from("users")
-      .select("*")
-      .eq("username", username)
-      .eq("password", password)
-      .limit(1)
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      })
 
-    if (error) {
-      setLoginError("Error de conexión. Intenta nuevamente.")
-      return
-    }
-
-    if (data.length === 1) {
-      setUser(data[0])
-      clearAuthFields()
-      setShowAuthModal(false)
-      // Set default tab based on user role
-      setActiveTab(data[0].role === "admin" ? "admin" : "calendar")
-
-      // Notify admin about pending services
-      if (data[0].role === "admin") {
-        // Check for pending reservations after a short delay to allow data to load
-        setTimeout(() => {
-          const pendingCount = allReservations.filter(r => r.status === 'pending').length
-          if (pendingCount > 0) {
-            setAlertMessage(`Tienes ${pendingCount} servicio(s) pendiente(s) de confirmación`)
-            setAlertType("success")
-          }
-        }, 1000)
+      if (error) {
+        if (error.message.includes("Email not confirmed")) {
+          setLoginError("Debes confirmar tu correo electrónico antes de iniciar sesión.")
+        } else if (error.message.includes("Invalid login credentials")) {
+          setLoginError("Correo electrónico o contraseña incorrectos.")
+        } else {
+          setLoginError("Error de conexión. Intenta nuevamente.")
+        }
+        console.error("Login error:", error)
+        return
       }
-    } else {
-      setLoginError("Usuario o contraseña incorrectos")
+
+      if (data.user) {
+        // Fetch user data from users table
+        const { data: userData, error: userError } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", data.user.id)
+          .single()
+
+        if (userError) {
+          setLoginError("Error al obtener datos del usuario.")
+          return
+        }
+
+        setUser(userData)
+        clearAuthFields()
+        setShowAuthModal(false)
+        // Set default tab based on user role
+        setActiveTab(userData.role === "admin" ? "admin" : "calendar")
+
+        // Notify admin about pending services
+        if (userData.role === "admin") {
+          // Check for pending reservations after a short delay to allow data to load
+          setTimeout(() => {
+            const pendingCount = allReservations.filter(r => r.status === 'pending').length
+            if (pendingCount > 0) {
+              setAlertMessage(`Tienes ${pendingCount} servicio(s) pendiente(s) de confirmación`)
+              setAlertType("success")
+            }
+          }, 1000)
+        }
+      } else {
+        setLoginError("Correo electrónico o contraseña incorrectos")
+      }
+    } catch (error) {
+      setLoginError("Error inesperado. Inténtalo de nuevo.")
+      console.error("Login error:", error)
+    } finally {
+      setLoginLoading(false)
     }
   }
 
@@ -319,60 +400,70 @@ export default function ReservaMejorada() {
     e.preventDefault()
     setRegError("")
     setRegSuccess("")
+    setRegLoading(true)
 
-    if (!regUsername || !regPassword || !regName) {
+    if (!regPassword || !regName || !regEmail) {
       setRegError("Por favor completa todos los campos obligatorios")
+      setRegLoading(false)
       return
     }
 
-    // Verificar si el usuario ya existe
-    const { data: existingUser, error } = await supabase.from("users").select("id").eq("username", regUsername).limit(1)
+    try {
+      // Sign up with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: regEmail,
+        password: regPassword,
+      })
 
-    if (error) {
-      setRegError("Error de conexión")
-      return
+      if (authError) {
+        setRegError("Error al crear la cuenta: " + authError.message)
+        setRegLoading(false)
+        return
+      }
+
+      if (authData.user) {
+        // Insert user data into users table
+        const { data: newUser, error: insertError } = await supabase
+          .from("users")
+          .insert([
+            {
+              id: authData.user.id,
+              name: regName,
+              password: regPassword,
+              phone: regPhone,
+              email: regEmail,
+              address: regAddress,
+              role: "user", // Rol por defecto
+            },
+          ])
+          .select()
+          .single()
+
+        if (insertError) {
+          // If insert fails, try to delete the auth user to clean up
+          await supabase.auth.admin.deleteUser(authData.user.id)
+          setRegError("Error al crear la cuenta: " + insertError.message)
+          setRegLoading(false)
+          return
+        }
+
+        // Clear form and show success modal
+        clearAuthFields()
+        setShowAuthModal(false)
+        setRegisteredEmail(regEmail)
+        setShowRegistrationSuccessModal(true)
+      }
+    } catch (error) {
+      setRegError("Error inesperado. Inténtalo de nuevo.")
+      console.error("Registration error:", error)
+    } finally {
+      setRegLoading(false)
     }
-
-    if (existingUser.length > 0) {
-      setRegError("Este nombre de usuario ya está en uso")
-      return
-    }
-
-    const { data: newUser, error: insertError } = await supabase
-      .from("users")
-      .insert([
-        {
-          username: regUsername,
-          password: regPassword,
-          name: regName,
-          phone: regPhone,
-          email: regEmail,
-          address: regAddress,
-          role: "user", // Rol por defecto
-        },
-      ])
-      .select()
-      .single()
-
-    if (insertError) {
-      setRegError("Error al crear la cuenta: " + insertError.message)
-      return
-    }
-
-    // Iniciar sesión automáticamente después del registro
-    setUser(newUser)
-    clearAuthFields()
-    setShowAuthModal(false)
-    // Set default tab based on user role
-    setActiveTab(newUser.role === "admin" ? "admin" : "calendar")
-    setAlertMessage("¡Cuenta creada exitosamente! Has iniciado sesión automáticamente.")
-    setAlertType("success")
   }
 
   function clearAuthFields() {
-    setUsername("")
+    setEmail("")
     setPassword("")
-    setRegUsername("")
     setRegPassword("")
     setRegName("")
     setRegPhone("")
@@ -383,11 +474,13 @@ export default function ReservaMejorada() {
     setRegSuccess("")
   }
 
-  function handleLogout() {
+  async function handleLogout() {
+    await supabase.auth.signOut()
     setUser(null)
     setSelectedDate(null)
     setUserReservations([])
     setActiveTab("calendar")
+    localStorage.removeItem('session')
   }
 
   function handleConfirmReserve(applicableDiscount = 0) {
@@ -627,8 +720,40 @@ export default function ReservaMejorada() {
     <>
       <style>{calendarStyles + responsiveModalStyles}</style>
 
+      {/* Loading screen while checking session */}
+      {initialLoading && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "#fff",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 9999,
+          }}
+        >
+          <div
+            style={{
+              width: "40px",
+              height: "40px",
+              border: "4px solid #e5e7eb",
+              borderTop: "4px solid #22c55e",
+              borderRadius: "50%",
+              animation: "spin 1s linear infinite",
+              marginBottom: "1rem",
+            }}
+          />
+          <p style={{ color: "#64748b", fontSize: "1.1rem" }}>Cargando...</p>
+        </div>
+      )}
+
       {/* Botón flotante de autenticación */}
-      {!user && (
+      {!user && !initialLoading && (
         <button
           style={{
             position: "fixed",
@@ -747,14 +872,13 @@ export default function ReservaMejorada() {
         setShowAuthModal={setShowAuthModal}
         authMode={authMode}
         setAuthMode={setAuthMode}
-        username={username}
-        setUsername={setUsername}
+        email={email}
+        setEmail={setEmail}
         password={password}
         setPassword={setPassword}
         handleLogin={handleLogin}
         loginError={loginError}
-        regUsername={regUsername}
-        setRegUsername={setRegUsername}
+        loginLoading={loginLoading}
         regPassword={regPassword}
         setRegPassword={setRegPassword}
         regName={regName}
@@ -768,6 +892,7 @@ export default function ReservaMejorada() {
         handleRegister={handleRegister}
         regError={regError}
         regSuccess={regSuccess}
+        regLoading={regLoading}
         clearAuthFields={clearAuthFields}
       />
 
@@ -979,6 +1104,101 @@ export default function ReservaMejorada() {
         users={allUsers}
         onClientSelect={handleClientSelect}
       />
+
+      {/* Registration Success Modal */}
+      {showRegistrationSuccessModal && (
+        <div
+          style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            background: "rgba(0,0,0,0.6)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 13000,
+            backdropFilter: "blur(4px)",
+          }}
+          onClick={() => setShowRegistrationSuccessModal(false)}
+        >
+          <div
+            style={{
+              background: "#fff",
+              padding: "2.5rem",
+              borderRadius: 24,
+              minWidth: 400,
+              maxWidth: 500,
+              boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+              position: "relative",
+              border: "1px solid #e5e7eb",
+              textAlign: "center",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div style={{ marginBottom: "2rem" }}>
+              <div
+                style={{
+                  fontSize: "3rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                ✅
+              </div>
+              <h3
+                style={{
+                  fontSize: "1.5rem",
+                  fontWeight: 800,
+                  color: "#1f2937",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                ¡Cuenta Creada Exitosamente!
+              </h3>
+              <p style={{ color: "#64748b", marginBottom: "1.5rem" }}>
+                Se ha enviado un correo de validación a:
+              </p>
+              <div
+                style={{
+                  background: "#f8fafc",
+                  padding: "1rem",
+                  borderRadius: 12,
+                  border: "1px solid #e5e7eb",
+                  fontWeight: 600,
+                  color: "#1f2937",
+                  marginBottom: "2rem",
+                }}
+              >
+                {registeredEmail}
+              </div>
+              <p style={{ color: "#64748b", fontSize: "0.9rem", marginBottom: "2rem" }}>
+                Revisa tu bandeja de entrada y haz clic en el enlace de validación para poder iniciar sesión.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setShowRegistrationSuccessModal(false)}
+              style={{
+                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                color: "#fff",
+                fontWeight: 700,
+                border: "none",
+                borderRadius: 12,
+                fontSize: "1rem",
+                padding: "1rem 2rem",
+                cursor: "pointer",
+                transition: "all 0.3s ease",
+                boxShadow: "0 8px 24px rgba(34,197,94,0.3)",
+                width: "100%",
+              }}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </>
   )
 }
