@@ -113,53 +113,54 @@ export default function ReservaMejorada() {
 
   // Auth state change listener
   useEffect(() => {
-  const getUserData = async () => {
-    try {
-      const stored = localStorage.getItem("session")
-      if (!stored) {
-        console.log("🚫 No hay sesión guardada")
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      if (event === 'SIGNED_IN' && session?.user) {
+        // Fetch user data from users table
+        const { data: userData, error } = await supabase
+          .from("users")
+          .select("*")
+          .eq("id", session.user.id)
+          .single()
+
+        if (!error && userData) {
+          setUser(userData)
+          setActiveTab(userData.role === "admin" ? "admin" : "calendar")
+        }
+      } else if (event === 'SIGNED_OUT') {
+        setUser(null)
+        setUserReservations([])
+        setActiveTab("calendar")
+      }
+    })
+
+    // Check for existing session on component mount
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        if (session?.user) {
+          // Fetch user data from users table
+          const { data: userData, error } = await supabase
+            .from("users")
+            .select("*")
+            .eq("id", session.user.id)
+            .single()
+
+          if (!error && userData) {
+            setUser(userData)
+            setActiveTab(userData.role === "admin" ? "admin" : "calendar")
+          }
+        }
+      } catch (error) {
+        console.error("Error checking session:", error)
+      } finally {
         setInitialLoading(false)
-        return
       }
-
-      const session = JSON.parse(stored)
-      const userId = session?.user?.id
-
-      if (!userId) {
-        console.log("🚫 No se encontró el ID del usuario en localStorage")
-        setInitialLoading(false)
-        return
-      }
-
-      console.log("🟢 ID detectado:", userId)
-
-      // 🔍 Consultar los datos del usuario en la tabla 'users'
-      const { data, error } = await supabase
-        .from("users")
-        .select("*")
-        .eq("id", userId)
-        .single()
-
-      if (error) {
-        console.error("❌ Error consultando usuario:", error.message)
-      } else if (data) {
-        console.log("✅ Usuario encontrado:", data)
-        setUser(data) // 👈 Guarda todos los datos del usuario
-      } else {
-        console.warn("⚠️ No se encontró el usuario en la tabla 'users'")
-      }
-
-    } catch (err) {
-      console.error("⚠️ Error general:", err)
-    } finally {
-      setInitialLoading(false) // 👈 Asegura que el loading se desactive
     }
-  }
 
-  getUserData()
-}, [])
+    checkSession()
 
-
+    return () => subscription.unsubscribe()
+  }, [])
 
   // Prevenir scroll del body cuando el modal está abierto
   useEffect(() => {
