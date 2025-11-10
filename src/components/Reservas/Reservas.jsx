@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { supabase } from "../../supabaseClient"
+import { supabase, supabaseKey } from "../../supabaseClient"
 import { Calendar, momentLocalizer } from "react-big-calendar"
 import moment from "moment"
 import "react-big-calendar/lib/css/react-big-calendar.css"
@@ -38,21 +38,21 @@ export default function ReservaMejorada() {
   const [user, setUser] = useState(null)
 
   // Estados de autenticación
-    const [showAuthModal, setShowAuthModal] = useState(false)
-    const [authMode, setAuthMode] = useState("login")
-    const [email, setEmail] = useState("")
-    const [password, setPassword] = useState("")
-    const [loginError, setLoginError] = useState("")
-    const [regPassword, setRegPassword] = useState("")
-    const [regName, setRegName] = useState("")
-    const [regPhone, setRegPhone] = useState("")
-    const [regEmail, setRegEmail] = useState("")
-    const [regAddress, setRegAddress] = useState("")
-    const [regError, setRegError] = useState("")
-    const [regSuccess, setRegSuccess] = useState("")
-    const [regLoading, setRegLoading] = useState(false)
-    const [loginLoading, setLoginLoading] = useState(false)
-    const [initialLoading, setInitialLoading] = useState(true)
+  const [showAuthModal, setShowAuthModal] = useState(false)
+  const [authMode, setAuthMode] = useState("login")
+  const [email, setEmail] = useState("")
+  const [password, setPassword] = useState("")
+  const [loginError, setLoginError] = useState("")
+  const [regPassword, setRegPassword] = useState("")
+  const [regName, setRegName] = useState("")
+  const [regPhone, setRegPhone] = useState("")
+  const [regEmail, setRegEmail] = useState("")
+  const [regAddress, setRegAddress] = useState("")
+  const [regError, setRegError] = useState("")
+  const [regSuccess, setRegSuccess] = useState("")
+  const [regLoading, setRegLoading] = useState(false)
+  const [loginLoading, setLoginLoading] = useState(false)
+  const [initialLoading, setInitialLoading] = useState(true)
 
   // Estados del calendario
   const [calDate, setCalDate] = useState(new Date())
@@ -88,12 +88,12 @@ export default function ReservaMejorada() {
   const [allUsers, setAllUsers] = useState([])
 
   // Estado para modal de confirmación
-   const [showConfirmationModal, setShowConfirmationModal] = useState(false)
-   const [confirmationData, setConfirmationData] = useState(null)
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false)
+  const [confirmationData, setConfirmationData] = useState(null)
 
   // Estado para modal de registro exitoso
-   const [showRegistrationSuccessModal, setShowRegistrationSuccessModal] = useState(false)
-   const [registeredEmail, setRegisteredEmail] = useState("")
+  const [showRegistrationSuccessModal, setShowRegistrationSuccessModal] = useState(false)
+  const [registeredEmail, setRegisteredEmail] = useState("")
 
   // Ubicaciones desde la base de datos
   const [locationOptions, setLocationOptions] = useState([])
@@ -110,6 +110,14 @@ export default function ReservaMejorada() {
     }
     setSelectedDate(null)
   }, [service, user])
+
+  // Force hide loading after 5 seconds as fallback
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setInitialLoading(false)
+    }, 5000)
+    return () => clearTimeout(timer)
+  }, [])
 
   // Auth state change listener
   useEffect(() => {
@@ -581,6 +589,106 @@ export default function ReservaMejorada() {
       setAlertMessage(`¡Reserva creada exitosamente${isAdminCreating ? ` para ${adminSelectedClient.name}` : ''}!${totalCost ? ` Valor a cancelar: ${totalCost}€. El administrador se comunicará para confirmar el servicio y proceder con el pago.` : ''}`)
       setAlertType("success")
 
+      // Send email notification
+      const reservationUser = isAdminCreating ? adminSelectedClient : user
+      const locationName = locationOptions.find(loc => loc.id === reservationLocation)?.name || "No especificada"
+
+      const emailHtml = `
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6; padding: 30px; margin: 0;">
+  <div style="max-width: 640px; margin: 0 auto; background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.08); overflow: hidden;">
+    
+    <!-- Encabezado -->
+    <div style="background: linear-gradient(135deg, #22c55e, #16a34a); padding: 30px 20px; text-align: center;">
+      <h1 style="color: #ffffff; margin: 0; font-size: 26px; font-weight: 600;">Nueva Reserva de Servicio</h1>
+    </div>
+
+    <!-- Contenido principal -->
+    <div style="padding: 30px;">
+      
+      <!-- Detalles del cliente -->
+      <div style="background-color: #f9fafb; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+        <h2 style="color: #111827; font-size: 18px; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;"> Detalles del Cliente</h2>
+        <p style="margin: 6px 0;"><strong>Nombre:</strong> ${reservationUser.name}</p>
+        <p style="margin: 6px 0;"><strong>Email:</strong> ${reservationUser.email}</p>
+        <p style="margin: 6px 0;"><strong>Teléfono:</strong> ${reservationPhone}</p>
+        <p style="margin: 6px 0;"><strong>Dirección:</strong> ${reservationAddress}</p>
+      </div>
+
+      <!-- Detalles del servicio -->
+      <div style="background-color: #f9fafb; border-radius: 10px; padding: 20px; margin-bottom: 25px;">
+        <h2 style="color: #111827; font-size: 18px; margin-top: 0; border-bottom: 1px solid #e5e7eb; padding-bottom: 8px;"> Detalles del Servicio</h2>
+        <p style="margin: 6px 0;"><strong>Servicio:</strong> ${service}</p>
+        <p style="margin: 6px 0;"><strong>Fecha:</strong> ${selectedDate.toLocaleDateString("es-ES", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric"
+      })}</p>
+        <p style="margin: 6px 0;"><strong>Ubicación:</strong> ${locationName}</p>
+
+        ${service === "Limpieza de casas" ? `
+          <p style="margin: 6px 0;"><strong>Jornada:</strong> ${reservationShift}</p>
+          <p style="margin: 6px 0;"><strong>Horas:</strong> ${reservationHours}</p>
+          <p style="margin: 6px 0;"><strong>Costo Total:</strong> ${totalCost}€</p>
+          ${confirmationData?.applicableDiscount > 0 ? `<p style="margin: 6px 0; color: #16a34a;"><strong>Descuento Aplicado:</strong> ${confirmationData.applicableDiscount}%</p>` : ''}
+        ` : ''}
+      </div>
+
+      <!-- Estado -->
+      <div style="background-color: #ecfdf5; border-left: 4px solid #22c55e; border-radius: 8px; padding: 20px;">
+        <h3 style="color: #065f46; font-size: 16px; margin-top: 0;">Estado de la Reserva</h3>
+        <p style="margin: 6px 0;"><strong>Estado:</strong> ${user.role === "admin" ? "✅ Confirmada" : "🕓 Pendiente de Confirmación"}</p>
+        ${user.role !== "admin" ? `
+          <p style="margin: 6px 0; color: #64748b; font-size: 14px;">
+            El administrador revisará y confirmará la reserva pronto.
+          </p>
+        ` : ''}
+      </div>
+    </div>
+
+    <!-- Pie -->
+    <div style="background-color: #f9fafb; text-align: center; padding: 20px; border-top: 1px solid #e5e7eb;">
+      <p style="color: #9ca3af; font-size: 13px; margin: 0;">
+        Este es un mensaje automático del sistema de reservas de <strong>StarLimpiezas</strong>.<br>
+        Por favor, no respondas a este correo.
+      </p>
+    </div>
+  </div>
+</div>
+
+      `
+
+      try {
+        const response = await fetch("https://gvivprtrbphfvedbiice.supabase.co/functions/v1/SendEmail", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${supabaseKey}`
+          },
+          body: JSON.stringify({
+            to: ["starlimiezas@gmail.com"],
+            subject: "Nueva Reserva de Servicio - StarLimpiezas",
+            html: emailHtml,
+            from: "StarLimpiezas <onboarding@resend.dev>"
+          })
+        });
+
+        console.log("🔹 Fetch ejecutado. Estado:", response.status);
+
+        // Verifica si el servidor respondió correctamente
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error("❌ Error en la respuesta del servidor:", errorText);
+        } else {
+          const data = await response.json().catch(() => ({})); // por si no hay JSON
+          console.log("✅ Email enviado correctamente. Respuesta del servidor:", data);
+        }
+
+      } catch (emailError) {
+        console.error("🚨 Error enviando el correo (fetch falló):", emailError);
+      }
+
+
       // Close both modals immediately
       setShowReservationModal(false)
       setShowConfirmationModal(false)
@@ -1000,11 +1108,11 @@ export default function ReservaMejorada() {
                 <strong>Fecha:</strong>{" "}
                 {confirmationData.selectedDate
                   ? confirmationData.selectedDate.toLocaleDateString("es-ES", {
-                      weekday: "long",
-                      year: "numeric",
-                      month: "long",
-                      day: "numeric",
-                    })
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })
                   : ""}
                 {confirmationData.service === "Limpieza de casas" && (
                   <>
