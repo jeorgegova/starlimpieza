@@ -254,6 +254,8 @@ export default function ReservaMejorada() {
   async function fetchLocations() {
     const { data, error } = await supabase.from("location").select("*")
     if (!error && data) {
+      console.log('locationDates', data);
+      
       setLocationOptions(data)
     }
   }
@@ -591,7 +593,7 @@ export default function ReservaMejorada() {
 
       // Send email notification
       const reservationUser = isAdminCreating ? adminSelectedClient : user
-      const locationName = locationOptions.find(loc => loc.id === reservationLocation)?.name || "No especificada"
+      const locationName = locationOptions.find(loc => loc.id == reservationLocation)?.location || "No especificada"
 
       const emailHtml = `
         <div style="font-family: 'Segoe UI', Arial, sans-serif; background-color: #f3f4f6; padding: 30px; margin: 0;">
@@ -666,10 +668,10 @@ export default function ReservaMejorada() {
             "Authorization": `Bearer ${supabaseKey}`
           },
           body: JSON.stringify({
-            to: ["starlimiezas@gmail.com"],
+            to: [reservationUser.email],
             subject: "Nueva Reserva de Servicio - StarLimpiezas",
             html: emailHtml,
-            from: "StarLimpiezas <onboarding@resend.dev>"
+            from: "StarLimpiezas <customer@starlimpiezas.com>"
           })
         });
 
