@@ -9,6 +9,8 @@ import Footer from './components/LandingPage/Footer';
 import AboutUs from './components/LandingPage/AboutUs';
 import Reserva from './components/Reservas/Reservas';
 import JobApplicationForm from './components/JobApplication/JobApplicationForm';
+import EmailVerification from './components/EmailVerification';
+import ResetPassword from './components/ResetPassword';
 import CookieConsent from './components/CookieConsent';
 
 function App() {
@@ -80,20 +82,22 @@ function App() {
     <div className="scroll-smooth">
       <Navbar currentSection={currentSection} navigationHandler={handleNavigation} />
       <Routes>
-         <Route
-           path="/"
-           element={
-             <main>
-               <Hero />
-               <Services />
-               <AboutUs />
-               <HorizontalTimelineTestimonials />
-               <ContactForm />
-             </main>
-           }
-         />
-         <Route path="/reservas" element={<Reserva />} />
-       </Routes>
+        <Route
+          path="/"
+          element={
+            <main>
+              <Hero />
+              <Services />
+              <AboutUs />
+              <HorizontalTimelineTestimonials />
+              <ContactForm />
+            </main>
+          }
+        />
+        <Route path="/reservas" element={<Reserva />} />
+        <Route path="/verify-email" element={<EmailVerification />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
+      </Routes>
        <Footer onNavigate={handleNavigation} />
        <CookieConsent />
        {showJobModal && (
