@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /verify-email
+Disallow: /reset-password
+
+Sitemap: https://starlimpiezas.es/sitemap.xml
