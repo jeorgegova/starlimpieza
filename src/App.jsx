@@ -12,6 +12,7 @@ import JobApplicationForm from './components/JobApplication/JobApplicationForm';
 import EmailVerification from './components/EmailVerification';
 import ResetPassword from './components/ResetPassword';
 import CookieConsent from './components/CookieConsent';
+import WhatsAppButton from './components/WhatsAppButton';
 
 function App() {
   const navigate = useNavigate();
@@ -90,7 +91,7 @@ function App() {
               <Services />
               <AboutUs />
               <HorizontalTimelineTestimonials />
-              <ContactForm />
+              <ContactForm onOpenJobModal={() => setShowJobModal(true)} />
             </main>
           }
         />
@@ -100,6 +101,7 @@ function App() {
       </Routes>
        <Footer onNavigate={handleNavigation} />
        <CookieConsent />
+       <WhatsAppButton />
        {showJobModal && (
          <JobApplicationForm onClose={() => setShowJobModal(false)} />
        )}

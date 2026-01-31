@@ -222,7 +222,7 @@ export default function AuthModal({
                     Iniciando sesión...
                   </>
                 ) : (
-                  "🚀 Iniciar Sesión"
+                  "Iniciar Sesión"
                 )}
               </button>
             </form>
@@ -266,7 +266,7 @@ export default function AuthModal({
                   marginBottom: "0.5rem",
                 }}
               >
-                ✨ Crear Cuenta
+                Crear Cuenta
               </h3>
               <p style={{ color: "#64748b", fontSize: "0.95rem" }}>Únete para gestionar tus reservas fácilmente</p>
             </div>
@@ -553,7 +553,7 @@ export default function AuthModal({
                     Creando cuenta...
                   </>
                 ) : (
-                  "🎉 Crear Cuenta"
+                  "Crear Cuenta"
                 )}
               </button>
             </form>

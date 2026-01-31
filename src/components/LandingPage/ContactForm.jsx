@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom"
 const MAP_SRC =
   "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d742.3130216254883!2d3.1533424520107025!3d41.908939298115264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDHCsDU0JzMyLjIiTiAzwrAwOScxNC40IkU!5e0!3m2!1ses!2sco!4v1757478879723!5m2!1ses!2sco"
 
-const ContactForm = () => {
+const ContactForm = ({ onOpenJobModal }) => {
   const [isVisible, setIsVisible] = useState(false)
   const navigate = useNavigate()
 
@@ -31,13 +31,6 @@ const ContactForm = () => {
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
         />
-        {/* Botón SOLO DENTRO DEL BLOQUE */}
-        <button
-          className="reservar-float-btn"
-          onClick={() => navigate("/reservas")}
-        >
-          Reservar
-        </button>
       </div>
       <div className="contact-hero2-content">
         <form className="contact-hero2-form">
@@ -49,6 +42,10 @@ const ContactForm = () => {
           <textarea placeholder="Mensaje" rows="4" required />
           <button type="submit">Enviar</button>
         </form>
+        
+        <button className="job-button" onClick={onOpenJobModal}>
+          Trabaja con Nosotros
+        </button>
       </div>
 
       <style>{`
@@ -71,7 +68,6 @@ const ContactForm = () => {
           top: 0; left: 0;
           width: 100%; height: 100%;
           z-index: 1;
-          /* Importante para poner button sobre el mapa */
           pointer-events: none;
         }
         .contact-hero2-map-background iframe {
@@ -79,55 +75,6 @@ const ContactForm = () => {
           height: 100%;
           object-fit: cover;
           pointer-events: auto;
-        }
-        .reservar-float-btn {
-          position: absolute;
-          top: 14vh;
-          right: 3vw;
-          z-index: 10;
-          padding: 1.1rem 2.2rem;
-          background: linear-gradient(135deg,rgba(32, 18, 226, 0.34) 0%,rgba(0, 0, 0, 0.36) 100%);
-          color: #fff;
-          font-size: 1.1rem;
-          font-weight: 700;
-          border: green 1px solid;
-          border-radius: 18px;
-          cursor: pointer;
-          box-shadow: 0 12px 38px rgba(0, 0, 0, 0.13), 0 0 0 1.5px rgba(32, 18, 226, 0.34);
-          backdrop-filter: blur(8px) saturate(180%);
-          -webkit-backdrop-filter: blur(8px) saturate(180%);
-          transition: all 0.32s cubic-bezier(.31,.74,.56,1.17);
-          text-transform: uppercase;
-          letter-spacing: 1px;
-          filter: drop-shadow(0 12px 40px rgba(66,66,80,.08));
-          animation: float-bounce 2.6s ease-in-out infinite alternate;
-          pointer-events: auto; /* permite click sobre botón! */
-        }
-        @keyframes float-bounce {
-          0%   { transform: translateY(0); box-shadow: 0 10px 28px rgba(62,62,80,0.13);}
-          100% { transform: translateY(-9px) scale(1.035); box-shadow: 0 24px 50px rgba(122,122,144,0.18);}
-        }
-        .reservar-float-btn:hover {
-          background: linear-gradient(120deg,rgba(72,72,88,0.7) 0%,rgba(170,170,170,0.50) 100%);
-          color: #e7eeff;
-          transform: translateY(-3px) scale(1.065);
-          box-shadow: 0 22px 62px rgba(100, 148, 238, 0.22);
-          animation: pulseGlow 1.0s infinite alternate, float-bounce 2.6s ease-in-out infinite alternate;
-        }
-        @keyframes pulseGlow {
-          0% { filter: drop-shadow(0 0 0px #6b80fa99);}
-          100% { filter: drop-shadow(0 0 16px #88a7fa44);}
-        }
-        @media (max-width:600px) {
-          .reservar-float-btn {
-            top: unset;
-            bottom: 14vh;
-            right: 4vw;
-            left: unset;
-            padding: 1.1rem 1.1rem;
-            font-size: 1rem;
-            border-radius: 13px;
-          }
         }
         .contact-hero2-content {
           position: absolute;
@@ -192,9 +139,9 @@ const ContactForm = () => {
         .contact-hero2-form input:focus,
         .contact-hero2-form textarea:focus {
           outline: none;
-          border-color: #667eea;
+          border-color: #0f172a;
           background: rgba(255,255,255,0.97);
-          box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.11), 0 8px 25px rgba(0,0,0,0.14);
+          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.11), 0 8px 25px rgba(0,0,0,0.14);
           transform: translateY(-2px);
         }
         .contact-hero2-form input::placeholder,
@@ -209,26 +156,47 @@ const ContactForm = () => {
         }
         .contact-hero2-form button {
           margin-top: 0.5rem;
-          padding: 1.1rem 2rem;
-          background: linear-gradient(135deg,rgba(129, 149, 241, 0.8) 0%,hsla(237, 31.50%, 48.60%, 0.86) 100%);
+          padding: 1rem 2rem;
+          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
           color: #fff;
           font-size: 1rem;
           font-weight: 600;
           border: none;
           border-radius: 12px;
           cursor: pointer;
-          box-shadow: 0 10px 30px rgba(102, 126, 234, 0.28);
-          transition: all 0.3s;
+          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           text-transform: uppercase;
           letter-spacing: 0.5px;
         }
         .contact-hero2-form button:hover {
-          background: linear-gradient(hsl(237, 31.50%, 48.60%) 100%, 135deg,rgb(129, 149, 241) 0%);
-          transform: translateY(-2px);
-          box-shadow: 0 15px 40px rgba(102, 126, 234, 0.39);
+          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+          transform: translateY(-3px);
+          box-shadow: 0 12px 40px rgba(15, 23, 42, 0.4);
         }
         .contact-hero2-form button:active {
           transform: translateY(0);
+        }
+        .job-button {
+          display: block;
+          width: 85%;
+          margin: 1rem auto 0;
+          padding: 0.9rem 2rem;
+          background: #fff;
+          color: #1a1a1a;
+          font-size: 0.95rem;
+          font-weight: 600;
+          border: none;
+          border-radius: 12px;
+          cursor: pointer;
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          pointer-events: auto;
+        }
+        .job-button:hover {
+          background: #f5f5f5;
+          transform: translateY(-3px);
+          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
         }
         @media (max-width: 1024px) {
           .contact-hero2-content {
@@ -254,8 +222,9 @@ const ContactForm = () => {
             left: 0;
             padding: 2rem 0.5rem;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
             height: auto !important;
             margin: 0 auto;
             background: none;
@@ -267,6 +236,15 @@ const ContactForm = () => {
           }
           .contact-hero2-form h2 {
             font-size: 1.55rem;
+          }
+          .job-button {
+            max-width: 390px;
+            width: calc(85% + 1rem);
+            margin-left: auto;
+            margin-right: auto;
+            left: auto;
+            right: auto;
+            position: relative;
           }
         }
         @media (max-width: 500px) {
