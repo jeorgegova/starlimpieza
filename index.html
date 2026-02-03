@@ -3,44 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo.png" />
+    <link rel="apple-touch-icon" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Star Limpiezas | Servicios de limpieza profesionales en Girona y Costa Brava</title>
-    <meta name="description" content="Empresa de limpieza profesional en Girona y Costa Brava: hogares, Airbnb, comunidades, oficinas y servicios forestales. Reserva online y atención por WhatsApp." />
-    <meta name="robots" content="index,follow" />
     <meta name="theme-color" content="#0f172a" />
-
-    <!-- Open Graph -->
-    <meta property="og:title" content="Star Limpiezas | Servicios de limpieza profesionales" />
-    <meta property="og:description" content="Empresa de limpieza profesional en Girona y Costa Brava: hogares, Airbnb, comunidades, oficinas y servicios forestales. Reserva online y atención por WhatsApp." />
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://starlimpiezas.es/" />
-    <meta property="og:image" content="https://starlimpiezas.es/logo.png" />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Star Limpiezas" />
-    <meta name="twitter:description" content="Empresa de limpieza profesional en Girona y Costa Brava. Reserva online y atención por WhatsApp." />
-    <meta name="twitter:image" content="https://starlimpiezas.es/logo.png" />
-
-    <!-- JSON-LD Schema.org -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "CleaningService",
-      "name": "Star Limpiezas",
-      "url": "https://starlimpiezas.es",
-      "image": "https://starlimpiezas.es/logo.png",
-      "telephone": "+34 643513174",
-      "email": "info@starlimpiezas.com",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Mont-ras",
-        "addressRegion": "Girona",
-        "addressCountry": "ES"
-      },
-      "areaServed": ["Girona", "Costa Brava", "Mont-ras"]
-    }
-    </script>
+    
+    <!-- Preload recursos críticos -->
+    <link rel="preload" href="/logo.png" as="image" />
+    
+    <!-- Favicon para diferentes contextos -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />
+    <link rel="icon" type="image/png" sizes="192x192" href="/logo.png" />
   </head>
   <body>
     <div id="root"></div>

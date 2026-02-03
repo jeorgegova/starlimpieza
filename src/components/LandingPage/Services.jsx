@@ -28,7 +28,6 @@ import limpiezaZonasComunes from "../../assets/Limpieza-de-zonas-comunes.jpg"
 import mantenimientoInstalaciones from "../../assets/Mantenimiento-e-Instalaciones.jpg"
 import supervisionCalidad from "../../assets/Supervision-de-calidad.jpg"
 import restaurantDiningAreaCleaning from "../../assets/restaurant-dining-area-cleaning.jpg"
-import garagePestControl from "../../assets/garage-pest-control-treatment.jpg"
 import img8 from "../../assets/img8.png"
 
 const Services = () => {
@@ -85,7 +84,7 @@ const Services = () => {
       title: "Limpiezas de Garajes",
       image: img5,
       description:
-        "Siempre disponibles para una limpieza impecable de garajes comunitarios y privados. Incluye eliminación profunda de polvo, grasa y residuos, además de tratamientos antiparasitarios.",
+        "Siempre disponibles para una limpieza impecable de garajes comunitarios y privados. Incluye eliminación profunda de polvo, grasa y residuos para mantener tu garaje en perfectas condiciones.",
       color: "#dc2626",
       gradient: "linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)",
       tag: "Comunidad",
@@ -306,15 +305,15 @@ const Services = () => {
             ],
           },
           {
-            title: "Tratamientos Antiparasitarios",
+            title: "Mantenimiento de Suelos",
             description:
-              "Los garajes pueden ser refugio de plagas. Nuestro servicio incluye tratamientos antiparasitarios profesionales para prevenir y eliminar insectos y roedores, garantizando un espacio higiénico y seguro.",
-            image: garagePestControl,
+              "El mantenimiento regular de los suelos de garaje es esencial para preservar su durabilidad y apariencia. Ofrecemos tratamiento especializado para suelos de hormigón, baldosa y otros materiales.",
+            image: privateGarageCleaning,
             features: [
-              "Tratamientos preventivos",
-              "Eliminación de plagas existentes",
-              "Productos seguros y efectivos",
-              "Seguimiento y garantía",
+              "Tratamiento de suelos especializados",
+              "Protección contra desgaste",
+              "Sellado y abrillantado",
+              "Mantenimiento programado",
             ],
           },
         ],
@@ -613,7 +612,13 @@ const Services = () => {
                       )}
                     </div>
                     <div className="subsection-image">
-                      <img src={subsection.image || "/placeholder.svg"} alt={subsection.title} />
+                      <img 
+                        src={subsection.image || "/placeholder.svg"} 
+                        alt={`${subsection.title} - Servicio de ${modalService.title} en Girona y Costa Brava - Star Limpiezas`}
+                        loading="lazy"
+                        width="600"
+                        height="400"
+                      />
                     </div>
                   </div>
                 </div>

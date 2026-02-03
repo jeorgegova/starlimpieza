@@ -181,6 +181,8 @@ const HorizontalTimelineTestimonials = ({ interval = 4000 }) => {
         flexDirection: "column",
         justifyContent: "center",
       }}
+      itemScope
+      itemType="https://schema.org/LocalBusiness"
     >
       <h2>Lo que dicen nuestros clientes en Google</h2>
 
@@ -202,19 +204,29 @@ const HorizontalTimelineTestimonials = ({ interval = 4000 }) => {
                 zIndex: state === "active" ? 3 : (state === "left" || state === "right" ? 2 : 1)
               }}
               onClick={() => goto(idx)}
+              itemProp="review"
+              itemScope
+              itemType="https://schema.org/Review"
             >
+              <div itemProp="itemReviewed" itemScope itemType="https://schema.org/LocalBusiness">
+                <span itemProp="name">Star Limpiezas</span>
+              </div>
               <div className="timeline-horizontal-marker">
                 <div className="timeline-horizontal-dot" />
               </div>
               <div className="timeline-horizontal-content">
-                <div style={{ marginBottom: '0.4rem', color: '#e0a800', fontWeight: 700 }}>
-                  {Array.from({ length: t.rating }).map((_, i) => <span key={i}>★</span>)}
-                  {Array.from({ length: 5 - t.rating }).map((_, i) => <span key={i} style={{ color: '#e0a80055' }}>★</span>)}
+                <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" style={{ marginBottom: '0.4rem' }}>
+                  <span style={{ color: '#e0a800', fontWeight: 700 }}>
+                    {Array.from({ length: t.rating }).map((_, i) => <span key={i}>★</span>)}
+                    {Array.from({ length: 5 - t.rating }).map((_, i) => <span key={i} style={{ color: '#e0a80055' }}>★</span>)}
+                  </span>
+                  <meta itemProp="ratingValue" content={t.rating} />
+                  <meta itemProp="bestRating" content="5" />
                 </div>
-                <p className="testimonial-text">{t.text}</p>
-                <p className="author">
-                  - {t.author_name}
-                  <span className="time-ago">{t.relative_time_description}</span>
+                <p className="testimonial-text" itemProp="reviewBody">{t.text}</p>
+                <p className="author" itemProp="author" itemScope itemType="https://schema.org/Person">
+                  - <span itemProp="name">{t.author_name}</span>
+                  <span className="time-ago" itemProp="datePublished" content={t.relative_time_description.replace('Hace ', '')}>{t.relative_time_description}</span>
                 </p>
               </div>
             </div>

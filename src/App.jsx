@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useNavigate, useLocation } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 import Navbar from './components/LandingPage/Navbar';
 import Hero from './components/LandingPage/Hero';
 import Services from './components/LandingPage/Services';
@@ -7,12 +8,14 @@ import HorizontalTimelineTestimonials from './components/LandingPage/Testimonial
 import ContactForm from './components/LandingPage/ContactForm';
 import Footer from './components/LandingPage/Footer';
 import AboutUs from './components/LandingPage/AboutUs';
+import FAQ from './components/LandingPage/FAQ';
 import Reserva from './components/Reservas/Reservas';
 import JobApplicationForm from './components/JobApplication/JobApplicationForm';
 import EmailVerification from './components/EmailVerification';
 import ResetPassword from './components/ResetPassword';
 import CookieConsent from './components/CookieConsent';
 import WhatsAppButton from './components/WhatsAppButton';
+import SEO, { localBusinessSchema, websiteSchema, breadcrumbSchema } from './components/SEO';
 
 function App() {
   const navigate = useNavigate();
@@ -20,6 +23,39 @@ function App() {
   const [currentSection, setCurrentSection] = useState('hero');
   const [showJobModal, setShowJobModal] = useState(false);
   const sectionsRef = useRef({});
+  const SITE_URL = 'https://starlimpiezas.es';
+
+  // Configuración SEO por ruta
+  const getSEOConfig = () => {
+    const routesSEO = {
+      '/': {
+        title: 'Star Limpiezas | Servicios de Limpieza Profesionales en Girona y Costa Brava',
+        description: 'Empresa de limpieza profesional en Girona y Costa Brava. Limpieza de hogares, Airbnb, comunidades, oficinas, restaurantes y servicios forestales. Presupuesto sin compromiso. ✆ 643 513 174',
+        url: SITE_URL
+      },
+      '/reservas': {
+        title: 'Reservar Servicio de Limpieza | Star Limpiezas',
+        description: 'Reserva fácilmente tu servicio de limpieza profesional en Girona y Costa Brava. Hogar, Airbnb, comunidad, oficina o restaurante. Atención por WhatsApp.',
+        url: `${SITE_URL}/reservas`
+      },
+      '/verify-email': {
+        title: 'Verificación de Email | Star Limpiezas',
+        description: 'Verifica tu correo electrónico para activar tu cuenta y gestionar tus reservas de servicios de limpieza.',
+        url: `${SITE_URL}/verify-email`,
+        robots: 'noindex, nofollow'
+      },
+      '/reset-password': {
+        title: 'Restablecer Contraseña | Star Limpiezas',
+        description: 'Restablece tu contraseña de forma segura para acceder a tu cuenta y gestionar tus reservas de limpieza.',
+        url: `${SITE_URL}/reset-password`,
+        robots: 'noindex, nofollow'
+      }
+    };
+
+    return routesSEO[location.pathname] || routesSEO['/'];
+  };
+
+  const seoConfig = getSEOConfig();
 
   // Función para scroll suave a una sección específica
   const scrollToSection = (sectionId) => {
@@ -52,7 +88,7 @@ function App() {
   useEffect(() => {
     const observerOptions = {
       root: null,
-      rootMargin: '-40% 0px -60% 0px', // Mejor detección para services
+      rootMargin: '-40% 0px -60% 0px',
       threshold: 0
     };
 
@@ -67,7 +103,7 @@ function App() {
     const observer = new IntersectionObserver(observerCallback, observerOptions);
 
     // Observar todas las secciones
-    const sections = ['hero', 'services', 'aboutUs', 'testimonials', 'contact'];
+    const sections = ['hero', 'services', 'aboutUs', 'faq', 'testimonials', 'contact'];
 
     sections.forEach((sectionId) => {
       const element = document.getElementById(sectionId);
@@ -79,84 +115,29 @@ function App() {
     return () => observer.disconnect();
   }, []);
 
-  // SEO dinámico por ruta
-  useEffect(() => {
-    const SITE_URL = window.location.origin;
-    const routesSEO = {
-      '/': {
-        title: 'Star Limpiezas | Servicios de limpieza profesionales en Girona y Costa Brava',
-        description: 'Empresa de limpieza profesional en Girona y Costa Brava: hogares, Airbnb, comunidades, oficinas y servicios forestales. Reserva online y atención por WhatsApp.',
-        robots: 'index,follow',
-        ogTitle: 'Star Limpiezas | Servicios de limpieza profesionales',
-        ogDescription: 'Empresa de limpieza profesional en Girona y Costa Brava: hogares, Airbnb, comunidades, oficinas y servicios forestales. Reserva online y atención por WhatsApp.'
-      },
-      '/reservas': {
-        title: 'Reservas de servicios | Star Limpiezas',
-        description: 'Reserva fácilmente nuestros servicios profesionales en Girona y Costa Brava.',
-        robots: 'index,follow',
-        ogTitle: 'Reservas - Star Limpiezas',
-        ogDescription: 'Reserva fácilmente nuestros servicios profesionales en Girona y Costa Brava.'
-      },
-      '/verify-email': {
-        title: 'Verificación de email | Star Limpiezas',
-        description: 'Verifica tu correo para activar tu cuenta y gestionar tus reservas.',
-        robots: 'noindex,nofollow',
-        ogTitle: 'Verificación de email',
-        ogDescription: 'Verifica tu correo para activar tu cuenta.'
-      },
-      '/reset-password': {
-        title: 'Restablecer contraseña | Star Limpiezas',
-        description: 'Restablece tu contraseña para acceder a tus reservas de servicios.',
-        robots: 'noindex,nofollow',
-        ogTitle: 'Restablecer contraseña',
-        ogDescription: 'Restablece tu contraseña para acceder a tus reservas.'
-      }
-    };
-
-    const seo = routesSEO[location.pathname] || routesSEO['/'];
-    document.title = seo.title;
-
-    const ensureMeta = (selector, attributes) => {
-      let el = document.head.querySelector(selector);
-      if (!el) {
-        el = document.createElement('meta');
-        Object.entries(attributes).forEach(([k, v]) => el.setAttribute(k, v));
-        document.head.appendChild(el);
-      } else {
-        Object.entries(attributes).forEach(([k, v]) => el.setAttribute(k, v));
-      }
-      return el;
-    };
-
-    // Meta básicos
-    ensureMeta('meta[name="description"]', { name: 'description', content: seo.description });
-    ensureMeta('meta[name="robots"]', { name: 'robots', content: seo.robots });
-
-    // Open Graph
-    ensureMeta('meta[property="og:title"]', { property: 'og:title', content: seo.ogTitle });
-    ensureMeta('meta[property="og:description"]', { property: 'og:description', content: seo.ogDescription });
-    ensureMeta('meta[property="og:type"]', { property: 'og:type', content: 'website' });
-    ensureMeta('meta[property="og:url"]', { property: 'og:url', content: SITE_URL + location.pathname });
-    ensureMeta('meta[property="og:image"]', { property: 'og:image', content: SITE_URL + '/logo.png' });
-
-    // Twitter
-    ensureMeta('meta[name="twitter:card"]', { name: 'twitter:card', content: 'summary_large_image' });
-    ensureMeta('meta[name="twitter:title"]', { name: 'twitter:title', content: seo.ogTitle });
-    ensureMeta('meta[name="twitter:description"]', { name: 'twitter:description', content: seo.ogDescription });
-    ensureMeta('meta[name="twitter:image"]', { name: 'twitter:image', content: SITE_URL + '/logo.png' });
-
-    // Canonical
-    let canonical = document.head.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', SITE_URL + location.pathname);
-  }, [location.pathname]);
+  // Combinar schemas
+  const combinedSchema = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      localBusinessSchema,
+      websiteSchema,
+      breadcrumbSchema([{ name: 'Inicio', url: SITE_URL }])
+    ]
+  };
 
   return (
     <div className="scroll-smooth">
+      <Helmet>
+        <html lang="es" />
+        <title>{seoConfig.title}</title>
+        <meta name="description" content={seoConfig.description} />
+        <meta name="robots" content={seoConfig.robots || 'index, follow'} />
+        <link rel="canonical" href={seoConfig.url} />
+        <script type="application/ld+json">
+          {JSON.stringify(combinedSchema)}
+        </script>
+      </Helmet>
+      
       <Navbar currentSection={currentSection} navigationHandler={handleNavigation} />
       <Routes>
         <Route
@@ -166,21 +147,58 @@ function App() {
               <Hero />
               <Services />
               <AboutUs />
+              <FAQ />
               <HorizontalTimelineTestimonials />
               <ContactForm onOpenJobModal={() => setShowJobModal(true)} />
             </main>
           }
         />
-        <Route path="/reservas" element={<Reserva />} />
-        <Route path="/verify-email" element={<EmailVerification />} />
-        <Route path="/reset-password" element={<ResetPassword />} />
+        <Route 
+          path="/reservas" 
+          element={
+            <>
+              <Helmet>
+                <title>{seoConfig.title}</title>
+                <meta name="description" content={seoConfig.description} />
+                <link rel="canonical" href={seoConfig.url} />
+              </Helmet>
+              <Reserva />
+            </>
+          } 
+        />
+        <Route 
+          path="/verify-email" 
+          element={
+            <>
+              <Helmet>
+                <title>{seoConfig.title}</title>
+                <meta name="robots" content={seoConfig.robots} />
+                <link rel="canonical" href={seoConfig.url} />
+              </Helmet>
+              <EmailVerification />
+            </>
+          } 
+        />
+        <Route 
+          path="/reset-password" 
+          element={
+            <>
+              <Helmet>
+                <title>{seoConfig.title}</title>
+                <meta name="robots" content={seoConfig.robots} />
+                <link rel="canonical" href={seoConfig.url} />
+              </Helmet>
+              <ResetPassword />
+            </>
+          } 
+        />
       </Routes>
-       <Footer onNavigate={handleNavigation} />
-       <CookieConsent />
-       <WhatsAppButton />
-       {showJobModal && (
-         <JobApplicationForm onClose={() => setShowJobModal(false)} />
-       )}
+      <Footer onNavigate={handleNavigation} />
+      <CookieConsent />
+      <WhatsAppButton />
+      {showJobModal && (
+        <JobApplicationForm onClose={() => setShowJobModal(false)} />
+      )}
     </div>
   );
 }
