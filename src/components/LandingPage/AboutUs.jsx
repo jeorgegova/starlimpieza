@@ -4,30 +4,30 @@ const valores = [
   { 
     titulo: "Responsabilidad y Transparencia", 
     texto: "Somos una empresa responsable y transparente, tanto con nuestros clientes como con nuestros trabajadores.", 
-    color: "#0ea5e9",
+    color: "white",
     icon: "🤝"
   },
   { 
     titulo: "Rapidez y Eficiencia", 
     texto: "Nos diferenciamos en la rapidez, acompañada de una formación continua de nuestros trabajadores, provocando que nuestro cliente pague menos horas de servicio, obteniendo una limpiezas impecable e incluso mejor que la de la competencia.", 
-    color: "#22c55e",
+    color: "white",
     icon: "⚡"
   },
   { 
     titulo: "Cuidado de Trabajadores", 
     texto: "Creemos y defendemos la ideología de cuidar a nuestros trabajadores, sus derechos y la igualdad. Según la investigación de Oxford, los trabajadores alegres son un 13% más productivos.", 
-    color: "#eab308",
+    color: "white",
     icon: "💼"
   }
 ];
 
 const bubbleArray = [
-  { size: 70, left: "12%", delay: "0s", dur: "13s", topFrom: "92%", topTo: "-16%", opacity: 0.26 },
-  { size: 100, left: "26%", delay: "4s", dur: "17s", topFrom: "96%", topTo: "-9%", opacity: 0.19 },
-  { size: 60, left: "53%", delay: "2s", dur: "15s", topFrom: "88%", topTo: "-13%", opacity: 0.23 },
-  { size: 120, left: "77%", delay: "6s", dur: "21s", topFrom: "90%", topTo: "-18%", opacity: 0.22 },
-  { size: 48, left: "36%", delay: "8s", dur: "11s", topFrom: "84%", topTo: "-10%", opacity: 0.20 },
-  { size: 85, left: "71%", delay: "1s", dur: "18s", topFrom: "81%", topTo: "-10%", opacity: 0.17 },
+  { size: 70, left: "12%", delay: "0s", dur: "13s", topFrom: "92%", topTo: "-16%", opacity: 0.2 },
+  { size: 100, left: "26%", delay: "4s", dur: "17s", topFrom: "96%", topTo: "-9%", opacity: 0.15 },
+  { size: 60, left: "53%", delay: "2s", dur: "15s", topFrom: "88%", topTo: "-13%", opacity: 0.18 },
+  { size: 120, left: "77%", delay: "6s", dur: "21s", topFrom: "90%", topTo: "-18%", opacity: 0.17 },
+  { size: 48, left: "36%", delay: "8s", dur: "11s", topFrom: "84%", topTo: "-10%", opacity: 0.16 },
+  { size: 85, left: "71%", delay: "1s", dur: "18s", topFrom: "81%", topTo: "-10%", opacity: 0.14 },
 ];
 
 const AboutUs = () => {
@@ -63,6 +63,8 @@ const AboutUs = () => {
               animationDelay: b.delay,
               animationDuration: b.dur,
               top: b.topFrom,
+              "--bblTopFrom": b.topFrom,
+              "--bblTopTo": b.topTo,
             }}
           />
         ))}
@@ -72,7 +74,7 @@ const AboutUs = () => {
         {/* Header */}
         <div className="about-header">
           <span className="about-badge">Sobre Nosotros</span>
-          <h1 className="faq-title">Quiénes Somos - Star Limpiezas</h1>
+          <h1 className="about-title">Quiénes Somos - Star Limpiezas</h1>
         </div>
 
         {/* Contenido principal */}
@@ -94,14 +96,17 @@ const AboutUs = () => {
           </div>
 
           {/* Valores */}
-          <div className="values-section fade-up" style={{ animationDelay: '0.15s' }}>
+          <div className="values-section fade-up" style={{ animationDelay: '0.2s' }}>
             <h2 className="section-title">Nuestros Valores</h2>
             <div className="values-grid">
               {valores.map((valor, i) => (
                 <div 
                   key={i} 
                   className="value-card"
-                  style={{ '--accent-color': valor.color }}
+                  style={{ 
+                    '--accent-color': valor.color,
+                    animationDelay: `${0.3 + i * 0.1}s`
+                  }}
                 >
                   <span className="value-icon">{valor.icon}</span>
                   <h3 className="value-title">{valor.titulo}</h3>
@@ -113,7 +118,7 @@ const AboutUs = () => {
         </div>
 
         {/* Misión y Visión */}
-        <div className="mv-section fade-up" style={{ animationDelay: '0.3s' }}>
+        <div className="mv-section fade-up" style={{ animationDelay: '0.4s' }}>
           <div className="mv-grid">
             <div className="mv-card mission-card">
               <div className="mv-header">
@@ -141,7 +146,7 @@ const AboutUs = () => {
           position: relative;
           width: 100%;
           min-height: 100vh;
-          background: linear-gradient(135deg, #f8fafc 0%, #ffffff 50%, #f0f9ff 100%);
+          background: #f8fafc;
           overflow: hidden;
           padding: 5rem 2rem;
         }
@@ -156,14 +161,18 @@ const AboutUs = () => {
         
         .bubble {
           position: absolute;
-          background: linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(34, 197, 94, 0.1) 100%);
+          background: radial-gradient(circle at 30% 30%, rgba(190, 227, 248, 0.4), rgba(190, 227, 248, 0.1));
+          border: 1px solid rgba(190, 227, 248, 0.3);
           border-radius: 50%;
-          animation: bubbleUp linear infinite;
+          will-change: transform, opacity;
+          animation-name: bubbleUp;
+          animation-timing-function: ease-in-out;
+          animation-iteration-count: infinite;
         }
         
         @keyframes bubbleUp {
-          0% { transform: translateY(0); opacity: 0.3; }
-          100% { transform: translateY(-100vh); opacity: 0; }
+          from { top: var(--bblTopFrom); opacity: inherit; }
+          to   { top: var(--bblTopTo); opacity: 0; }
         }
         
         .about-container {
@@ -189,12 +198,13 @@ const AboutUs = () => {
           letter-spacing: 0.05em;
           text-transform: uppercase;
           margin-bottom: 1rem;
+          box-shadow: 0 2px 8px rgba(15, 23, 42, 0.2);
         }
         
         .about-title {
           font-size: clamp(2rem, 4vw, 2.75rem);
-          font-weight: 800;
-          color: #09597b;
+          font-weight: 700;
+          color: #0f172a;
           margin: 0;
           letter-spacing: -0.02em;
         }
@@ -208,34 +218,35 @@ const AboutUs = () => {
         
         .about-card {
           background: white;
-          border-radius: 24px;
+          border-radius: 1.5rem;
           padding: 2.5rem;
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(0, 0, 0, 0.04);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid rgba(0, 0, 0, 0.06);
         }
         
         .about-card p {
-          color: #334155;
+          color: #475569;
           line-height: 1.8;
           margin-bottom: 1.25rem;
           font-size: 1rem;
           text-align: justify;
         }
         
-        .about-card p:last-child {
-          margin-bottom: 0;
+        .about-card p:last-of-type {
+          margin-bottom: 1.25rem;
         }
         
         .about-card strong {
           color: #0f172a;
+          font-weight: 600;
         }
         
         .about-highlight {
           margin-top: 1.5rem;
           padding: 1.25rem;
-          background: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(34, 197, 94, 0.05) 100%);
-          border-radius: 16px;
-          border-left: 4px solid #0ea5e9;
+          background: #f1f5f9;
+          border-radius: 1rem;
+          border-left: 3px solid #0ea5e9;
           color: #0f172a;
           font-weight: 600;
           font-size: 0.95rem;
@@ -245,7 +256,7 @@ const AboutUs = () => {
         .section-title {
           font-size: 1.5rem;
           font-weight: 700;
-          color: #09597b;
+          color: #0f172a;
           margin: 0 0 1.5rem;
         }
         
@@ -257,17 +268,17 @@ const AboutUs = () => {
         
         .value-card {
           background: white;
-          border-radius: 16px;
+          border-radius: 1rem;
           padding: 1.5rem;
-          box-shadow: 0 2px 20px rgba(0, 0, 0, 0.04);
-          border: 1px solid rgba(0, 0, 0, 0.04);
+          box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+          border: 1px solid rgba(0, 0, 0, 0.06);
           border-left: 4px solid var(--accent-color);
           transition: all 0.3s ease;
         }
         
         .value-card:hover {
           transform: translateY(-4px);
-          box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
         }
         
         .value-icon {
@@ -302,18 +313,24 @@ const AboutUs = () => {
         
         .mv-card {
           background: white;
-          border-radius: 24px;
+          border-radius: 1.5rem;
           padding: 2.5rem;
-          box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
-          border: 1px solid rgba(0, 0, 0, 0.04);
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+          border: 1px solid rgba(0, 0, 0, 0.06);
+          transition: all 0.3s ease;
         }
         
         .mission-card {
-          border-top: 4px solid #0ea5e9;
+          border-top: 3px solid #0ea5e9;
         }
         
         .vision-card {
-          border-top: 4px solid #22c55e;
+          border-top: 3px solid #22c55e;
+        }
+        
+        .mv-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 8px 28px rgba(0, 0, 0, 0.12);
         }
         
         .mv-header {
@@ -321,10 +338,6 @@ const AboutUs = () => {
           align-items: center;
           gap: 0.75rem;
           margin-bottom: 1.25rem;
-        }
-        
-        .mv-icon {
-          font-size: 1.75rem;
         }
         
         .mv-title {
@@ -383,12 +396,12 @@ const AboutUs = () => {
           
           .about-card {
             padding: 1.5rem;
-            border-radius: 18px;
+            border-radius: 1.25rem;
           }
           
           .mv-card {
             padding: 1.5rem;
-            border-radius: 18px;
+            border-radius: 1.25rem;
           }
           
           .value-card {
