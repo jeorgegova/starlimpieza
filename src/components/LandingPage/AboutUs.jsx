@@ -59,7 +59,7 @@ const AboutUs = () => {
       <div className="about-container">
         <div className="about-header">
           <span className="about-badge">Sobre Nosotros</span>
-          <h1 className="about-title">Comprometidos con la calidad y el buen servicio</h1>
+          <h2 className="about-title">Comprometidos con la calidad y el buen servicio</h2>
         </div>
 
         {/* Contenido */}

@@ -127,17 +127,13 @@ function App() {
 
   return (
     <div className="scroll-smooth">
-      <Helmet>
-        <html lang="es" />
-        <title>{seoConfig.title}</title>
-        <meta name="description" content={seoConfig.description} />
-        <meta name="robots" content={seoConfig.robots || 'index, follow'} />
-        <link rel="canonical" href={seoConfig.url} />
-        <script type="application/ld+json">
-          {JSON.stringify(combinedSchema)}
-        </script>
-      </Helmet>
-      
+      <SEO
+        title={seoConfig.title}
+        description={seoConfig.description}
+        url={seoConfig.url}
+        schema={combinedSchema}
+      />
+
       <Navbar currentSection={currentSection} navigationHandler={handleNavigation} />
       <Routes>
         <Route
@@ -153,44 +149,17 @@ function App() {
             </main>
           }
         />
-        <Route 
-          path="/reservas" 
-          element={
-            <>
-              <Helmet>
-                <title>{seoConfig.title}</title>
-                <meta name="description" content={seoConfig.description} />
-                <link rel="canonical" href={seoConfig.url} />
-              </Helmet>
-              <Reserva />
-            </>
-          } 
+        <Route
+          path="/reservas"
+          element={<Reserva />}
         />
-        <Route 
-          path="/verify-email" 
-          element={
-            <>
-              <Helmet>
-                <title>{seoConfig.title}</title>
-                <meta name="robots" content={seoConfig.robots} />
-                <link rel="canonical" href={seoConfig.url} />
-              </Helmet>
-              <EmailVerification />
-            </>
-          } 
+        <Route
+          path="/verify-email"
+          element={<EmailVerification />}
         />
-        <Route 
-          path="/reset-password" 
-          element={
-            <>
-              <Helmet>
-                <title>{seoConfig.title}</title>
-                <meta name="robots" content={seoConfig.robots} />
-                <link rel="canonical" href={seoConfig.url} />
-              </Helmet>
-              <ResetPassword />
-            </>
-          } 
+        <Route
+          path="/reset-password"
+          element={<ResetPassword />}
         />
       </Routes>
       <Footer onNavigate={handleNavigation} />

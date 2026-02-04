@@ -2,15 +2,15 @@ import { Helmet } from 'react-helmet-async'
 
 const SEO = ({
   title = 'Star Limpiezas | Servicios de Limpieza Profesionales en Girona y Costa Brava',
-  description = 'Empresa de limpieza profesional en Girona y Costa Brava. Limpieza de hogares, Airbnb, comunidades, oficinas, restaurantes y servicios forestales. Presupuesto sin compromiso.',
-  keywords = 'limpieza Girona, limpieza Costa Brava, limpieza Airbnb, limpieza comunidades, limpieza oficinas, limpieza restaurantes, servicios forestales, poda árboles, prevención incendios, Mont-ras, Baix Empordà',
+  description = 'Empresa de limpieza líder en Girona y Costa Brava. Expertos en limpieza de hogares, Airbnb, comunidades de vecinos, oficinas y restaurantes. Servicios forestales y mantenimiento. ¡Solicita tu presupuesto sin compromiso!',
+  keywords = 'limpieza Girona, servicios de limpieza profesionales, limpieza Costa Brava, limpieza Airbnb Girona, limpieza comunidades de vecinos, limpieza oficinas Girona, limpieza restaurantes Girona, mantenimiento forestal Girona, poda de árboles, prevención de incendios, limpieza de cristales, limpieza de garajes, Mont-ras, Baix Empordà, servicios de limpieza de confianza',
   image = '/logo.png',
   url = 'https://starlimpiezas.es',
   type = 'website',
   schema = null
 }) => {
   const fullImageUrl = image.startsWith('http') ? image : `${url}${image}`
-  
+
   return (
     <Helmet>
       {/* Meta tags básicos */}
@@ -20,13 +20,13 @@ const SEO = ({
       <meta name="robots" content="index, follow" />
       <meta name="author" content="Star Limpiezas" />
       <link rel="canonical" href={url} />
-      
+
       {/* Geo tags */}
       <meta name="geo.region" content="ES-GI" />
       <meta name="geo.placename" content="Mont-ras, Girona" />
       <meta name="geo.position" content="41.9167;3.1333" />
       <meta name="ICBM" content="41.9167, 3.1333" />
-      
+
       {/* Open Graph */}
       <meta property="og:title" content={title} />
       <meta property="og:description" content={description} />
@@ -37,14 +37,14 @@ const SEO = ({
       <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content="Star Limpiezas" />
       <meta property="og:locale" content="es_ES" />
-      
+
       {/* Twitter Card */}
       <meta name="twitter:card" content="summary_large_image" />
       <meta name="twitter:site" content="@starlimpiezas" />
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       <meta name="twitter:image" content={fullImageUrl} />
-      
+
       {/* Schema.org datos estructurados */}
       {schema && (
         <script type="application/ld+json">
