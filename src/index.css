@@ -1,8 +1,17 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
 body {
-  font-family: Arial, sans-serif;
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  font-family: Arial, sans-serif;
 }
 
 nav {
@@ -32,8 +41,9 @@ nav ul li a {
 }
 
 section {
-  padding: 2rem;
-  margin: 1rem 0;
+  padding: 0;
+  /* Removing fixed padding that conflicts with internal component layouts */
+  margin: 0;
 }
 
 #hero {

@@ -47,45 +47,79 @@
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-20px) scale(1.02); }
+
+  0%,
+  100% {
+    transform: translateY(0px) scale(1);
+  }
+
+  50% {
+    transform: translateY(-20px) scale(1.02);
+  }
 }
 
 @keyframes glow {
   0% {
     box-shadow:
-      0 0 50px rgba(255,255,255,0.4),
-      inset 0 0 50px rgba(255,255,255,0.2),
-      0 20px 40px rgba(0,0,0,0.1);
+      0 0 50px rgba(255, 255, 255, 0.4),
+      inset 0 0 50px rgba(255, 255, 255, 0.2),
+      0 20px 40px rgba(0, 0, 0, 0.1);
   }
+
   100% {
     box-shadow:
-      0 0 70px rgba(255,255,255,0.6),
-      inset 0 0 70px rgba(255,255,255,0.3),
-      0 25px 50px rgba(0,0,0,0.15);
+      0 0 70px rgba(255, 255, 255, 0.6),
+      inset 0 0 70px rgba(255, 255, 255, 0.3),
+      0 25px 50px rgba(0, 0, 0, 0.15);
   }
 }
 
 @keyframes shimmer {
-  0%, 100% { opacity: 0.3; transform: scale(1); }
-  50% { opacity: 0.7; transform: scale(1.1); }
+
+  0%,
+  100% {
+    opacity: 0.3;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
 }
 
 @keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(30px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes logoFloat {
-  0%, 100% { transform: translateY(0px) rotate(0deg); }
-  33% { transform: translateY(-5px) rotate(1deg); }
-  66% { transform: translateY(5px) rotate(-1deg); }
+
+  0%,
+  100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+
+  33% {
+    transform: translateY(-5px) rotate(1deg);
+  }
+
+  66% {
+    transform: translateY(5px) rotate(-1deg);
+  }
 }
 
 .responsive-hero-circle {
   background:
-    radial-gradient(circle at 30% 20%, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0.4) 100%),
-    linear-gradient(135deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.1) 100%);
+    radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.8) 0%, rgba(255, 255, 255, 0.6) 50%, rgba(255, 255, 255, 0.4) 100%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%);
   padding: 3rem 2rem;
   border-radius: 50%;
   width: min(92vw, 500px);
@@ -96,9 +130,9 @@
   align-items: center;
   z-index: 5;
   backdrop-filter: blur(10px);
-  border: 3px solid rgba(255,255,255,0.3);
+  border: 3px solid rgba(255, 255, 255, 0.3);
   box-shadow:
-    0 0 50px rgba(255,255,255,0.4),
+    0 0 50px rgba(255, 255, 255, 0.4),
     inset 0 0 50px rgba(28, 17, 48, 0.2),
     0 20px 40px rgba(18, 5, 62, 0.1);
   position: relative;
@@ -112,7 +146,7 @@
   width: 30%;
   height: 30%;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 70%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, rgba(255, 255, 255, 0) 70%);
   animation: shimmer 4s ease-in-out infinite;
 }
 
@@ -121,7 +155,7 @@
   margin-bottom: 1.5rem;
   color: #2c3e50;
   font-weight: 700;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
   animation: fadeInUp 1s ease-out 0.5s both;
 }
 
@@ -138,8 +172,8 @@
 .hero-logo {
   max-width: 120px;
   border-radius: 15px;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-  border: 3px solid rgba(255,255,255,0.5);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  border: 3px solid rgba(255, 255, 255, 0.5);
   animation: logoFloat 3s ease-in-out infinite, fadeInUp 1s ease-out 0.9s both;
 }
 
@@ -152,13 +186,16 @@
     min-height: 220px;
     padding: 2.2rem 0.7rem !important;
   }
+
   .hero-title {
     font-size: 1.15rem !important;
   }
+
   .hero-desc {
     font-size: 0.98rem !important;
     margin-bottom: 1.2rem;
   }
+
   .hero-logo {
     max-width: 60px !important;
   }

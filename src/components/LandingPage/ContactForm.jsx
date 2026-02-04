@@ -42,7 +42,7 @@ const ContactForm = ({ onOpenJobModal }) => {
           <textarea placeholder="Mensaje" rows="4" required />
           <button type="submit">Enviar</button>
         </form>
-        
+
         <button className="job-button" onClick={onOpenJobModal}>
           Trabaja con Nosotros
         </button>

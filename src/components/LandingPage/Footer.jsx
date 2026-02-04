@@ -1,7 +1,15 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import logo from "../../assets/logo.png";
 
 const Footer = ({ onNavigate }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
   const styles = {
     footer: {
       background: "linear-gradient(135deg, #0f172a, #1e293b)",
@@ -58,6 +66,31 @@ const Footer = ({ onNavigate }) => {
       cursor: "pointer",
     },
     contactLabel: { fontWeight: "600" },
+    mapThumbnailSmall: {
+      width: "80px",
+      height: "80px",
+      borderRadius: "10px",
+      overflow: "hidden",
+      cursor: "pointer",
+      border: "2px solid #334155",
+      /* Using a more realistic map-like background image */
+      background: "url('https://maps.googleapis.com/maps/api/staticmap?center=41.9089393,3.1533425&zoom=16&size=80x80&maptype=roadmap&markers=color:red%7C41.9089393,3.1533425&key=')",
+      /* Fallback to a styled div if key is missing, or a high-quality placeholder */
+      backgroundColor: "#1e293b",
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      flexShrink: 0,
+      transition: "all 0.3s ease",
+      boxShadow: "0 4px 12px rgba(0,0,0,0.2)",
+    },
+    directionsLink: {
+      color: "#60a5fa",
+      fontSize: "0.8rem",
+      textDecoration: "underline",
+      marginTop: "0.2rem",
+      display: "inline-block",
+      cursor: "pointer",
+    },
 
     nav: {
       borderTop: "1px solid #334155",
@@ -112,7 +145,7 @@ const Footer = ({ onNavigate }) => {
         <div
           style={{
             ...styles.top,
-            ...(window.innerWidth > 768 ? styles.row : styles.col),
+            ...(isMobile ? styles.col : styles.row),
           }}
         >
           {/* Marca */}
@@ -143,11 +176,38 @@ const Footer = ({ onNavigate }) => {
           <div style={styles.section}>
             <h4 style={styles.title}>Contacto</h4>
             <div>
-              <div style={styles.contactItem}>
-                <span>📍</span>
-                <div>
+              <div
+                style={{ ...styles.contactItem, alignItems: 'center' }}
+                onClick={() => window.open("https://www.google.com/maps/search/?api=1&query=Carrer+del+Carrilet+14+17253+Mont-ras+Girona+España", "_blank")}
+              >
+                <div
+                  style={styles.mapThumbnailSmall}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = "scale(1.05) translateY(-2px)"}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = "scale(1) translateY(0)"}
+                >
+                  <div style={{
+                    position: 'absolute',
+                    top: 0, left: 0, width: '100%', height: '100%',
+                    zIndex: 2, cursor: 'pointer'
+                  }} />
+                  <iframe
+                    title="Ubicación miniatura"
+                    src="https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d742.3130216254883!2d3.1533424520107025!3d41.908939298115264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDHCsDU0JzMyLjIiTiAzwrAwOScxNC40IkU!5e0!3m2!1ses!2sco!4v1757478879723!5m2!1ses!2sco"
+                    width="180%"
+                    height="180%"
+                    style={{
+                      border: 0,
+                      pointerEvents: 'none',
+                      marginTop: '-50px',
+                      marginLeft: '-45px'
+                    }}
+                    allowFullScreen=""
+                    loading="lazy"
+                  />
+                </div>
+                <div style={{ marginLeft: '0.2rem' }}>
                   <p style={styles.contactLabel}>Oficina Principal</p>
-                  <p>Mont-ras, Girona</p>
+                  <p>Carrer del Carrilet, 14, Mont-ras</p>
                 </div>
               </div>
               <div style={styles.contactItem}>
@@ -170,27 +230,27 @@ const Footer = ({ onNavigate }) => {
 
         {/* Navegación */}
         <div style={styles.nav}>
-           <div style={styles.navBtns}>
-             <button style={styles.navBtn} onClick={() => onNavigate("hero")}>
-               Inicio
-             </button>
-             <button style={styles.navBtn} onClick={() => onNavigate("services")}>
-               Servicios
-             </button>
-             <button
-               style={styles.navBtn}
-               onClick={() => onNavigate("testimonials")}
-             >
-               Testimonios
-             </button>
-             <button style={styles.navBtn} onClick={() => onNavigate("contact")}>
-               Contacto
-             </button>
-             <button style={styles.navBtn} onClick={() => onNavigate("job-modal")}>
-               Trabaja con nosotros
-             </button>
-           </div>
-         </div>
+          <div style={styles.navBtns}>
+            <button style={styles.navBtn} onClick={() => onNavigate("hero")}>
+              Inicio
+            </button>
+            <button style={styles.navBtn} onClick={() => onNavigate("services")}>
+              Servicios
+            </button>
+            <button
+              style={styles.navBtn}
+              onClick={() => onNavigate("testimonials")}
+            >
+              Testimonios
+            </button>
+            <button style={styles.navBtn} onClick={() => onNavigate("contact")}>
+              Contacto
+            </button>
+            <button style={styles.navBtn} onClick={() => onNavigate("job-modal")}>
+              Trabaja con nosotros
+            </button>
+          </div>
+        </div>
 
         {/* Copy */}
         <div style={styles.copy}>

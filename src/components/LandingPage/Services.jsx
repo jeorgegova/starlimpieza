@@ -612,8 +612,8 @@ const Services = () => {
                       )}
                     </div>
                     <div className="subsection-image">
-                      <img 
-                        src={subsection.image || "/placeholder.svg"} 
+                      <img
+                        src={subsection.image || "/placeholder.svg"}
                         alt={`${subsection.title} - Servicio de ${modalService.title} en Girona y Costa Brava - Star Limpiezas`}
                         loading="lazy"
                         width="600"
@@ -654,8 +654,10 @@ const Services = () => {
         /* New vertical scrolling layout */
         .services-vertical {
           width: 100%;
+          max-width: 100vw;
           background: #FAFAFA;
           position: relative;
+          overflow-x: hidden;
         }
 
         /* Header Section */
@@ -788,10 +790,11 @@ const Services = () => {
         .service-section {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 4rem;
-          margin-bottom: 8rem;
-          min-height: 600px;
-          align-items: center;
+          column-gap: 4rem;
+          row-gap: 1.5rem;
+          margin-bottom: 4rem; /* Reduced from 7rem */
+          min-height: auto;
+          align-items: start;
           opacity: 0;
           transform: translateY(60px);
           transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
@@ -802,44 +805,48 @@ const Services = () => {
           transform: translateY(0);
         }
 
-        .service-section.image-right {
-          direction: rtl;
+        .service-section.image-left {
+          grid-template-columns: 1fr 1.2fr;
         }
 
-        .service-section.image-right > * {
-          direction: ltr;
+        .service-section.image-right {
+          grid-template-columns: 1.2fr 1fr;
+        }
+
+        @media (min-width: 1025px) {
+          .service-section.image-left .service-image-wrapper { order: 1; }
+          .service-section.image-left .service-content-wrapper { order: 2; }
+          
+          .service-section.image-right .service-image-wrapper { order: 2; }
+          .service-section.image-right .service-content-wrapper { order: 1; }
+        }
+
+        .service-section {
+          align-items: start; /* Change to start to pull everything up */
         }
 
         .service-image-wrapper {
           position: relative;
           height: 100%;
           min-height: 500px;
+          align-self: center; /* Keep image V-centered relative to row height */
         }
 
         .service-image-container {
           position: sticky;
-          top: 100px;
+          top: 60px; /* Even more subtle offset */
           height: 600px;
           border-radius: 24px;
           overflow: hidden;
           box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .service-image-container {
-          position: sticky;
-          top: 100px;
-          height: 600px;
-          border-radius: 24px;
-          overflow: hidden;
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-          /* Eliminado el transition si no se usa */
         }
 
         .service-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
+          display: block;
+          margin: 0 auto;
           transition: transform 0.3s ease;
         }
 
@@ -898,16 +905,20 @@ const Services = () => {
           font-size: clamp(1rem, 2vw, 1.25rem);
           line-height: 1.7;
           color: #4A4A4A;
-          margin: 0 0 2.5rem;
+          margin: 0 0 0.75rem; /* Reduced from 1rem */
+          text-align: justify;
         }
 
         .service-actions {
           display: flex;
-          gap: 1rem;
-          flex-wrap: wrap;
+          gap: 1.5rem;
+          margin-top: 1rem; /* Reduced from 1.5rem */
+          width: 100%;
         }
 
         .service-btn {
+          flex: 1; /* Equal width buttons */
+          justify-content: center;
           display: flex;
           align-items: center;
           gap: 0.75rem;
@@ -1138,6 +1149,7 @@ const Services = () => {
           line-height: 1.8;
           margin-bottom: 1.5rem;
           font-size: 1.0625rem;
+          text-align: justify;
         }
 
         .subsection-features {
@@ -1205,36 +1217,53 @@ const Services = () => {
           }
 
           .service-section {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-            margin-bottom: 6rem;
+            grid-template-columns: 80px 1fr; /* Slimmer image col */
+            column-gap: 1.5rem;
+            row-gap: 0.5rem;
+            margin-bottom: 2.5rem; /* Restored more compact spacing */
+            align-items: start;
           }
-
+          
+          .service-section .service-image-wrapper {
+             align-self: center; /* Center image vertically relative to text */
+          }
+          
           .service-section.image-right {
-            direction: ltr;
+             grid-template-columns: 1fr 100px;
           }
+          
+          .service-section .service-actions { 
+            order: 3; 
+            margin-top: 0.25rem;
+          }
+          .service-section.image-right .service-image-wrapper { order: 2; }
+          .service-section.image-right .service-content-wrapper { order: 1; }
 
           .service-image-container {
             position: relative;
-            top: 0;
-            height: 400px;
+            top: 5px; /* Reduced from 20px to move it up */
+            height: 220px; /* Tall and narrow profile */
+            border-radius: 40px; /* Match screenshot */
           }
 
           .service-content-wrapper {
-            padding: 1rem;
+            padding: 0;
           }
 
-          .subsection-content {
-            grid-template-columns: 1fr;
-            gap: 2rem;
+          .service-actions {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap; /* Allow wrapping on very small screens to avoid truncation */
+            gap: 0.5rem;
+            width: 100%;
+            margin-top: 1rem; /* Reduced */
           }
 
-          .subsection-text {
-            order: 2 !important;
-          }
-
-          .subsection-image {
-            order: 1 !important;
+          .service-btn {
+            padding: 0.85rem 0.5rem;
+            font-size: 0.8rem;
+            min-width: 120px; /* Minimum width for readability */
+            flex: 1 1 auto;
           }
         }
 
@@ -1244,46 +1273,68 @@ const Services = () => {
           }
 
           .services-container {
-            padding: 2rem 1.5rem;
-          }
-
-          .service-section {
-            margin-bottom: 4rem;
-          }
-
-          .service-image-container {
-            height: 300px;
-          }
-
-          .service-actions {
-            flex-direction: column;
-          }
-
-          .service-btn {
-            width: 100%;
-            justify-content: center;
+            padding: 1.5rem 1rem;
           }
 
           .modal-overlay {
-            padding: 1rem;
+            padding: 0.5rem;
+            z-index: 9999;
+          }
+
+          .modal-container-large {
+            max-height: 95vh;
+            border-radius: 16px;
           }
 
           .modal-header-large {
-            padding: 2rem 1.5rem;
+            padding: 1.5rem 1rem;
           }
 
           .modal-body-large {
-            padding: 2rem 1.5rem;
+            padding: 1.5rem 1rem;
           }
 
           .modal-footer {
-            padding: 1.5rem;
+            padding: 1.5rem 1rem;
           }
 
           .modal-cta-button {
             width: 100%;
             justify-content: center;
           }
+        }
+          
+        @media (max-width: 480px) {
+          .header-title {
+            font-size: 1.75rem;
+          }
+          .service-title {
+            font-size: 1.4rem;
+            word-wrap: break-word;
+          }
+          .service-description {
+            font-size: 0.95rem;
+            line-height: 1.4;
+          }
+          .service-actions {
+            gap: 0.5rem; /* Tighter gap for small mobiles */
+          }
+          .service-btn {
+            padding: 0.85rem 0.25rem;
+            font-size: 0.8rem;
+          }
+          .service-btn span {
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+        }
+        
+        /* Clear any potential global interference */
+        .services-vertical {
+           box-sizing: border-box !important;
+        }
+        .services-vertical * {
+           box-sizing: border-box !important;
         }
       `}</style>
     </section>
