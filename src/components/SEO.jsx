@@ -124,7 +124,8 @@ export const websiteSchema = {
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'Star Limpiezas',
-  url: 'https://starlimpiezas.es',
+  alternateName: ['StarLimpiezas', 'Star Limpiezas Girona'],
+  url: 'https://starlimpiezas.es/',
   potentialAction: {
     '@type': 'SearchAction',
     target: {

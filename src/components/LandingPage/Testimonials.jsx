@@ -1,106 +1,119 @@
 import React, { useRef, useEffect, useState } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 // Testimonios de Google
-const testimonials = [
+export const testimonials = [
   {
     text: "Star limpiezas es una empresa seria. Los empleados nos dejan siempre un apartamento impecable; tanto es así, que la valoración de nuestros huéspedes es siempre un 10/ excelente. Además, si tenemos alguna reserva imprevista, siempre responden a nuestro requerimiento con suma eficacia y amabilidad. Son unos buenos profesionales.",
     author_name: "Carmen Fraile",
     rating: 5,
-    relative_time_description: "Hace 5 meses",
+    date: '2025-08-15',
     is_owner_response: false,
   },
   {
     text: "David y su equipo nos hizo una limpieza general de la casa, de los sofás y el garaje - un 10 todo! Eficiencia, nivel de limpieza y amabilidad, todo genial! Muy recomendados!",
     author_name: "Serena Washburn",
     rating: 5,
-    relative_time_description: "Hace 6 meses",
+    date: '2025-07-20',
     is_owner_response: false,
   },
   {
     text: "Excelente servicio! Tengo perros y gatos y el sofá me quedó como nuevo. Muy profesionales en su trabajo, todo hecho impecable.",
     author_name: "Jade.S",
     rating: 5,
-    relative_time_description: "Hace un año",
+    date: '2025-02-15',
     is_owner_response: false,
   },
   {
     text: "Grandes profesionales! Un servicio de 5 estrellas, los contratamos para limpiar nuestra casa y también nos ayudaron con otras dudas que teníamos muy amablemente! Sin dudas los volveremos a llamar.",
     author_name: "Lisse Ramírez",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2023-01-10',
     is_owner_response: false,
   },
   {
     text: "Hemos contratado sus servicios en varias ocasiones, siempre han sido puntuales, profesionales y con un trato muy personal, siempre pendientes de todos los detalles. Lo recomendamos!",
     author_name: "fincas turismopals",
     rating: 5,
-    relative_time_description: "Hace 2 años",
+    date: '2024-02-15',
     is_owner_response: false,
   },
   {
     text: "Perfecto trato y mejor atención, una limpieza en mi piso y terraza perfecta en todos los aspectos.",
     author_name: "Esteve Sandoval Alavedra",
     rating: 5,
-    relative_time_description: "Hace un año",
+    date: '2025-01-15',
     is_owner_response: false,
   },
   {
     text: "Personal muy profesional. Hace tiempo que nos hace la limpieza y estamos satisfechos. Lo recomendamos!",
     author_name: "Laura",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2023-02-15',
     is_owner_response: false,
   },
   {
     text: "Ha sido nuestra primera vez, y repetiremos con ellos. Grandes profesionales!!!",
     author_name: "Elena Martinez",
     rating: 5,
-    relative_time_description: "Hace un año",
+    date: '2025-01-20',
     is_owner_response: false,
   },
   {
     text: "Es impecable el servicio y el trato. Lo recomiendo!",
     author_name: "M E",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2022-12-15',
     is_owner_response: false,
   },
   {
     text: "Profesionales y cumplidores. Recomendable 100%. Aspectos positivos: Profesionalidad, Puntualidad, Calidad, Atención al detalle",
     author_name: "Toni Oriol",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2022-12-10',
     is_owner_response: false,
   },
   {
     text: "Empresa muy profesional, con atención a los detalles. Rápidos y eficaces.",
     author_name: "Santos Palazzi",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2022-11-15',
     is_owner_response: false,
   },
   {
     text: "Estoy muy contenta con la persona que me hace la limpieza de hace años.",
     author_name: "ASUNCION SALVADOR",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2022-10-15',
     is_owner_response: false,
   },
   {
     text: "Todo perfecto, son de confianza total. Aspectos positivos: Profesionalidad, Puntualidad, Calidad, Atención al detalle",
     author_name: "Julieta Figueras",
     rating: 5,
-    relative_time_description: "Hace 3 años",
+    date: '2022-09-15',
     is_owner_response: false,
   },
   {
     text: "Estamos muy satisfechos con los servicios de esta empresa. La recomendamos ampliamente.",
     author_name: "Isabelle Brunet",
     rating: 5,
-    relative_time_description: "Hace un año",
+    date: '2025-01-05',
     is_owner_response: false,
   },
 ];
+
+const renderRelativeTime = (dateString) => {
+  try {
+    const date = new Date(dateString);
+    const distance = formatDistanceToNow(date, { addSuffix: true, locale: es });
+    // Capitalizar la primera letra (ej: "hace" -> "Hace")
+    return distance.charAt(0).toUpperCase() + distance.slice(1);
+  } catch (error) {
+    return "Recientemente";
+  }
+};
 
 const mod = (a, b) => ((a % b) + b) % b;
 
@@ -181,8 +194,6 @@ const HorizontalTimelineTestimonials = ({ interval = 4000 }) => {
         flexDirection: "column",
         justifyContent: "center",
       }}
-      itemScope
-      itemType="https://schema.org/LocalBusiness"
     >
       <h2>Lo que dicen nuestros clientes en Google</h2>
 
@@ -204,29 +215,21 @@ const HorizontalTimelineTestimonials = ({ interval = 4000 }) => {
                 zIndex: state === "active" ? 3 : (state === "left" || state === "right" ? 2 : 1)
               }}
               onClick={() => goto(idx)}
-              itemProp="review"
-              itemScope
-              itemType="https://schema.org/Review"
             >
-              <div itemProp="itemReviewed" itemScope itemType="https://schema.org/LocalBusiness">
-                <span itemProp="name">Star Limpiezas</span>
-              </div>
               <div className="timeline-horizontal-marker">
                 <div className="timeline-horizontal-dot" />
               </div>
               <div className="timeline-horizontal-content">
-                <div itemProp="reviewRating" itemScope itemType="https://schema.org/Rating" style={{ marginBottom: '0.4rem' }}>
+                <div style={{ marginBottom: '0.4rem' }}>
                   <span style={{ color: '#e0a800', fontWeight: 700 }}>
                     {Array.from({ length: t.rating }).map((_, i) => <span key={i}>★</span>)}
                     {Array.from({ length: 5 - t.rating }).map((_, i) => <span key={i} style={{ color: '#e0a80055' }}>★</span>)}
                   </span>
-                  <meta itemProp="ratingValue" content={t.rating} />
-                  <meta itemProp="bestRating" content="5" />
                 </div>
-                <p className="testimonial-text" itemProp="reviewBody">{t.text}</p>
-                <p className="author" itemProp="author" itemScope itemType="https://schema.org/Person">
-                  - <span itemProp="name">{t.author_name}</span>
-                  <span className="time-ago" itemProp="datePublished" content={t.relative_time_description.replace('Hace ', '')}>{t.relative_time_description}</span>
+                <p className="testimonial-text">{t.text}</p>
+                <p className="author">
+                  - <span>{t.author_name}</span>
+                  <span className="time-ago">{renderRelativeTime(t.date)}</span>
                 </p>
               </div>
             </div>
@@ -479,7 +482,7 @@ const HorizontalTimelineTestimonials = ({ interval = 4000 }) => {
           .timeline-horizontal-content .testimonial-text { font-size: 0.9rem; }
         }
       `}</style>
-    </section>
+    </section >
   );
 };
 

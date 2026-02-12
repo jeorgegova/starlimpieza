@@ -4,7 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import Navbar from './components/LandingPage/Navbar';
 import Hero from './components/LandingPage/Hero';
 import Services from './components/LandingPage/Services';
-import HorizontalTimelineTestimonials from './components/LandingPage/Testimonials';
+import HorizontalTimelineTestimonials, { testimonials } from './components/LandingPage/Testimonials';
 import ContactForm from './components/LandingPage/ContactForm';
 import Footer from './components/LandingPage/Footer';
 import AboutUs from './components/LandingPage/AboutUs';
@@ -119,8 +119,24 @@ function App() {
   const combinedSchema = {
     '@context': 'https://schema.org',
     '@graph': [
-      localBusinessSchema,
-      websiteSchema,
+      {
+        ...localBusinessSchema,
+        review: testimonials.map(t => ({
+          '@type': 'Review',
+          author: {
+            '@type': 'Person',
+            name: t.author_name
+          },
+          reviewBody: t.text,
+          reviewRating: {
+            '@type': 'Rating',
+            ratingValue: t.rating,
+            bestRating: '5'
+          }
+        }))
+      },
+      // Solo incluimos websiteSchema en la home para el Site Name de Google
+      ...(location.pathname === '/' ? [websiteSchema] : []),
       breadcrumbSchema([{ name: 'Inicio', url: SITE_URL }])
     ]
   };
