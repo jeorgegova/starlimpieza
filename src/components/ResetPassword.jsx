@@ -36,10 +36,8 @@ const ResetPassword = () => {
         setStatus(`Error: ${error.message}`);
         setIsError(true);
       } else {
-        setStatus('¡Contraseña cambiada con éxito! Serás redirigido en 3 segundos...');
-        setTimeout(() => {
-          navigate('/reservas');
-        }, 3000);
+        setStatus('¡Contraseña cambiada con éxito!');
+        // No auto redirect, let user click button
       }
     } catch (err) {
       setStatus('Error inesperado al cambiar la contraseña.');
@@ -123,12 +121,55 @@ const ResetPassword = () => {
           </button>
         </form>
         {status && (
-          <p style={{
-            marginTop: '20px',
-            color: isError ? '#ef4444' : '#10b981'
-          }}>
-            {status}
-          </p>
+          <div style={{ marginTop: '20px' }}>
+            <p style={{
+              color: isError ? '#ef4444' : '#10b981',
+              marginBottom: '10px'
+            }}>
+              {status}
+            </p>
+
+            {!isError && (
+              <button
+                onClick={() => navigate('/reservas?authMode=login')}
+                style={{
+                  marginTop: '10px',
+                  padding: '10px 20px',
+                  backgroundColor: '#22c55e',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '4px',
+                  cursor: 'pointer',
+                  fontSize: '16px',
+                  fontWeight: 'bold'
+                }}
+              >
+                Iniciar Sesión
+              </button>
+            )}
+
+            {isError && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                <p style={{ fontSize: '0.9rem', color: '#64748b' }}>
+                  Si el enlace ha expirado o es inválido, solicita uno nuevo.
+                </p>
+                <button
+                  onClick={() => navigate('/reservas?authMode=forgotPassword')}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#64748b',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    fontSize: '14px'
+                  }}
+                >
+                  Solicitar nuevo enlace
+                </button>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </div>

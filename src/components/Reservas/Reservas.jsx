@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
 import { supabase, supabaseKey } from "../../supabaseClient"
 import { Calendar, momentLocalizer } from "react-big-calendar"
 import moment from "moment"
@@ -199,6 +200,24 @@ export default function ReservaMejorada() {
     setEvents(mappedEvents)
   }, [reservedEvents, userReservations, user])
 
+  // Handle URL query parameters for auth modal
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  useEffect(() => {
+    const mode = searchParams.get("authMode")
+    if (mode) {
+      if (mode === "login" || mode === "forgotPassword" || mode === "register") {
+        setAuthMode(mode)
+        setShowAuthModal(true)
+        // Clean up URL
+        searchParams.delete("authMode")
+        setSearchParams(searchParams)
+      }
+    }
+  }, [searchParams, setSearchParams])
+
+  // Auto-clear alert after 5 seconds
+
   // Auto-clear alert after 5 seconds
   useEffect(() => {
     if (alertMessage) {
@@ -255,7 +274,7 @@ export default function ReservaMejorada() {
     const { data, error } = await supabase.from("location").select("*")
     if (!error && data) {
       console.log('locationDates', data);
-      
+
       setLocationOptions(data)
     }
   }

@@ -49,11 +49,11 @@ const EmailVerification = () => {
                             navigate('/reset-password');
                         }, 3000);
                     } else {
-                        setStatus('¡Cuenta verificada con éxito! Serás redirigido en 5 segundos...');
+                        setStatus('¡Cuenta verificada con éxito! Serás redirigido en 3 segundos...');
                         setIsSuccess(true);
                         setTimeout(() => {
                             navigate('/'); // O la ruta deseada
-                        }, 5000);
+                        }, 3000);
                     }
                 }
             } catch (err) {
