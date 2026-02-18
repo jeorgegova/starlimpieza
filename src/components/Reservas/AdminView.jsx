@@ -1,6 +1,32 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import { servicesOptions } from './constants'
+import {
+  Users,
+  Search,
+  Filter,
+  Calendar,
+  MapPin,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  ClipboardList,
+  MoreVertical,
+  Edit,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+  TrendingUp,
+  Award,
+  Star,
+  Zap,
+  LayoutDashboard,
+  BarChart3,
+  CalendarDays,
+  Phone,
+  Target,
+  ShieldCheck
+} from 'lucide-react'
 
 export default function AdminView({
   allReservations,
@@ -87,136 +113,191 @@ export default function AdminView({
       {/* Modern Dashboard Header */}
       <div
         style={{
-          background: "linear-gradient(135deg, #1f2937 0%, #374151 100%)",
-          padding: "2rem",
-          borderRadius: 16,
+          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
+          padding: "2.5rem 2rem",
+          borderRadius: 24,
           marginBottom: "2rem",
-          color: "white",
+          color: "#1e293b",
           textAlign: "center",
-          boxShadow: "0 10px 30px rgba(31, 41, 55, 0.3)",
+          boxShadow: "0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
+          position: "relative",
+          overflow: "hidden",
+          border: "1px solid #e2e8f0"
         }}
       >
-        <h2
-          style={{
-            fontSize: "2.5rem",
-            fontWeight: 800,
-            marginBottom: "0.5rem",
-            textShadow: "0 2px 4px rgba(0,0,0,0.3)",
-          }}
-        >
-          🛠️ Panel de Administración
-        </h2>
-        <p style={{ fontSize: "1.2rem", opacity: 0.9, margin: 0 }}>
-          Gestiona todas las reservas y servicios de manera eficiente
-        </p>
+        <div style={{ position: "absolute", top: -20, right: -20, opacity: 0.05 }}>
+          <LayoutDashboard size={150} color="#3b82f6" />
+        </div>
+
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            background: "rgba(34, 197, 94, 0.05)",
+            padding: "0.5rem 1rem",
+            borderRadius: "50px",
+            marginBottom: "1rem",
+            backdropFilter: "blur(4px)",
+            border: "1px solid rgba(34, 197, 94, 0.1)",
+            color: "#16a34a"
+          }}>
+            <ShieldCheck size={18} />
+            <span style={{ fontSize: "0.85rem", fontWeight: 700, letterSpacing: "0.05em", textTransform: "uppercase" }}>Acceso Administrativo</span>
+          </div>
+
+          <h2 style={{ fontSize: "2.75rem", fontWeight: 900, marginBottom: "0.75rem", letterSpacing: "-0.025em", color: "#0f172a" }}>
+            Panel de Administración
+          </h2>
+          <p style={{ fontSize: "1.1rem", color: "#64748b", margin: 0, maxWidth: "600px", marginLeft: "auto", marginRight: "auto", lineHeight: 1.6, fontWeight: 500 }}>
+            Gestiona la agenda, supervisa el estado de los servicios y mantén el control total de las operaciones.
+          </p>
+        </div>
       </div>
 
       {/* Modern Dashboard Statistics */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))",
           gap: "1.5rem",
-          marginBottom: "2rem",
+          marginBottom: "2.5rem",
         }}
       >
         <div
           style={{
-            background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-            padding: "1.5rem",
-            borderRadius: 16,
-            border: "1px solid #d1d5db",
-            textAlign: "center",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-            transition: "transform 0.3s ease",
+            background: "#fff",
+            padding: "1.75rem",
+            borderRadius: 20,
+            border: "1px solid #f1f5f9",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+            transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
           }}
-          onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
-          onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = "translateY(-4px)"
+            e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = "translateY(0)"
+            e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+          }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>📊</div>
-          <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1f2937", marginBottom: "0.5rem" }}>
-            {allReservations.length}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ background: "#f8fafc", padding: "0.75rem", borderRadius: 12, color: "#64748b" }}>
+              <BarChart3 size={24} />
+            </div>
+            <div style={{ color: "#22c55e", background: "#f0fdf4", padding: "0.25rem 0.5rem", borderRadius: 6, fontSize: "0.75rem", fontWeight: 700 }}>
+              +12% hoy
+            </div>
           </div>
-          <div style={{ color: "#6b7280", fontSize: "0.9rem", fontWeight: "600" }}>
-            Total Reservas
-          </div>
-          <div style={{ color: "#9ca3af", fontSize: "0.8rem" }}>
-            Servicio: {service}
+          <div>
+            <div style={{ fontSize: "2.25rem", fontWeight: 900, color: "#1e293b" }}>{allReservations.length}</div>
+            <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Total Reservas</div>
           </div>
         </div>
 
         <div
           style={{
-            background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-            padding: "1.5rem",
-            borderRadius: 16,
-            border: "1px solid #d1d5db",
-            textAlign: "center",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-            transition: "transform 0.3s ease",
+            background: "#fff",
+            padding: "1.75rem",
+            borderRadius: 20,
+            border: "1px solid #f1f5f9",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
           }}
-          onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
-          onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = "translateY(-4px)"
+            e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = "translateY(0)"
+            e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+          }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>✅</div>
-          <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1f2937", marginBottom: "0.5rem" }}>
-            {allReservations.filter((r) => r.status === "confirmed").length}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ background: "#f0fdf4", padding: "0.75rem", borderRadius: 12, color: "#22c55e" }}>
+              <CheckCircle size={24} />
+            </div>
           </div>
-          <div style={{ color: "#6b7280", fontSize: "0.9rem", fontWeight: "600" }}>
-            Reservas Confirmadas
-          </div>
-          <div style={{ color: "#9ca3af", fontSize: "0.8rem" }}>
-            Listas para ejecutar
+          <div>
+            <div style={{ fontSize: "2.25rem", fontWeight: 900, color: "#1e293b" }}>
+              {allReservations.filter((r) => r.status === "confirmed").length}
+            </div>
+            <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Confirmadas</div>
           </div>
         </div>
 
         <div
           style={{
-            background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-            padding: "1.5rem",
-            borderRadius: 16,
-            border: "1px solid #d1d5db",
-            textAlign: "center",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-            transition: "transform 0.3s ease",
+            background: "#fff",
+            padding: "1.75rem",
+            borderRadius: 20,
+            border: "1px solid #f1f5f9",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
           }}
-          onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
-          onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = "translateY(-4px)"
+            e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = "translateY(0)"
+            e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+          }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>⏳</div>
-          <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1f2937", marginBottom: "0.5rem" }}>
-            {allReservations.filter((r) => r.status === "pending").length}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ background: "#fff7ed", padding: "0.75rem", borderRadius: 12, color: "#f97316" }}>
+              <Clock size={24} />
+            </div>
           </div>
-          <div style={{ color: "#6b7280", fontSize: "0.9rem", fontWeight: "600" }}>
-            Reservas Pendientes
-          </div>
-          <div style={{ color: "#9ca3af", fontSize: "0.8rem" }}>
-            Requieren confirmación
+          <div>
+            <div style={{ fontSize: "2.25rem", fontWeight: 900, color: "#1e293b" }}>
+              {allReservations.filter((r) => r.status === "pending").length}
+            </div>
+            <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Pendientes</div>
           </div>
         </div>
 
         <div
           style={{
-            background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-            padding: "1.5rem",
-            borderRadius: 16,
-            border: "1px solid #d1d5db",
-            textAlign: "center",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
-            transition: "transform 0.3s ease",
+            background: "#fff",
+            padding: "1.75rem",
+            borderRadius: 20,
+            border: "1px solid #f1f5f9",
+            boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+            transition: "all 0.3s ease",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem"
           }}
-          onMouseEnter={(e) => e.target.style.transform = "translateY(-2px)"}
-          onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = "translateY(-4px)"
+            e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1)"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = "translateY(0)"
+            e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.05)"
+          }}
         >
-          <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>📅</div>
-          <div style={{ fontSize: "2rem", fontWeight: 800, color: "#1f2937", marginBottom: "0.5rem" }}>
-            {allReservations.filter((r) => new Date(r.assigned_date) >= new Date()).length}
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+            <div style={{ background: "#eff6ff", padding: "0.75rem", borderRadius: 12, color: "#3b82f6" }}>
+              <CalendarDays size={24} />
+            </div>
           </div>
-          <div style={{ color: "#6b7280", fontSize: "0.9rem", fontWeight: "600" }}>
-            Servicios Próximos
-          </div>
-          <div style={{ color: "#9ca3af", fontSize: "0.8rem" }}>
-            En los próximos días
+          <div>
+            <div style={{ fontSize: "2.25rem", fontWeight: 900, color: "#1e293b" }}>
+              {allReservations.filter((r) => new Date(r.assigned_date) >= new Date()).length}
+            </div>
+            <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Próximas</div>
           </div>
         </div>
       </div>
@@ -224,12 +305,12 @@ export default function AdminView({
       {/* Modern Filters and Quick Actions */}
       <div
         style={{
-          background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-          padding: "1.5rem",
-          borderRadius: 16,
-          marginBottom: "2rem",
-          border: "1px solid #e2e8f0",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
+          background: "#fff",
+          padding: "2rem",
+          borderRadius: 24,
+          marginBottom: "2.5rem",
+          border: "1px solid #f1f5f9",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
         }}
       >
         <div
@@ -237,16 +318,23 @@ export default function AdminView({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "1rem",
+            marginBottom: "2rem",
+            flexWrap: "wrap",
+            gap: "1rem"
           }}
         >
-          <h3 style={{ color: "#1f2937", fontSize: "1.3rem", fontWeight: "700", margin: 0 }}>
-            🔍 Filtros y Búsqueda
-          </h3>
-          <div style={{ display: "flex", gap: "0.5rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ background: "#eff6ff", padding: "0.5rem", borderRadius: 10, color: "#3b82f6" }}>
+              <Filter size={20} />
+            </div>
+            <h3 style={{ color: "#1e293b", fontSize: "1.25rem", fontWeight: 800, margin: 0 }}>
+              Filtros y Búsqueda
+            </h3>
+          </div>
+
+          <div style={{ display: "flex", gap: "0.75rem" }}>
             <button
               onClick={() => {
-                // Quick action: Show only pending reservations
                 setStatusFilter('pending')
                 setSearchTerm('')
                 setLocationFilter('all')
@@ -254,24 +342,26 @@ export default function AdminView({
                 handleFilterChange()
               }}
               style={{
-                background: "#f8fafc",
-                color: "#374151",
-                border: "1px solid #d1d5db",
-                borderRadius: 8,
-                padding: "0.5rem 1rem",
-                fontSize: "0.8rem",
-                fontWeight: "600",
+                background: "#fff7ed",
+                color: "#c2410c",
+                border: "1px solid #ffedd5",
+                borderRadius: 12,
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.85rem",
+                fontWeight: 700,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
-              onMouseEnter={(e) => e.target.style.background = "#f1f5f9"}
-              onMouseLeave={(e) => e.target.style.background = "#f8fafc"}
+              onMouseEnter={e => e.currentTarget.style.background = "#ffedd5"}
+              onMouseLeave={e => e.currentTarget.style.background = "#fff7ed"}
             >
-              ⚡ Mostrar Pendientes
+              <Zap size={16} /> Pendientes
             </button>
             <button
               onClick={() => {
-                // Quick action: Show today's reservations
                 const today = new Date().toISOString().split('T')[0]
                 setDateFilter(today)
                 setStatusFilter('all')
@@ -280,105 +370,96 @@ export default function AdminView({
                 handleFilterChange()
               }}
               style={{
-                background: "#f8fafc",
-                color: "#374151",
-                border: "1px solid #d1d5db",
-                borderRadius: 8,
-                padding: "0.5rem 1rem",
-                fontSize: "0.8rem",
-                fontWeight: "600",
+                background: "#f0fdf4",
+                color: "#15803d",
+                border: "1px solid #dcfce7",
+                borderRadius: 12,
+                padding: "0.6rem 1.25rem",
+                fontSize: "0.85rem",
+                fontWeight: 700,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.5rem"
               }}
-              onMouseEnter={(e) => e.target.style.background = "#f1f5f9"}
-              onMouseLeave={(e) => e.target.style.background = "#f8fafc"}
+              onMouseEnter={e => e.currentTarget.style.background = "#dcfce7"}
+              onMouseLeave={e => e.currentTarget.style.background = "#f0fdf4"}
             >
-              📅 Hoy
+              <Calendar size={16} /> Hoy
             </button>
           </div>
         </div>
+
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-            gap: "1rem",
-            marginBottom: "1rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+            gap: "1.5rem",
           }}
         >
-          <div>
-            <label style={{ fontSize: "0.9rem", fontWeight: 600, color: "#374151", display: "block", marginBottom: "0.5rem" }}>
-              🔍 Buscar cliente
+          <div style={{ position: "relative" }}>
+            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+              Buscar cliente o detalle
             </label>
-            <input
-              type="text"
-              placeholder="Nombre, teléfono, ubicación..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value)
-                handleFilterChange()
-              }}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: 8,
-                border: "1px solid #d1d5db",
-                fontSize: "0.9rem",
-              }}
-            />
+            <div style={{ position: "relative" }}>
+              <div style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }}>
+                <Search size={18} />
+              </div>
+              <input
+                type="text"
+                placeholder="Nombre, teléfono, dirección..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value)
+                  handleFilterChange()
+                }}
+                style={{
+                  width: "100%",
+                  padding: "0.85rem 1rem 0.85rem 2.75rem",
+                  borderRadius: 14,
+                  border: "1px solid #e2e8f0",
+                  fontSize: "0.95rem",
+                  transition: "all 0.2s",
+                  outline: "none"
+                }}
+                onFocus={e => e.target.style.borderColor = "#3b82f6"}
+                onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+              />
+            </div>
           </div>
 
           <div>
-            <label style={{ fontSize: "0.9rem", fontWeight: 600, color: "#374151", display: "block", marginBottom: "0.5rem" }}>
-              📅 Filtrar por fecha
+            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+              Filtrar por fecha
             </label>
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(e) => {
-                setDateFilter(e.target.value)
-                handleFilterChange()
-              }}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: 8,
-                border: "1px solid #d1d5db",
-                fontSize: "0.9rem",
-              }}
-            />
+            <div style={{ position: "relative" }}>
+              <input
+                type="date"
+                value={dateFilter}
+                onChange={(e) => {
+                  setDateFilter(e.target.value)
+                  handleFilterChange()
+                }}
+                style={{
+                  width: "100%",
+                  padding: "0.85rem 1rem",
+                  borderRadius: 14,
+                  border: "1px solid #e2e8f0",
+                  fontSize: "0.95rem",
+                  transition: "all 0.2s",
+                  outline: "none",
+                  backgroundColor: "#fff"
+                }}
+                onFocus={e => e.target.style.borderColor = "#3b82f6"}
+                onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+              />
+            </div>
           </div>
 
           <div>
-            <label style={{ fontSize: "0.9rem", fontWeight: 600, color: "#374151", display: "block", marginBottom: "0.5rem" }}>
-              📍 Filtrar por ubicación
-            </label>
-            <select
-              value={locationFilter}
-              onChange={(e) => {
-                setLocationFilter(e.target.value)
-                handleFilterChange()
-              }}
-              style={{
-                width: "100%",
-                padding: "0.5rem",
-                borderRadius: 8,
-                border: "1px solid #d1d5db",
-                fontSize: "0.9rem",
-                backgroundColor: "#fff",
-              }}
-            >
-              <option value="all">Todas las ubicaciones</option>
-              {locationOptions.map((loc) => (
-                <option key={loc.id} value={loc.id}>
-                  {loc.location}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label style={{ fontSize: "0.9rem", fontWeight: 600, color: "#374151", display: "block", marginBottom: "0.5rem" }}>
-              ⏰ Filtrar por estado
+            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+              Estado del servicio
             </label>
             <select
               value={statusFilter}
@@ -388,12 +469,18 @@ export default function AdminView({
               }}
               style={{
                 width: "100%",
-                padding: "0.5rem",
-                borderRadius: 8,
-                border: "1px solid #d1d5db",
-                fontSize: "0.9rem",
+                padding: "0.85rem 1rem",
+                borderRadius: 14,
+                border: "1px solid #e2e8f0",
+                fontSize: "0.95rem",
+                transition: "all 0.2s",
+                outline: "none",
                 backgroundColor: "#fff",
+                appearance: "none",
+                cursor: "pointer"
               }}
+              onFocus={e => e.target.style.borderColor = "#3b82f6"}
+              onBlur={e => e.target.style.borderColor = "#e2e8f0"}
             >
               <option value="all">Todos los estados</option>
               <option value="pending">Pendiente</option>
@@ -401,10 +488,44 @@ export default function AdminView({
               <option value="completed">Completada</option>
             </select>
           </div>
+
+          <div>
+            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+              Ubicación / Zona
+            </label>
+            <select
+              value={locationFilter}
+              onChange={(e) => {
+                setLocationFilter(e.target.value)
+                handleFilterChange()
+              }}
+              style={{
+                width: "100%",
+                padding: "0.85rem 1rem",
+                borderRadius: 14,
+                border: "1px solid #e2e8f0",
+                fontSize: "0.95rem",
+                transition: "all 0.2s",
+                outline: "none",
+                backgroundColor: "#fff",
+                appearance: "none",
+                cursor: "pointer"
+              }}
+              onFocus={e => e.target.style.borderColor = "#3b82f6"}
+              onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+            >
+              <option value="all">Todas las zonas</option>
+              {locationOptions.map((loc) => (
+                <option key={loc.id} value={loc.id}>
+                  {loc.location}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         {(searchTerm || statusFilter !== 'all' || locationFilter !== 'all' || dateFilter) && (
-          <div style={{ textAlign: "center" }}>
+          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
             <button
               onClick={() => {
                 setSearchTerm('')
@@ -414,16 +535,17 @@ export default function AdminView({
                 setCurrentPage(1)
               }}
               style={{
-                background: "#f3f4f6",
-                color: "#374151",
-                border: "1px solid #d1d5db",
-                borderRadius: 8,
-                padding: "0.5rem 1rem",
-                fontSize: "0.8rem",
+                background: "transparent",
+                color: "#64748b",
+                border: "none",
+                fontSize: "0.85rem",
+                fontWeight: 700,
                 cursor: "pointer",
+                textDecoration: "underline",
+                padding: "0.5rem"
               }}
             >
-              Limpiar filtros
+              Restablecer todos los filtros
             </button>
           </div>
         )}
@@ -433,562 +555,206 @@ export default function AdminView({
       <div
         style={{
           background: "#fff",
-          borderRadius: 16,
-          border: "1px solid #e5e7eb",
+          borderRadius: 24,
+          border: "1px solid #f1f5f9",
           overflow: "hidden",
-          boxShadow: "0 4px 16px rgba(0,0,0,0.05)",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
         }}
       >
         <div
           style={{
-            background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-            padding: "1rem 1.5rem",
-            borderBottom: "2px solid #e5e7eb",
-            fontWeight: 700,
-            color: "#1f2937",
+            background: "linear-gradient(to right, #f8fafc, #fff)",
+            padding: "1.5rem 2rem",
+            borderBottom: "1px solid #f1f5f9",
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
           }}
         >
           <div>
-            <h3 style={{ margin: 0, fontSize: "1.2rem" }}>📋 Gestión de Reservas</h3>
-            <p style={{ margin: "0.25rem 0 0 0", fontSize: "0.9rem", color: "#6b7280", fontWeight: "500" }}>
-              Servicio: {service}
+            <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.25rem" }}>
+              <ClipboardList size={20} color="#3b82f6" />
+              <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, color: "#1e293b" }}>Gestión de Reservas</h3>
+            </div>
+            <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>
+              Administrando servicios para: <span style={{ color: "#3b82f6", fontWeight: 700 }}>{service}</span>
             </p>
           </div>
           <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: "1.5rem", fontWeight: "800", color: "#1f2937" }}>
+            <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#1e293b", lineHeight: 1 }}>
               {filteredReservations.length}
             </div>
-            <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
-              de {allReservations.length} total
+            <div style={{ fontSize: "0.75rem", color: "#94a3b8", fontWeight: 700, textTransform: "uppercase", marginTop: "0.25rem" }}>
+              Resultados
             </div>
           </div>
-        </div>
-
-        {/* Nota compacta para admin */}
-        <div
-          style={{
-            background: "#f8fafc",
-            padding: "0.5rem 1rem",
-            borderBottom: "1px solid #e2e8f0",
-            color: "#374151",
-            fontSize: "0.8rem",
-            textAlign: "center",
-            fontWeight: "500",
-          }}
-        >
-          <strong>Nota:</strong> Gestionas reservas de otros usuarios
         </div>
 
         {currentReservations.length === 0 ? (
           <div
             style={{
               textAlign: "center",
-              padding: "3rem",
-              color: "#64748b",
-              background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-              borderRadius: 16,
-              border: "2px dashed #e2e8f0",
-              margin: "2rem 0",
+              padding: "5rem 2rem",
+              background: "#fff",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "1.5rem"
             }}
           >
-            <div style={{ fontSize: "4rem", marginBottom: "1rem", opacity: 0.5 }}>📋</div>
-            <div style={{ fontSize: "1.2rem", fontWeight: "600", marginBottom: "0.5rem" }}>
-              {allReservations.length === 0 ? "No hay reservas para este servicio" : "No se encontraron reservas con los filtros aplicados"}
+            <div style={{ background: "#f8fafc", padding: "2rem", borderRadius: "50%", color: "#cbd5e1" }}>
+              <Search size={48} />
             </div>
-            <div style={{ fontSize: "0.9rem", opacity: 0.8 }}>
-              {allReservations.length === 0 ? "Las nuevas reservas aparecerán aquí" : "Intenta ajustar los filtros de búsqueda"}
+            <div>
+              <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#1e293b", marginBottom: "0.5rem" }}>
+                No se encontraron resultados
+              </div>
+              <p style={{ color: "#64748b", margin: 0 }}>
+                Intenta ajustar los filtros de búsqueda o restablecerlos para ver más registros.
+              </p>
             </div>
           </div>
         ) : (
           <>
-            <div style={{ overflowX: "auto", borderRadius: 12, boxShadow: "0 4px 20px rgba(0,0,0,0.08)" }}>
+            <div style={{ overflowX: "auto" }}>
               <style>
                 {`
+                  .admin-table { width: 100%; border-collapse: separate; border-spacing: 0; }
+                  .admin-table th { 
+                    padding: 1rem 1.5rem; 
+                    text-align: left; 
+                    background: #f8fafc; 
+                    color: #64748b; 
+                    font-weight: 700; 
+                    font-size: 0.75rem; 
+                    text-transform: uppercase; 
+                    letter-spacing: 0.05em;
+                    border-bottom: 1px solid #f1f5f9;
+                  }
+                  .admin-table td { 
+                    padding: 1.25rem 1.5rem; 
+                    border-bottom: 1px solid #f1f5f9; 
+                    vertical-align: middle;
+                    transition: all 0.2s;
+                  }
+                  .admin-table tr:hover td { background-color: #f8fafc; }
+                  
                   @media (max-width: 1024px) {
-                    .admin-table th, .admin-table td {
-                      padding: 0.75rem 1rem !important;
-                      font-size: 0.8rem !important;
-                    }
-                    .admin-table th span {
-                      font-size: 0.75rem !important;
-                    }
+                    .hide-md { display: none; }
                   }
                   @media (max-width: 768px) {
-                    .admin-table {
-                      font-size: 0.75rem !important;
-                    }
-                    .admin-table th, .admin-table td {
-                      padding: 0.5rem 0.5rem !important;
-                    }
-                    .admin-table th span {
-                      display: none !important;
-                    }
-                    .admin-table th {
-                      font-size: 0.65rem !important;
-                      padding: 0.5rem 0.25rem !important;
-                      text-align: center !important;
-                      white-space: nowrap !important;
-                      overflow: hidden !important;
-                      text-overflow: ellipsis !important;
-                      max-width: 60px !important;
-                    }
-                    .admin-table td {
-                      text-align: center !important;
-                      max-width: 60px !important;
-                      overflow: hidden !important;
-                      text-overflow: ellipsis !important;
-                    }
-                    .admin-table td:nth-child(2), .admin-table td:nth-child(6), .admin-table td:nth-child(7) {
-                      text-align: left !important;
-                      max-width: 80px !important;
-                    }
-                    .admin-table th:nth-child(6), .admin-table td:nth-child(6),
-                    .admin-table th:nth-child(7), .admin-table td:nth-child(7),
-                    .admin-table th:nth-child(8), .admin-table td:nth-child(8) {
-                      display: none !important;
-                    }
-                    .action-buttons-mobile {
-                      flex-direction: column !important;
-                      gap: 0.25rem !important;
-                      align-items: center !important;
-                    }
-                    .action-buttons-mobile button {
-                      min-width: 50px !important;
-                      padding: 0.3rem 0.4rem !important;
-                      font-size: 0.65rem !important;
-                    }
-                  }
-                  @media (max-width: 480px) {
-                    .admin-table th {
-                      width: 35px !important;
-                      font-size: 0.65rem !important;
-                    }
-                    .admin-table td {
-                      padding: 0.4rem 0.5rem !important;
-                      font-size: 0.7rem !important;
-                    }
-                    .status-badge {
-                      padding: 0.3rem 0.6rem !important;
-                      font-size: 0.7rem !important;
-                    }
+                    .hide-sm { display: none; }
                   }
                 `}
               </style>
-              <table
-                className="admin-table"
-                style={{
-                  width: "100%",
-                  borderCollapse: "separate",
-                  borderSpacing: "0",
-                  fontSize: "0.875rem",
-                  backgroundColor: "#fff",
-                  borderRadius: 12,
-                  overflow: "hidden",
-                  boxShadow: "0 1px 3px rgba(0,0,0,0.1)",
-                }}
-              >
+              <table className="admin-table">
                 <thead>
-                  <tr style={{
-                    background: "linear-gradient(135deg, #1f2937 0%, #374151 100%)",
-                    color: "white",
-                    borderBottom: "2px solid #6b7280"
-                  }}>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        🆔 ID
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        👤 Cliente
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        🧹 Servicio
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        📅 Fecha
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        🕐 Jornada
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        📍 Ubicación
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        📞 Teléfono
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        ⏰ Estado
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "left",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px",
-                      borderRight: "1px solid rgba(255,255,255,0.1)"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                        🎁 Lealtad
-                      </span>
-                    </th>
-                    <th style={{
-                      padding: "1rem 1.5rem",
-                      textAlign: "center",
-                      fontWeight: "700",
-                      fontSize: "0.8rem",
-                      textTransform: "uppercase",
-                      letterSpacing: "0.5px"
-                    }}>
-                      <span style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem" }}>
-                        ⚡ Acciones
-                      </span>
-                    </th>
+                  <tr>
+                    <th>Información</th>
+                    <th className="hide-sm">Detalles Servicio</th>
+                    <th className="hide-md">Ubicación</th>
+                    <th>Estado</th>
+                    <th className="hide-sm">Cliente</th>
+                    <th style={{ textAlign: "center" }}>Acciones</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {currentReservations.map((reservation, index) => (
-                    <tr
-                      key={reservation.id}
-                      style={{
-                        borderBottom: index === currentReservations.length - 1 ? "none" : "1px solid #e5e7eb",
-                        backgroundColor: index % 2 === 0 ? "#ffffff" : "#f8fafc",
-                        transition: "all 0.2s ease",
-                      }}
-                      onMouseEnter={(e) => {
-                        e.target.style.backgroundColor = "#f1f5f9"
-                        e.target.style.transform = "scale(1.01)"
-                      }}
-                      onMouseLeave={(e) => {
-                        e.target.style.backgroundColor = index % 2 === 0 ? "#ffffff" : "#f8fafc"
-                        e.target.style.transform = "scale(1)"
-                      }}
-                    >
-                      <td style={{
-                        padding: "1rem 1.5rem",
-                        borderRight: "1px solid #e5e7eb",
-                        fontFamily: "monospace",
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                        color: "#1e293b"
-                      }}>
-                        #{reservation.id}
-                      </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        <div style={{ fontWeight: "600", color: "#1f2937", fontSize: "0.9rem", marginBottom: "0.25rem" }}>
-                          {reservation.users?.name || "Usuario Desconocido"}
-                        </div>
-                        <div style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                          @{reservation.users?.username}
+                  {currentReservations.map((reservation) => (
+                    <tr key={reservation.id}>
+                      <td>
+                        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                          <div style={{
+                            width: 40, height: 40, borderRadius: 12, background: "#eff6ff", color: "#3b82f6", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontWeight: 800, fontSize: "0.75rem"
+                          }}>
+                            #{reservation.id.toString().slice(-3)}
+                          </div>
+                          <div>
+                            <div style={{ fontWeight: 700, color: "#1e293b", display: "flex", alignItems: "center", gap: "0.4rem" }}>
+                              <Calendar size={14} color="#64748b" />
+                              {new Date(reservation.assigned_date + 'T12:00:00').toLocaleDateString("es-ES", { day: 'numeric', month: 'short' })}
+                            </div>
+                            <div style={{ fontSize: "0.8rem", color: "#64748b", textTransform: "capitalize" }}>{reservation.shift}</div>
+                          </div>
                         </div>
                       </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        <div style={{ fontWeight: "500", color: "#374151", fontSize: "0.9rem" }}>
-                          {servicesOptions.find(s => s.value === reservation.service_name)?.label || reservation.service_name}
-                        </div>
+                      <td className="hide-sm">
+                        <div style={{ fontSize: "0.9rem", color: "#334155", fontWeight: 600 }}>{reservation.service_name}</div>
+                        {reservation.hours && (
+                          <div style={{ fontSize: "0.75rem", color: "#64748b", display: "flex", alignItems: "center", gap: "0.25rem", marginTop: "0.25rem" }}>
+                            <Clock size={12} /> {reservation.hours} horas
+                          </div>
+                        )}
                       </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        <div style={{ fontWeight: "500", color: "#1f2937", fontSize: "0.9rem", marginBottom: "0.25rem" }}>
-                          {new Date(reservation.assigned_date).toLocaleDateString("es-ES", {
-                            weekday: "short",
-                            month: "short",
-                            day: "numeric",
-                          })}
+                      <td className="hide-md">
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#334155", fontWeight: 500, fontSize: "0.85rem" }}>
+                          <MapPin size={14} color="#94a3b8" />
+                          {locationOptions.find(l => l.id === reservation.location_id)?.location || "S.D."}
                         </div>
-                        <div style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                          {new Date(reservation.assigned_date).getFullYear()}
-                        </div>
-                      </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        <span style={{
-                          padding: "0.4rem 0.8rem",
-                          borderRadius: "20px",
-                          fontSize: "0.8rem",
-                          fontWeight: "600",
-                          backgroundColor: reservation.shift === "mañana" ? "#fefce8" : "#f8fafc",
-                          color: reservation.shift === "mañana" ? "#92400e" : "#374151",
-                          border: `1px solid ${reservation.shift === "mañana" ? "#d97706" : "#6b7280"}`,
-                        }}>
-                          {reservation.shift ? (reservation.shift === "mañana" ? "Mañana" : "Tarde") : "Sin especificar"}
-                        </span>
-                      </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        <div style={{ fontWeight: "500", color: "#374151", fontSize: "0.9rem", marginBottom: "0.25rem" }}>
-                          {locationOptions.find(l => l.id === reservation.location_id)?.location || "Desconocida"}
-                        </div>
-                        <div style={{ fontSize: "0.8rem", color: "#64748b", maxWidth: "150px", overflow: "hidden", textOverflow: "ellipsis" }}>
+                        <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "0.2rem", maxWidth: 150, overflow: "hidden", textOverflow: "ellipsis" }}>
                           {reservation.address}
                         </div>
                       </td>
-                      <td style={{
-                        padding: "1rem 1.5rem",
-                        borderRight: "1px solid #e5e7eb",
-                        fontFamily: "monospace",
-                        fontSize: "0.85rem",
-                        fontWeight: "500",
-                        color: "#374151"
-                      }}>
-                        {reservation.phone}
-                      </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        <span
-                          className="status-badge"
-                          style={{
-                            padding: "0.4rem 0.8rem",
-                            borderRadius: "20px",
-                            fontSize: "0.75rem",
-                            fontWeight: "600",
-                            textTransform: "uppercase",
-                            letterSpacing: "0.5px",
-                            backgroundColor:
-                              reservation.status === "confirmed" ? "#f0f9ff" :
-                              reservation.status === "completed" ? "#f8fafc" : "#fefce8",
-                            color:
-                              reservation.status === "confirmed" ? "#0369a1" :
-                              reservation.status === "completed" ? "#374151" : "#92400e",
-                            border: `1px solid ${
-                              reservation.status === "confirmed" ? "#0ea5e9" :
-                              reservation.status === "completed" ? "#6b7280" : "#d97706"
-                            }`,
-                            display: "inline-flex",
-                            alignItems: "center",
-                            gap: "0.3rem",
-                          }}
-                        >
-                          <span>
-                            {reservation.status === "confirmed" ? "✓" :
-                             reservation.status === "completed" ? "✓" : "⏳"}
-                          </span>
-                          {reservation.status === "confirmed" ? "Confirmada" :
-                           reservation.status === "completed" ? "Completada" : "Pendiente"}
+                      <td>
+                        <span style={{
+                          padding: "0.4rem 0.75rem",
+                          borderRadius: 10,
+                          fontSize: "0.75rem",
+                          fontWeight: 700,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
+                          background: reservation.status === "confirmed" ? "#f0fdf4" : reservation.status === "completed" ? "#f8fafc" : "#fff7ed",
+                          color: reservation.status === "confirmed" ? "#15803d" : reservation.status === "completed" ? "#64748b" : "#c2410c",
+                          border: `1px solid ${reservation.status === "confirmed" ? "#dcfce7" : reservation.status === "completed" ? "#f1f5f9" : "#ffedd5"}`
+                        }}>
+                          {reservation.status === "confirmed" ? <CheckCircle size={12} /> : reservation.status === "completed" ? <CheckCircle size={12} /> : <Clock size={12} />}
+                          {reservation.status === "confirmed" ? "Confirmada" : reservation.status === "completed" ? "Finalizada" : "Pendiente"}
                         </span>
                       </td>
-                      <td style={{ padding: "1rem 1.5rem", borderRight: "1px solid #e5e7eb" }}>
-                        {(() => {
-                          const points = loyaltyData[reservation.user_id] || 0
-                          const tier = getLoyaltyTier(points)
-                          return (
-                            <div style={{ textAlign: "center" }}>
-                              <div style={{
-                                fontSize: "0.9rem",
-                                fontWeight: "600",
-                                color: tier.color,
-                                marginBottom: "0.25rem"
-                              }}>
-                                {tier.name}
+                      <td className="hide-sm">
+                        <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                          <div style={{ textAlign: "right" }}>
+                            <div style={{ fontWeight: 700, color: "#1e293b", fontSize: "0.85rem" }}>{reservation.users?.name || "Cliente"}</div>
+                            <div style={{ fontSize: "0.75rem", color: "#64748b" }}>{reservation.phone}</div>
+                          </div>
+                          {(() => {
+                            const points = loyaltyData[reservation.user_id] || 0
+                            const tier = getLoyaltyTier(points)
+                            if (points > 0) return (
+                              <div title={`${tier.name}: ${points} pts`} style={{ color: tier.color, flexShrink: 0 }}>
+                                <Award size={20} />
                               </div>
-                              <div style={{
-                                fontSize: "0.8rem",
-                                color: "#64748b",
-                                fontFamily: "monospace"
-                              }}>
-                                {points} pts
-                              </div>
-                            </div>
-                          )
-                        })()}
+                            )
+                          })()}
+                        </div>
                       </td>
-                      <td style={{ padding: "1rem 1.5rem", textAlign: "center" }}>
-                        <div className="action-buttons-mobile" style={{ display: "flex", gap: "0.5rem", justifyContent: "center", alignItems: "center" }}>
+                      <td>
+                        <div style={{ display: "flex", gap: "0.5rem", justifyContent: "center" }}>
                           {reservation.status === 'pending' && (
                             <button
                               onClick={() => handleStatusChange(reservation.id, 'confirmed')}
-                              style={{
-                                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                                color: "white",
-                                border: "none",
-                                borderRadius: 8,
-                                padding: "0.6rem 0.8rem",
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                transition: "all 0.2s ease",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.3rem",
-                                boxShadow: "0 2px 8px rgba(34, 197, 94, 0.3)",
-                                minWidth: "80px",
-                                justifyContent: "center",
-                              }}
-                              onMouseEnter={(e) => e.target.style.transform = "translateY(-1px)"}
-                              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
-                              title="Confirmar reserva"
+                              style={{ padding: "0.5rem", borderRadius: 10, border: "none", background: "#f0fdf4", color: "#15803d", cursor: "pointer", transition: "all 0.2s" }}
+                              title="Confirmar"
                             >
-                              <span style={{ fontSize: "0.8rem" }}>✓</span>
-                              <span style={{ display: "none", "@media (min-width: 768px)": { display: "inline" } }}>Confirmar</span>
-                            </button>
-                          )}
-                          {reservation.status === 'confirmed' && new Date(reservation.assigned_date) < new Date() && (
-                            <button
-                              onClick={() => handleStatusChange(reservation.id, 'completed')}
-                              style={{
-                                background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-                                color: "white",
-                                border: "none",
-                                borderRadius: 8,
-                                padding: "0.6rem 0.8rem",
-                                fontSize: "0.75rem",
-                                fontWeight: 600,
-                                cursor: "pointer",
-                                transition: "all 0.2s ease",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "0.3rem",
-                                boxShadow: "0 2px 8px rgba(59, 130, 246, 0.3)",
-                                minWidth: "80px",
-                                justifyContent: "center",
-                              }}
-                              onMouseEnter={(e) => e.target.style.transform = "translateY(-1px)"}
-                              onMouseLeave={(e) => e.target.style.transform = "translateY(0)"}
-                              title="Marcar como completada"
-                            >
-                              <span style={{ fontSize: "0.8rem" }}>✓</span>
-                              <span style={{ display: "none", "@media (min-width: 768px)": { display: "inline" } }}>Completar</span>
+                              <CheckCircle size={18} />
                             </button>
                           )}
                           <button
                             onClick={() => openEditModal(reservation)}
-                            style={{
-                              background: "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)",
-                              color: "#475569",
-                              border: "1px solid #e2e8f0",
-                              borderRadius: 8,
-                              padding: "0.6rem 0.8rem",
-                              fontSize: "0.75rem",
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              transition: "all 0.2s ease",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.3rem",
-                              minWidth: "70px",
-                              justifyContent: "center",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.background = "linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%)"
-                              e.target.style.transform = "translateY(-1px)"
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.background = "linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)"
-                              e.target.style.transform = "translateY(0)"
-                            }}
-                            title="Editar reserva"
+                            style={{ padding: "0.5rem", borderRadius: 10, border: "none", background: "#eff6ff", color: "#3b82f6", cursor: "pointer", transition: "all 0.2s" }}
+                            title="Editar"
                           >
-                            <span style={{ fontSize: "0.9rem" }}>✏️</span>
+                            <Edit size={18} />
                           </button>
                           <button
                             onClick={() => {
                               setReservationToDelete(reservation)
                               setShowDeleteModal(true)
                             }}
-                            style={{
-                              background: "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)",
-                              color: "#dc2626",
-                              border: "1px solid #fecaca",
-                              borderRadius: 8,
-                              padding: "0.6rem 0.8rem",
-                              fontSize: "0.75rem",
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              transition: "all 0.2s ease",
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "0.3rem",
-                              minWidth: "70px",
-                              justifyContent: "center",
-                            }}
-                            onMouseEnter={(e) => {
-                              e.target.style.background = "linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)"
-                              e.target.style.transform = "translateY(-1px)"
-                            }}
-                            onMouseLeave={(e) => {
-                              e.target.style.background = "linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%)"
-                              e.target.style.transform = "translateY(0)"
-                            }}
-                            title="Eliminar reserva"
+                            style={{ padding: "0.5rem", borderRadius: 10, border: "none", background: "#fef2f2", color: "#ef4444", cursor: "pointer", transition: "all 0.2s" }}
+                            title="Eliminar"
                           >
-                            <span style={{ fontSize: "0.9rem" }}>🗑️</span>
+                            <Trash2 size={18} />
                           </button>
                         </div>
                       </td>
@@ -1003,49 +769,36 @@ export default function AdminView({
               <div
                 style={{
                   display: "flex",
-                  justifyContent: "center",
+                  justifyContent: "space-between",
                   alignItems: "center",
-                  gap: "0.5rem",
-                  padding: "1rem",
-                  backgroundColor: "#f8fafc",
-                  borderRadius: "8px",
+                  padding: "1.5rem 2rem",
+                  borderTop: "1px solid #f1f5f9",
+                  background: "#f8fafc"
                 }}
               >
-                <button
-                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
-                  disabled={currentPage === 1}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "6px",
-                    backgroundColor: currentPage === 1 ? "#f3f4f6" : "#fff",
-                    color: currentPage === 1 ? "#9ca3af" : "#374151",
-                    cursor: currentPage === 1 ? "not-allowed" : "pointer",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Anterior
-                </button>
-
-                <span style={{ fontSize: "0.9rem", color: "#6b7280" }}>
-                  Página {currentPage} de {totalPages}
-                </span>
-
-                <button
-                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  style={{
-                    padding: "0.5rem 1rem",
-                    border: "1px solid #d1d5db",
-                    borderRadius: "6px",
-                    backgroundColor: currentPage === totalPages ? "#f3f4f6" : "#fff",
-                    color: currentPage === totalPages ? "#9ca3af" : "#374151",
-                    cursor: currentPage === totalPages ? "not-allowed" : "pointer",
-                    fontSize: "0.9rem",
-                  }}
-                >
-                  Siguiente
-                </button>
+                <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>
+                  Página <span style={{ color: "#1e293b" }}>{currentPage}</span> de <span style={{ color: "#1e293b" }}>{totalPages}</span>
+                </div>
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                    disabled={currentPage === 1}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.5rem 1rem", borderRadius: 10, border: "1px solid #e2e8f0", background: currentPage === 1 ? "#f1f5f9" : "#fff", color: currentPage === 1 ? "#94a3b8" : "#475569", fontWeight: 700, cursor: currentPage === 1 ? "not-allowed" : "pointer", fontSize: "0.85rem", transition: "all 0.2s"
+                    }}
+                  >
+                    <ChevronLeft size={16} /> Anterior
+                  </button>
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                    disabled={currentPage === totalPages}
+                    style={{
+                      display: "flex", alignItems: "center", gap: "0.25rem", padding: "0.5rem 1rem", borderRadius: 10, border: "1px solid #e2e8f0", background: currentPage === totalPages ? "#f1f5f9" : "#fff", color: currentPage === totalPages ? "#94a3b8" : "#475569", fontWeight: 700, cursor: currentPage === totalPages ? "not-allowed" : "pointer", fontSize: "0.85rem", transition: "all 0.2s"
+                    }}
+                  >
+                    Siguiente <ChevronRight size={16} />
+                  </button>
+                </div>
               </div>
             )}
           </>

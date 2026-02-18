@@ -1,6 +1,19 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import { servicesOptions } from './constants'
+import {
+  Award,
+  Gift,
+  Star,
+  TrendingUp,
+  CheckCircle,
+  Clock,
+  ChevronRight,
+  Target,
+  Trophy,
+  Zap,
+  Info
+} from 'lucide-react'
 
 export default function UserLoyaltyView({ user }) {
   const [discounts, setDiscounts] = useState([])
@@ -165,9 +178,15 @@ export default function UserLoyaltyView({ user }) {
 
   if (loading) {
     return (
-      <div style={{ textAlign: "center", padding: "2rem" }}>
-        <div style={{ fontSize: "1.5rem" }}>⏳</div>
-        <p>Cargando tus bonificaciones...</p>
+      <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#f8fafc", borderRadius: 24 }}>
+        <div style={{
+          width: 48, height: 48, background: "#fff", borderRadius: "50%",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          margin: "0 auto 1rem", boxShadow: "0 4px 12px rgba(0,0,0,0.05)"
+        }}>
+          <Clock className="animate-spin-slow" size={24} color="#3b82f6" />
+        </div>
+        <p style={{ color: "#64748b", fontWeight: 600, fontSize: "1.1rem" }}>Cargando tus bonificaciones...</p>
       </div>
     )
   }
@@ -176,202 +195,277 @@ export default function UserLoyaltyView({ user }) {
   const tier = getLoyaltyTier(totalPoints)
 
   return (
-    <div>
-      {/* Header con nivel VIP */}
+    <div style={{ maxWidth: 1000, margin: "0 auto", paddingBottom: "2rem" }}>
+      {/* Tier Header Card */}
       <div
         style={{
-          background: `linear-gradient(135deg, ${tier.color}20 0%, ${tier.color}10 100%)`,
-          padding: "1.5rem",
-          borderRadius: 16,
-          marginBottom: "2rem",
-          border: `2px solid ${tier.color}30`,
+          background: `linear-gradient(135deg, ${tier.color}11 0%, ${tier.color}22 100%)`,
+          padding: "3rem 2rem",
+          borderRadius: 28,
+          marginBottom: "3rem",
+          color: tier.color,
           textAlign: "center",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: `0 10px 15px -3px ${tier.color}11`,
+          border: `1px solid ${tier.color}33`
         }}
       >
-        <div style={{ fontSize: "3rem", marginBottom: "0.5rem" }}>
-          {tier.name === "VIP Oro" ? "👑" : tier.name === "VIP Plata" ? "🥈" : tier.name === "VIP Bronce" ? "🥉" : "⭐"}
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{
+            width: 80, height: 80, background: "white",
+            borderRadius: 24, display: "flex",
+            alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem",
+            boxShadow: `0 8px 16px ${tier.color}22`,
+            color: tier.color
+          }}>
+            {tier.name === "VIP Oro" ? <Trophy size={40} /> : tier.name === "VIP Plata" ? <Award size={40} /> : tier.name === "VIP Bronce" ? <Trophy size={40} /> : <Star size={40} />}
+          </div>
+          <h2
+            style={{
+              fontSize: "2.5rem",
+              fontWeight: 900,
+              marginBottom: "0.5rem",
+              letterSpacing: "-0.025em",
+              color: "#1e293b"
+            }}
+          >
+            {tier.name}
+          </h2>
+          <p style={{ fontSize: "1.1rem", color: "#64748b", fontWeight: 600, marginBottom: "2rem" }}>
+            {tier.benefits}
+          </p>
+          <div
+            style={{
+              background: tier.color,
+              color: "white",
+              padding: "0.75rem 1.5rem",
+              borderRadius: 16,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.6rem",
+              fontWeight: 800,
+              fontSize: "1.1rem",
+              boxShadow: `0 10px 15px -3px ${tier.color}44`
+            }}
+          >
+            <Zap size={20} fill="white" /> {totalPoints} puntos acumulados
+          </div>
         </div>
-        <h2
-          style={{
-            color: tier.color,
-            marginBottom: "0.5rem",
-            fontSize: "1.5rem",
-            fontWeight: "700",
-          }}
-        >
-          {tier.name}
-        </h2>
-        <p style={{ color: "#64748b", marginBottom: "1rem" }}>
-          {tier.benefits}
-        </p>
-        <div
-          style={{
-            background: tier.color,
-            color: "white",
-            padding: "0.5rem 1rem",
-            borderRadius: 20,
-            display: "inline-block",
-            fontWeight: "600",
-          }}
-        >
-          {totalPoints} puntos acumulados
-        </div>
+        {/* Decorative background circle */}
+        <div style={{ position: "absolute", right: "-10%", top: "-20%", width: 300, height: 300, background: `${tier.color}08`, borderRadius: "50%", zIndex: 0 }} />
       </div>
 
-      {/* Bonificaciones disponibles */}
+      {/* Main Content Section */}
       <div
         style={{
-          background: "linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)",
-          padding: "1.5rem",
-          borderRadius: 16,
-          marginBottom: "2rem",
-          border: "1px solid #0ea5e9",
+          background: "#fff",
+          padding: "2.5rem",
+          borderRadius: 32,
+          border: "1px solid #f1f5f9",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
         }}
       >
-        <h3
-          style={{
-            color: "#0c4a6e",
-            marginBottom: "1rem",
-            fontSize: "1.3rem",
-            fontWeight: "700",
-            textAlign: "center",
-          }}
-        >
-          🎁 Tus Bonificaciones Disponibles
-        </h3>
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "2.5rem", justifyContent: "center" }}>
+          <div style={{ background: "#fef3c7", padding: "0.6rem", borderRadius: 12, color: "#f59e0b" }}>
+            <Gift size={24} />
+          </div>
+          <h3
+            style={{
+              color: "#1e293b",
+              margin: 0,
+              fontSize: "1.75rem",
+              fontWeight: 900,
+              letterSpacing: "-0.025em"
+            }}
+          >
+            Tus Beneficios Disponibles
+          </h3>
+          <div style={{ flex: 1, height: 2, background: "#f1f5f9", marginLeft: "1rem" }} className="hide-sm" />
+        </div>
 
         {Object.keys(serviceProgress).length === 0 ? (
-          <div style={{ textAlign: "center", padding: "2rem" }}>
-            <div style={{ fontSize: "3rem", marginBottom: "1rem" }}>🎯</div>
-            <h4 style={{ color: "#64748b", marginBottom: "0.5rem" }}>
-              ¡Completa más servicios para obtener descuentos!
+          <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#f8fafc", borderRadius: 24, border: "2px dashed #e2e8f0" }}>
+            <div style={{ width: 64, height: 64, background: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
+              <Target size={32} color="#94a3b8" />
+            </div>
+            <h4 style={{ color: "#1e293b", marginBottom: "0.5rem", fontSize: "1.25rem", fontWeight: 800 }}>
+              ¡Comienza tu camino al ahorro!
             </h4>
-            <p style={{ color: "#94a3b8", fontSize: "0.9rem" }}>
-              Cada servicio completado te acerca a mejores bonificaciones
+            <p style={{ color: "#64748b", fontSize: "1rem", maxWidth: 400, margin: "0 auto", lineHeight: 1.6 }}>
+              Completa tu primer servicio para desbloquear bonificaciones exclusivas y descuentos por fidelidad.
             </p>
           </div>
         ) : (
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))",
-              gap: "1rem",
+              gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
+              gap: "2rem",
             }}
           >
             {Object.entries(serviceProgress).map(([serviceType, progress]) => {
               const serviceLabel = servicesOptions.find(s => s.value === serviceType)?.label || serviceType
+              const isUnlocked = !!progress.currentDiscount
 
               return (
                 <div
                   key={serviceType}
                   style={{
-                    background: "white",
-                    padding: "1.5rem",
-                    borderRadius: 12,
-                    border: progress.currentDiscount ? "2px solid #22c55e" : "2px solid #e5e7eb",
-                    boxShadow: progress.currentDiscount ? "0 4px 12px rgba(34, 197, 94, 0.15)" : "0 2px 8px rgba(0,0,0,0.05)",
-                    textAlign: "center",
+                    background: isUnlocked ? "#fff" : "#fafafa",
+                    padding: "2rem",
+                    borderRadius: 24,
+                    border: isUnlocked ? "2px solid #22c55e" : "1px solid #f1f5f9",
+                    position: "relative",
+                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                    display: "flex",
+                    flexDirection: "column",
+                    boxShadow: isUnlocked ? "0 15px 30px -10px rgba(34, 197, 94, 0.2)" : "none"
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = "translateY(-4px)"
+                    if (!isUnlocked) e.currentTarget.style.borderColor = "#e2e8f0"
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = "translateY(0)"
+                    if (!isUnlocked) e.currentTarget.style.borderColor = "#f1f5f9"
                   }}
                 >
-                  <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>
-                    {progress.currentDiscount ? "🎁" : "🎯"}
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
+                    <div>
+                      <h4
+                        style={{
+                          color: "#1e293b",
+                          margin: 0,
+                          fontSize: "1.2rem",
+                          fontWeight: 800,
+                          marginBottom: "0.25rem"
+                        }}
+                      >
+                        {serviceLabel}
+                      </h4>
+                      <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>
+                        Servicio de Fidelidad
+                      </div>
+                    </div>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: 14,
+                      background: isUnlocked ? "#f0fdf4" : "#f1f5f9",
+                      color: isUnlocked ? "#22c55e" : "#94a3b8",
+                      display: "flex", alignItems: "center", justifyContent: "center"
+                    }}>
+                      {isUnlocked ? <Gift size={24} /> : <Target size={24} />}
+                    </div>
                   </div>
 
-                  <h4
-                    style={{
-                      color: progress.currentDiscount ? "#16a34a" : "#64748b",
-                      marginBottom: "0.5rem",
-                      fontSize: "1.1rem",
-                      fontWeight: "700",
-                    }}
-                  >
-                    {serviceLabel}
-                  </h4>
-
-                  {/* Current discount if unlocked */}
-                  {progress.currentDiscount && (
+                  {/* Unlocked Discount Badge */}
+                  {isUnlocked && (
                     <div
                       style={{
-                        background: "#dcfce7",
+                        background: "#f0fdf4",
                         color: "#166534",
-                        padding: "0.5rem",
-                        borderRadius: 8,
-                        fontSize: "0.9rem",
-                        fontWeight: "600",
-                        marginBottom: "1rem",
+                        padding: "0.75rem 1rem",
+                        borderRadius: 14,
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        marginBottom: "1.5rem",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        border: "1px solid #dcfce7"
                       }}
                     >
-                      ✅ {progress.currentDiscount.percentage}% de descuento desbloqueado
+                      <CheckCircle size={18} /> {progress.currentDiscount.percentage}% Descuento Activo
                     </div>
                   )}
 
-                  {/* Progress bar */}
-                  <div style={{ marginBottom: "1rem" }}>
+                  {/* Progress Visualization */}
+                  <div style={{ marginTop: "auto" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem", fontSize: "0.85rem", fontWeight: 700 }}>
+                      <span style={{ color: "#64748b" }}>Progreso de recompensa</span>
+                      <span style={{ color: "#1e293b" }}>{progress.completed} / {progress.nextDiscount ? progress.nextDiscount.required : progress.currentDiscount?.required || 0}</span>
+                    </div>
                     <div
                       style={{
-                        background: "#e5e7eb",
-                        borderRadius: "10px",
-                        height: "8px",
+                        background: "#f1f5f9",
+                        borderRadius: "12px",
+                        height: "10px",
                         overflow: "hidden",
-                        marginBottom: "0.5rem",
+                        marginBottom: "1.25rem",
                       }}
                     >
                       <div
                         style={{
-                          background: progress.currentDiscount ? "#22c55e" : "#3b82f6",
+                          background: isUnlocked ? "linear-gradient(to right, #22c55e, #10b981)" : "linear-gradient(to right, #3b82f6, #2563eb)",
                           height: "100%",
                           width: progress.nextDiscount
                             ? `${(progress.completed / progress.nextDiscount.required) * 100}%`
                             : "100%",
-                          borderRadius: "10px",
-                          transition: "width 0.3s ease",
+                          borderRadius: "12px",
+                          transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)",
                         }}
                       />
                     </div>
-                    <div style={{ fontSize: "0.8rem", color: "#64748b" }}>
-                      {progress.completed} de {progress.nextDiscount ? progress.nextDiscount.required : progress.currentDiscount?.required || 0} servicios completados
-                    </div>
-                  </div>
 
-                  {/* Next discount info */}
-                  {progress.nextDiscount ? (
-                    <div
-                      style={{
-                        background: "#eff6ff",
-                        color: "#1d4ed8",
-                        padding: "0.75rem",
-                        borderRadius: 8,
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                      }}
-                    >
-                      🎯 Próximo: {progress.nextDiscount.percentage}% descuento
-                      <br />
-                      <span style={{ fontWeight: "400", color: "#64748b" }}>
-                        {progress.nextDiscount.remaining} servicio{progress.nextDiscount.remaining !== 1 ? 's' : ''} más
-                      </span>
-                    </div>
-                  ) : (
-                    <div
-                      style={{
-                        background: "#fef3c7",
-                        color: "#92400e",
-                        padding: "0.75rem",
-                        borderRadius: 8,
-                        fontSize: "0.85rem",
-                        fontWeight: "600",
-                      }}
-                    >
-                      🏆 ¡Máximo nivel alcanzado!
-                    </div>
-                  )}
+                    {/* Next step info */}
+                    {progress.nextDiscount ? (
+                      <div
+                        style={{
+                          background: "#fff",
+                          border: "1.5px solid #eff6ff",
+                          color: "#1d4ed8",
+                          padding: "1rem",
+                          borderRadius: 16,
+                          fontSize: "0.9rem",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.75rem"
+                        }}
+                      >
+                        <div style={{ background: "#dbeafe", color: "#1d4ed8", padding: "0.4rem", borderRadius: 8 }}>
+                          <TrendingUp size={16} />
+                        </div>
+                        <div>
+                          <div>Próximo beneficio: {progress.nextDiscount.percentage}% OFF</div>
+                          <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500 }}>
+                            Faltan {progress.nextDiscount.remaining} servicio{progress.nextDiscount.remaining !== 1 ? 's' : ''}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <div
+                        style={{
+                          background: "#fffbeb",
+                          color: "#92400e",
+                          padding: "1rem",
+                          borderRadius: 16,
+                          fontSize: "0.9rem",
+                          fontWeight: 700,
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.75rem",
+                          border: "1px solid #fef3c7"
+                        }}
+                      >
+                        <Trophy size={20} color="#f59e0b" />
+                        <div>¡Nivel máximo alcanzado!</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )
             })}
           </div>
         )}
-      </div>
 
+        <div style={{ marginTop: "3rem", padding: "1.5rem", background: "#f8fafc", borderRadius: 20, display: "flex", alignItems: "flex-start", gap: "1rem" }}>
+          <Info size={20} color="#94a3b8" style={{ marginTop: "0.1rem" }} />
+          <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b", lineHeight: 1.5 }}>
+            <strong>Nota:</strong> Los descuentos se aplican automáticamente en tu próxima reserva del mismo servicio. Los puntos de fidelidad globales contribuyen a tu rango VIP, el cual otorga beneficios adicionales en todos nuestros servicios.
+          </p>
+        </div>
+      </div>
     </div>
   )
 }

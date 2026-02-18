@@ -8,4 +8,4 @@ if (!supabaseUrl || !supabaseKey) {
 }
 
 export const supabase = createClient(supabaseUrl, supabaseKey);
-export { supabaseKey }; // AÑADE ESTO
+export { supabaseKey };

@@ -3,9 +3,23 @@
 import { useState, useEffect } from "react"
 import { useSearchParams } from "react-router-dom"
 import { supabase, supabaseKey } from "../../supabaseClient"
-import { Calendar, momentLocalizer } from "react-big-calendar"
+import { Calendar as BigCalendar, momentLocalizer } from "react-big-calendar"
 import moment from "moment"
 import "react-big-calendar/lib/css/react-big-calendar.css"
+import {
+  Calendar as CalendarIcon,
+  LogIn,
+  LogOut,
+  User,
+  Settings,
+  ShieldCheck,
+  LayoutDashboard,
+  Gift,
+  Clock,
+  CheckCircle,
+  AlertTriangle,
+  ClipboardList
+} from 'lucide-react'
 import { servicesOptions, calendarStyles, responsiveModalStyles } from './constants'
 import Header from './Header'
 import Alert from './Alert'
@@ -112,63 +126,95 @@ export default function ReservaMejorada() {
     setSelectedDate(null)
   }, [service, user])
 
-  // Force hide loading after 5 seconds as fallback
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setInitialLoading(false)
-    }, 5000)
-    return () => clearTimeout(timer)
-  }, [])
 
-  // Auth state change listener
+  // State change logger for debugging
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        // Fetch user data from users table
+    console.log("DEBUG - User State:", user ? user.email : "null", "| Loading:", initialLoading);
+  }, [user, initialLoading]);
+
+  // Consolidated session management
+  useEffect(() => {
+    let mounted = true;
+    let authEventProcessed = false;
+
+    const fetchProfile = async (userId) => {
+      if (!mounted || !userId) return;
+      console.log("RESERVAS - Fetching profile for:", userId);
+      try {
         const { data: userData, error } = await supabase
           .from("users")
           .select("*")
-          .eq("id", session.user.id)
-          .single()
+          .eq("id", userId)
+          .single();
 
-        if (!error && userData) {
-          setUser(userData)
-          setActiveTab(userData.role === "admin" ? "admin" : "calendar")
+        if (mounted) {
+          if (!error && userData) {
+            console.log("RESERVAS - Profile loaded:", userData.role);
+            setUser(userData);
+            if (activeTab === "calendar") {
+              setActiveTab(userData.role === "admin" ? "admin" : "calendar");
+            }
+          } else {
+            console.error("RESERVAS - Profile error:", error);
+          }
+          setInitialLoading(false);
+        }
+      } catch (err) {
+        console.error("RESERVAS - Profile exception:", err);
+        if (mounted) setInitialLoading(false);
+      }
+    };
+
+    // 1. Initial check: getSession covers the initial load from localStorage
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!mounted || authEventProcessed) return;
+      console.log("RESERVAS - Initial getSession:", !!session);
+
+      if (session?.user) {
+        fetchProfile(session.user.id);
+      } else {
+        // Fallback: getUser is more thorough but slower
+        supabase.auth.getUser().then(({ data: { user } }) => {
+          if (mounted && !authEventProcessed) {
+            if (user) {
+              console.log("RESERVAS - User found via getUser backup");
+              fetchProfile(user.id);
+            } else {
+              console.log("RESERVAS - No session found");
+              setInitialLoading(false);
+            }
+          }
+        });
+      }
+    });
+
+
+    // 2. Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("RESERVAS - Auth State Change:", event, !!session);
+      if (!mounted) return;
+
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'INITIAL_SESSION') {
+        authEventProcessed = true;
+        if (session?.user) {
+          fetchProfile(session.user.id);
+        } else {
+          console.log("RESERVAS - Event fired with no user:", event);
+          setInitialLoading(false);
         }
       } else if (event === 'SIGNED_OUT') {
-        setUser(null)
-        setUserReservations([])
-        setActiveTab("calendar")
+        authEventProcessed = true;
+        setUser(null);
+        setUserReservations([]);
+        setActiveTab("calendar");
+        setInitialLoading(false);
       }
-    })
+    });
 
-    // Check for existing session on component mount
-    const checkSession = async () => {
-      try {
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session?.user) {
-          // Fetch user data from users table
-          const { data: userData, error } = await supabase
-            .from("users")
-            .select("*")
-            .eq("id", session.user.id)
-            .single()
-
-          if (!error && userData) {
-            setUser(userData)
-            setActiveTab(userData.role === "admin" ? "admin" : "calendar")
-          }
-        }
-      } catch (error) {
-        console.error("Error checking session:", error)
-      } finally {
-        setInitialLoading(false)
-      }
+    return () => {
+      mounted = false;
+      subscription.unsubscribe()
     }
-
-    checkSession()
-
-    return () => subscription.unsubscribe()
   }, [])
 
   // Prevenir scroll del body cuando el modal está abierto
@@ -510,7 +556,6 @@ export default function ReservaMejorada() {
     setSelectedDate(null)
     setUserReservations([])
     setActiveTab("calendar")
-    localStorage.removeItem('session')
   }
 
   function handleConfirmReserve(applicableDiscount = 0) {
@@ -882,42 +927,44 @@ export default function ReservaMejorada() {
         </div>
       )}
 
-      {/* Botón flotante de autenticación */}
+      {/* Botón flotante de autenticación (Login) */}
       {!user && !initialLoading && (
         <button
           style={{
             position: "fixed",
             zIndex: 9999,
-            right: 28,
-            top: 28,
+            right: 32,
+            top: 32,
             background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
             color: "#fff",
-            fontWeight: 700,
+            fontWeight: 800,
             border: "none",
-            borderRadius: 50,
-            boxShadow: "0 8px 32px rgba(34,197,94,0.3)",
-            padding: "1rem 2rem",
+            borderRadius: "16px",
+            boxShadow: "0 10px 25px rgba(34,197,94,0.3), 0 4px 10px rgba(0,0,0,0.1)",
+            padding: "0.85rem 1.75rem",
             fontSize: "1rem",
             cursor: "pointer",
-            transition: "all 0.3s ease",
+            transition: "all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)",
             display: "flex",
             alignItems: "center",
-            gap: "0.5rem",
+            gap: "0.75rem",
+            backdropFilter: "blur(8px)",
           }}
           onClick={() => {
             setShowAuthModal(true)
             setAuthMode("login")
           }}
           onMouseEnter={(e) => {
-            e.target.style.transform = "scale(1.05)"
-            e.target.style.boxShadow = "0 12px 40px rgba(34,197,94,0.4)"
+            e.currentTarget.style.transform = "translateY(-4px) scale(1.02)"
+            e.currentTarget.style.boxShadow = "0 15px 35px rgba(34,197,94,0.4), 0 8px 15px rgba(0,0,0,0.1)"
           }}
           onMouseLeave={(e) => {
-            e.target.style.transform = "scale(1)"
-            e.target.style.boxShadow = "0 8px 32px rgba(34,197,94,0.3)"
+            e.currentTarget.style.transform = "translateY(0) scale(1)"
+            e.currentTarget.style.boxShadow = "0 10px 25px rgba(34,197,94,0.3), 0 4px 10px rgba(0,0,0,0.1)"
           }}
         >
-          Iniciar Sesión
+          <LogIn size={20} />
+          <span>Acceder</span>
         </button>
       )}
 

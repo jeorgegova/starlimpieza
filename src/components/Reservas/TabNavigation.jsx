@@ -1,190 +1,168 @@
+import {
+  Calendar,
+  ClipboardList,
+  Gift,
+  Settings,
+  Users
+} from 'lucide-react'
+
 export default function TabNavigation({ user, activeTab, setActiveTab, userReservations }) {
   if (!user) return null
 
+  const tabs = [
+    {
+      id: "calendar",
+      label: "Hacer Reserva",
+      icon: <Calendar size={20} />,
+      color: "#22c55e",
+      bg: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+    },
+    {
+      id: "myReservations",
+      label: "Mis Reservas",
+      icon: <ClipboardList size={20} />,
+      color: "#3b82f6",
+      bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+      count: userReservations.length
+    },
+    {
+      id: "loyalty",
+      label: "Bonificaciones",
+      icon: <Gift size={20} />,
+      color: "#f59e0b",
+      bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
+    },
+  ]
+
+  if (user.role === "admin") {
+    tabs.push(
+      {
+        id: "admin",
+        label: "Administrar",
+        icon: <Settings size={20} />,
+        color: "#6366f1",
+        bg: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)"
+      },
+      {
+        id: "crm",
+        label: "CRM Clientes",
+        icon: <Users size={20} />,
+        color: "#8b5cf6",
+        bg: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)"
+      }
+    )
+  }
+
   return (
-    <div style={{ marginBottom: "1.5rem" }}>
+    <div style={{ marginBottom: "2rem" }}>
       <div
         className="tab-cards-grid"
         style={{
           display: "flex",
-          gap: "0.5rem",
-          marginBottom: "1rem",
+          gap: "0.75rem",
+          padding: "0.25rem",
           overflowX: "auto",
-          paddingBottom: "0.5rem",
+          scrollbarWidth: "none",
+          msOverflowStyle: "none",
         }}
       >
-        <button
-          style={{
-            flex: "1",
-            minWidth: "180px",
-            textAlign: "center",
-            padding: "0.75rem",
-            borderRadius: 10,
-            background: activeTab === "calendar" ? "#22c55e" : "#f8fafc",
-            border: activeTab === "calendar" ? "2px solid #16a34a" : "1px solid #e5e7eb",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "0.25rem",
-          }}
-          onClick={() => setActiveTab("calendar")}
-        >
-          <div style={{ fontSize: "1.2rem" }}>📅</div>
-          <div
+        {tabs.map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id)}
             style={{
-              color: activeTab === "calendar" ? "#fff" : "#1f2937",
-              fontSize: "0.9rem",
-              fontWeight: 600,
+              flex: "1",
+              minWidth: "160px",
+              padding: "1rem 0.75rem",
+              borderRadius: 20,
+              background: activeTab === tab.id ? tab.bg : "#fff",
+              border: activeTab === tab.id ? "none" : "1px solid #e2e8f0",
+              cursor: "pointer",
+              transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              gap: "0.5rem",
+              boxShadow: activeTab === tab.id ? `0 10px 15px -3px ${tab.color}44` : "0 2px 4px rgba(0,0,0,0.02)",
+              position: "relative",
+            }}
+            onMouseEnter={e => {
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.borderColor = tab.color
+                e.currentTarget.style.transform = "translateY(-2px)"
+              }
+            }}
+            onMouseLeave={e => {
+              if (activeTab !== tab.id) {
+                e.currentTarget.style.borderColor = "#e2e8f0"
+                e.currentTarget.style.transform = "translateY(0)"
+              }
             }}
           >
-            Hacer Reserva
-          </div>
-        </button>
+            <div style={{
+              color: activeTab === tab.id ? "white" : tab.color,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              transition: "all 0.3s"
+            }}>
+              {tab.icon}
+            </div>
 
-        <button
-          style={{
-            flex: "1",
-            minWidth: "180px",
-            textAlign: "center",
-            padding: "0.75rem",
-            borderRadius: 10,
-            background: activeTab === "myReservations" ? "#22c55e" : "#f8fafc",
-            border: activeTab === "myReservations" ? "2px solid #16a34a" : "1px solid #e5e7eb",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "0.25rem",
-          }}
-          onClick={() => setActiveTab("myReservations")}
-        >
-          <div style={{ fontSize: "1.2rem" }}>📋</div>
-          <div
-            style={{
-              color: activeTab === "myReservations" ? "#fff" : "#1f2937",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-            }}
-          >
-            Mis Reservas
-          </div>
-          {userReservations.length > 0 && (
             <div
               style={{
-                background: activeTab === "myReservations" ? "#16a34a" : "#22c55e",
-                color: "#fff",
-                borderRadius: "50%",
-                width: "20px",
-                height: "20px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                fontSize: "0.7rem",
+                color: activeTab === tab.id ? "#fff" : "#475569",
+                fontSize: "0.85rem",
                 fontWeight: 700,
+                transition: "all 0.3s"
               }}
             >
-              {userReservations.length}
+              {tab.label}
             </div>
-          )}
-        </button>
 
-        <button
-          style={{
-            flex: "1",
-            minWidth: "180px",
-            textAlign: "center",
-            padding: "0.75rem",
-            borderRadius: 10,
-            background: activeTab === "loyalty" ? "#f59e0b" : "#f8fafc",
-            border: activeTab === "loyalty" ? "2px solid #d97706" : "1px solid #e5e7eb",
-            cursor: "pointer",
-            transition: "all 0.3s ease",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            gap: "0.25rem",
-          }}
-          onClick={() => setActiveTab("loyalty")}
-        >
-          <div style={{ fontSize: "1.2rem" }}>🎁</div>
-          <div
-            style={{
-              color: activeTab === "loyalty" ? "#fff" : "#1f2937",
-              fontSize: "0.9rem",
-              fontWeight: 600,
-            }}
-          >
-            Bonificaciones
-          </div>
-        </button>
-
-        {user.role === "admin" && (
-          <>
-            <button
-              style={{
-                flex: "1",
-                minWidth: "180px",
-                textAlign: "center",
-                padding: "0.75rem",
-                borderRadius: 10,
-                background: activeTab === "admin" ? "#f59e0b" : "#f8fafc",
-                border: activeTab === "admin" ? "2px solid #d97706" : "1px solid #e5e7eb",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-              onClick={() => setActiveTab("admin")}
-            >
-              <div style={{ fontSize: "1.2rem" }}>⚙️</div>
+            {tab.count > 0 && (
               <div
                 style={{
-                  color: activeTab === "admin" ? "#fff" : "#1f2937",
-                  fontSize: "0.9rem",
-                  fontWeight: 600,
+                  position: "absolute",
+                  top: -8,
+                  right: -8,
+                  background: activeTab === tab.id ? "#fff" : tab.color,
+                  color: activeTab === tab.id ? tab.color : "#fff",
+                  borderRadius: "50%",
+                  minWidth: "22px",
+                  height: "22px",
+                  padding: "0 4px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "0.75rem",
+                  fontWeight: 800,
+                  boxShadow: "0 4px 6px -1px rgba(0,0,0,0.1)",
+                  border: `2px solid ${activeTab === tab.id ? tab.color : "#fff"}`
                 }}
               >
-                Administrar
+                {tab.count}
               </div>
-            </button>
+            )}
 
-            <button
-              style={{
-                flex: "1",
-                minWidth: "180px",
-                textAlign: "center",
-                padding: "0.75rem",
-                borderRadius: 10,
-                background: activeTab === "crm" ? "#667eea" : "#f8fafc",
-                border: activeTab === "crm" ? "2px solid #4f46e5" : "1px solid #e5e7eb",
-                cursor: "pointer",
-                transition: "all 0.3s ease",
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "0.25rem",
-              }}
-              onClick={() => setActiveTab("crm")}
-            >
-              <div style={{ fontSize: "1.2rem" }}>🎯</div>
-              <div
-                style={{
-                  color: activeTab === "crm" ? "#fff" : "#1f2937",
-                  fontSize: "0.9rem",
-                  fontWeight: 600,
-                }}
-              >
-                CRM Clientes
-              </div>
-            </button>
-          </>
-        )}
+            {activeTab === tab.id && (
+              <div style={{
+                position: "absolute",
+                bottom: 8,
+                width: 4,
+                height: 4,
+                borderRadius: "50%",
+                background: "rgba(255,255,255,0.5)"
+              }} />
+            )}
+          </button>
+        ))}
       </div>
+      <style>{`
+        .tab-cards-grid::-webkit-scrollbar {
+          display: none;
+        }
+      `}</style>
     </div>
   )
 }

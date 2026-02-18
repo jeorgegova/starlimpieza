@@ -1,6 +1,28 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import { servicesOptions } from './constants'
+import {
+  Users,
+  Search,
+  Target,
+  TrendingUp,
+  Award,
+  Gift,
+  Settings,
+  History,
+  CheckCircle,
+  Clock,
+  Phone,
+  Mail,
+  User,
+  Plus,
+  Edit,
+  Trash2,
+  AlertCircle,
+  BarChart3,
+  Star,
+  ChevronRight
+} from 'lucide-react'
 
 export default function CRMView({
   allReservations,
@@ -321,166 +343,256 @@ export default function CRMView({
   }
 
   return (
-    <div>
-      {/* Header */}
+    <div style={{ maxWidth: 1400, margin: "0 auto", paddingBottom: "4rem" }}>
+      {/* Premium Dashboard Header */}
       <div
         style={{
-          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-          padding: "2rem",
-          borderRadius: 16,
-          marginBottom: "2rem",
-          color: "white",
-          textAlign: "center",
+          background: "linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)",
+          padding: "3rem 2.5rem",
+          borderRadius: 24,
+          marginBottom: "2.5rem",
+          color: "#1e293b",
+          textAlign: "left",
+          position: "relative",
+          overflow: "hidden",
+          boxShadow: "0 10px 15px -3px rgba(79, 70, 229, 0.05)",
+          border: "1px solid #ddd6fe"
         }}
       >
-        <h2
-          style={{
-            fontSize: "2rem",
-            fontWeight: 700,
-            marginBottom: "0.5rem",
-          }}
-        >
-          🎯 CRM - Gestión de Clientes
-        </h2>
-        <p style={{ fontSize: "1.1rem", opacity: 0.9 }}>
-          Administra la fidelidad y el historial de tus clientes
-        </p>
+        <div style={{ position: "relative", zIndex: 1 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "1rem", marginBottom: "1rem" }}>
+            <div style={{ background: "rgba(99, 102, 241, 0.05)", padding: "0.75rem", borderRadius: 12, backdropFilter: "blur(8px)", color: "#6366f1", border: "1px solid rgba(99, 102, 241, 0.1)" }}>
+              <Users size={28} />
+            </div>
+            <h2
+              style={{
+                fontSize: "2.5rem",
+                fontWeight: 900,
+                margin: 0,
+                letterSpacing: "-0.025em",
+                color: "#1e1b4b"
+              }}
+            >
+              Gestión de Clientes (CRM)
+            </h2>
+          </div>
+          <p style={{ fontSize: "1.1rem", color: "#475569", maxWidth: 600, lineHeight: 1.6, margin: 0, fontWeight: 500 }}>
+            Administra la base de clientes, supervisa la fidelidad y configura estrategias de retención personalizadas.
+          </p>
+        </div>
+        {/* Decorative background element */}
+        <div style={{ position: "absolute", right: "-5%", top: "-20%", width: 300, height: 300, background: "rgba(99, 102, 241, 0.03)", borderRadius: "50%", zIndex: 0 }} />
       </div>
 
-      {/* Client Selection */}
+      {/* Client Selection Grid */}
       <div
         style={{
-          background: "#f8fafc",
-          padding: "1.5rem",
-          borderRadius: 12,
-          marginBottom: "2rem",
-          border: "1px solid #e2e8f0",
+          background: "#fff",
+          padding: "2rem",
+          borderRadius: 24,
+          marginBottom: "2.5rem",
+          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+          border: "1px solid #f1f5f9",
         }}
       >
-        <h3 style={{ color: "#1f2937", marginBottom: "1rem", fontSize: "1.2rem" }}>
-          👤 Seleccionar Cliente
-        </h3>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "2rem" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+            <div style={{ background: "#eff6ff", padding: "0.5rem", borderRadius: 10, color: "#3b82f6" }}>
+              <Search size={20} />
+            </div>
+            <h3 style={{ color: "#1e293b", margin: 0, fontSize: "1.25rem", fontWeight: 800 }}>
+              Seleccionar Cliente
+            </h3>
+          </div>
+          <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>
+            {clients.length} Clientes registrados
+          </div>
+        </div>
+
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-            gap: "1rem",
+            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+            gap: "1.25rem",
           }}
         >
           {clients.map((client) => (
             <div
               key={client.id}
               style={{
-                padding: "1rem",
-                border: selectedClient?.id === client.id ? "2px solid #667eea" : "1px solid #e2e8f0",
-                borderRadius: 8,
-                background: selectedClient?.id === client.id ? "#f0f4ff" : "white",
+                padding: "1.25rem",
+                border: selectedClient?.id === client.id ? "2px solid #6366f1" : "1px solid #f1f5f9",
+                borderRadius: 20,
+                background: selectedClient?.id === client.id ? "#f5f3ff" : "#fff",
                 cursor: "pointer",
-                transition: "all 0.3s ease",
+                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                position: "relative",
+                display: "flex",
+                flexDirection: "column",
+                gap: "0.75rem",
+                boxShadow: selectedClient?.id === client.id ? "0 10px 15px -3px rgba(99, 102, 241, 0.1)" : "none"
               }}
               onClick={() => setSelectedClient(client)}
+              onMouseEnter={e => {
+                if (selectedClient?.id !== client.id) {
+                  e.currentTarget.style.borderColor = "#e2e8f0"
+                  e.currentTarget.style.transform = "translateY(-2px)"
+                }
+              }}
+              onMouseLeave={e => {
+                if (selectedClient?.id !== client.id) {
+                  e.currentTarget.style.borderColor = "#f1f5f9"
+                  e.currentTarget.style.transform = "translateY(0)"
+                }
+              }}
             >
-              <div style={{ fontWeight: "600", color: "#1f2937" }}>
-                {client.name}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: 14,
+                  background: selectedClient?.id === client.id ? "#6366f1" : "#f8fafc",
+                  color: selectedClient?.id === client.id ? "#fff" : "#64748b",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  fontSize: "1.1rem",
+                  fontWeight: 800
+                }}>
+                  {client.name.charAt(0)}
+                </div>
+                <div>
+                  <div style={{ fontWeight: 700, color: "#1e293b", fontSize: "1rem" }}>{client.name}</div>
+                  <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>@{client.username}</div>
+                </div>
               </div>
-              <div style={{ fontSize: "0.9rem", color: "#6b7280" }}>
-                @{client.username} • {client.email}
+
+              <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "0.75rem" }}>
+                <div style={{ fontSize: "0.85rem", color: "#475569", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+                  <Mail size={14} color="#94a3b8" /> {client.email}
+                </div>
+                <div style={{ fontSize: "0.85rem", color: "#475569", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                  <Phone size={14} color="#94a3b8" /> {client.phone}
+                </div>
               </div>
-              <div style={{ fontSize: "0.8rem", color: "#6b7280" }}>
-                📞 {client.phone}
-              </div>
+
+              {selectedClient?.id === client.id && (
+                <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", color: "#6366f1" }}>
+                  <CheckCircle size={20} fill="#f5f3ff" />
+                </div>
+              )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Client Details */}
+      {/* Client Details View */}
       {selectedClient && (
         <>
-          {/* Client Summary Cards */}
+          {/* Key Metrics Cards */}
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-              gap: "1rem",
-              marginBottom: "2rem",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "1.5rem",
+              marginBottom: "2.5rem",
             }}
           >
             <div
               style={{
-                background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                padding: "1.5rem",
-                borderRadius: 12,
-                color: "white",
-                textAlign: "center",
+                background: "#fff",
+                padding: "2rem",
+                borderRadius: 24,
+                border: "1px solid #f1f5f9",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                gap: "1.5rem"
               }}
             >
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>📊</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "700" }}>
-                {clientHistory.length}
+              <div style={{ background: "#eff6ff", padding: "1rem", borderRadius: 16, color: "#3b82f6" }}>
+                <BarChart3 size={32} />
               </div>
-              <div style={{ opacity: 0.9 }}>Total Servicios</div>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#1e293b" }}>{clientHistory.length}</div>
+                <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Total Servicios</div>
+              </div>
             </div>
 
             <div
               style={{
-                background: "linear-gradient(135deg, #f093fb 0%, #f5576c 100%)",
-                padding: "1.5rem",
-                borderRadius: 12,
-                color: "white",
-                textAlign: "center",
+                background: "#fff",
+                padding: "1.75rem",
+                borderRadius: 24,
+                border: "1px solid #f1f5f9",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                gap: "1.5rem"
               }}
             >
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>✅</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "700" }}>
-                {clientHistory.filter(h => h.status === 'completed').length}
+              <div style={{ background: "#f0fdf4", padding: "1rem", borderRadius: 16, color: "#22c55e" }}>
+                <CheckCircle size={32} />
               </div>
-              <div style={{ opacity: 0.9 }}>Servicios Completados</div>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#1e293b" }}>{clientHistory.filter(h => h.status === 'completed').length}</div>
+                <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Servicios Completados</div>
+              </div>
             </div>
 
             <div
               style={{
-                background: "linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)",
-                padding: "1.5rem",
-                borderRadius: 12,
-                color: "white",
-                textAlign: "center",
+                background: "#fff",
+                padding: "1.75rem",
+                borderRadius: 24,
+                border: "1px solid #f1f5f9",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                gap: "1.5rem"
               }}
             >
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🏆</div>
-              <div style={{ fontSize: "1.5rem", fontWeight: "700" }}>
-                {getTotalLoyaltyPoints()}
+              <div style={{ background: "#fff7ed", padding: "1rem", borderRadius: 16, color: "#f97316" }}>
+                <Star size={32} />
               </div>
-              <div style={{ opacity: 0.9 }}>Puntos Fidelidad</div>
+              <div>
+                <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#1e293b" }}>{getTotalLoyaltyPoints()}</div>
+                <div style={{ color: "#64748b", fontSize: "0.9rem", fontWeight: 600 }}>Puntos Acumulados</div>
+              </div>
             </div>
 
             <div
               style={{
-                background: `linear-gradient(135deg, ${getLoyaltyTier(getTotalLoyaltyPoints()).color} 0%, ${getLoyaltyTier(getTotalLoyaltyPoints()).color}80 100%)`,
-                padding: "1.5rem",
-                borderRadius: 12,
-                color: "white",
-                textAlign: "center",
+                background: "#fff",
+                padding: "1.75rem",
+                borderRadius: 24,
+                border: "1px solid #f1f5f9",
+                boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
+                display: "flex",
+                alignItems: "center",
+                gap: "1.5rem",
+                background: `linear-gradient(to right, #fff, ${getLoyaltyTier(getTotalLoyaltyPoints()).color}10)`
               }}
             >
-              <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>⭐</div>
-              <div style={{ fontSize: "1.2rem", fontWeight: "700" }}>
-                {getLoyaltyTier(getTotalLoyaltyPoints()).name}
+              <div style={{ background: "#f8fafc", padding: "1rem", borderRadius: 16, color: getLoyaltyTier(getTotalLoyaltyPoints()).color }}>
+                <Award size={32} />
               </div>
-              <div style={{ opacity: 0.9 }}>
-                Descuento: {getLoyaltyTier(getTotalLoyaltyPoints()).discount}
+              <div>
+                <div style={{ fontSize: "1.25rem", fontWeight: 900, color: "#1e293b" }}>{getLoyaltyTier(getTotalLoyaltyPoints()).name}</div>
+                <div style={{ color: "#64748b", fontSize: "0.85rem", fontWeight: 700 }}>Beneficio: {getLoyaltyTier(getTotalLoyaltyPoints()).discount} OFF</div>
               </div>
             </div>
           </div>
 
-          {/* Loyalty Management */}
+          {/* Loyalty Breakdown Section */}
           <div
             style={{
-              background: "#f8fafc",
-              padding: "1.5rem",
-              borderRadius: 12,
-              marginBottom: "2rem",
-              border: "1px solid #e2e8f0",
+              background: "#fff",
+              padding: "2.5rem",
+              borderRadius: 24,
+              marginBottom: "2.5rem",
+              border: "1px solid #f1f5f9",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
             }}
           >
             <div
@@ -488,103 +600,77 @@ export default function CRMView({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "1rem",
+                marginBottom: "2rem",
               }}
             >
-              <h3 style={{ color: "#1f2937", fontSize: "1.2rem" }}>
-                🎁 Gestión de Fidelidad
-              </h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ background: "#fef3c7", padding: "0.5rem", borderRadius: 10, color: "#f59e0b" }}>
+                  <Gift size={20} />
+                </div>
+                <h3 style={{ color: "#1e293b", margin: 0, fontSize: "1.25rem", fontWeight: 800 }}>
+                  Detalle de Fidelidad por Servicio
+                </h3>
+              </div>
               <button
                 onClick={() => setShowLoyaltyModal(true)}
                 style={{
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
                   color: "white",
                   border: "none",
-                  borderRadius: 8,
-                  padding: "0.5rem 1rem",
-                  fontWeight: "600",
+                  borderRadius: 12,
+                  padding: "0.75rem 1.5rem",
+                  fontWeight: "700",
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontSize: "0.9rem",
+                  transition: "all 0.2s",
+                  boxShadow: "0 4px 12px rgba(99, 102, 241, 0.25)"
                 }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
               >
-                ➕ Agregar Puntos
+                <Plus size={18} /> Agregar Puntos Manuales
               </button>
             </div>
 
-            <div
-              style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
-                gap: "1rem",
-              }}
-            >
-              {Object.entries(loyaltyPoints).map(([service, points]) => (
-                <div
-                  key={service}
-                  style={{
-                    background: "white",
-                    padding: "1rem",
-                    borderRadius: 8,
-                    border: "1px solid #e2e8f0",
-                    textAlign: "center",
-                  }}
-                >
-                  <div style={{ fontWeight: "600", color: "#1f2937", marginBottom: "0.5rem" }}>
-                    {servicesOptions.find(s => s.value === service)?.label || service}
-                  </div>
-                  <div style={{ fontSize: "1.5rem", fontWeight: "700", color: "#667eea" }}>
-                    {points} pts
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Client Discounts */}
-          <div
-            style={{
-              background: "linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)",
-              padding: "1.5rem",
-              borderRadius: 12,
-              marginBottom: "2rem",
-              border: "1px solid #f59e0b",
-            }}
-          >
-            <h3 style={{ color: "#92400e", fontSize: "1.2rem", marginBottom: "1rem" }}>
-              💰 Descuentos Disponibles
-            </h3>
-
-            {clientDiscounts.length === 0 ? (
-              <div style={{ textAlign: "center", padding: "1rem", color: "#92400e" }}>
-                Este cliente no tiene descuentos disponibles actualmente
+            {Object.keys(loyaltyPoints).length === 0 ? (
+              <div style={{ textAlign: "center", padding: "3rem", background: "#f8fafc", borderRadius: 20, color: "#64748b", fontWeight: 500 }}>
+                El cliente aún no ha acumulado puntos en ningún servicio específico.
               </div>
             ) : (
               <div
                 style={{
                   display: "grid",
-                  gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-                  gap: "1rem",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "1.5rem",
                 }}
               >
-                {clientDiscounts.map((discount, index) => (
+                {Object.entries(loyaltyPoints).map(([service, points]) => (
                   <div
-                    key={index}
+                    key={service}
                     style={{
-                      background: "white",
-                      padding: "1rem",
-                      borderRadius: 8,
-                      border: "2px solid #f59e0b",
-                      textAlign: "center",
+                      background: "#f8fafc",
+                      padding: "1.5rem",
+                      borderRadius: 20,
+                      border: "1px solid #f1f5f9",
+                      position: "relative",
+                      overflow: "hidden"
                     }}
                   >
-                    <div style={{ fontSize: "2rem", marginBottom: "0.5rem" }}>🎁</div>
-                    <div style={{ fontWeight: "700", color: "#92400e", fontSize: "1.2rem" }}>
-                      {discount.discount_percentage}% OFF
+                    <div style={{ fontWeight: "800", color: "#475569", marginBottom: "0.5rem", fontSize: "0.9rem", textTransform: "uppercase", letterSpacing: "0.025em" }}>
+                      {servicesOptions.find(s => s.value === service)?.label || service}
                     </div>
-                    <div style={{ color: "#64748b", marginTop: "0.5rem" }}>
-                      en {servicesOptions.find(s => s.value === discount.service_type)?.label || discount.service_type}
+                    <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem" }}>
+                      <div style={{ fontSize: "2rem", fontWeight: 900, color: "#1e293b" }}>
+                        {points}
+                      </div>
+                      <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#64748b" }}>puntos</div>
                     </div>
-                    <div style={{ fontSize: "0.8rem", color: "#6b7280", marginTop: "0.25rem" }}>
-                      {discount.completed_services} servicios completados
+                    {/* Progress indicator decoration */}
+                    <div style={{ marginTop: "1rem", height: 6, background: "#e2e8f0", borderRadius: 3 }}>
+                      <div style={{ width: `${Math.min(points, 100)}%`, height: "100%", background: "#6366f1", borderRadius: 3 }} />
                     </div>
                   </div>
                 ))}
@@ -592,14 +678,94 @@ export default function CRMView({
             )}
           </div>
 
-          {/* Discount Configuration Management */}
+          {/* Client Discounts Section */}
           <div
             style={{
-              background: "linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%)",
-              padding: "1.5rem",
-              borderRadius: 12,
-              marginBottom: "2rem",
-              border: "1px solid #0ea5e9",
+              background: "linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%)",
+              padding: "2.5rem",
+              borderRadius: 24,
+              marginBottom: "2.5rem",
+              border: "1px solid #fde68a",
+              boxShadow: "0 4px 6px -1px rgba(180, 83, 9, 0.05)",
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "2rem" }}>
+              <div style={{ background: "#fef3c7", padding: "0.5rem", borderRadius: 10, color: "#d97706" }}>
+                <TrendingUp size={20} />
+              </div>
+              <h3 style={{ color: "#92400e", margin: 0, fontSize: "1.25rem", fontWeight: 800 }}>
+                Descuentos Disponibles para el Cliente
+              </h3>
+            </div>
+
+            {clientDiscounts.length === 0 ? (
+              <div style={{ textAlign: "center", padding: "2.5rem", background: "rgba(255,255,255,0.5)", borderRadius: 20, color: "#92400e", fontWeight: 600, border: "1px dashed #fcd34d" }}>
+                <div style={{ marginBottom: "0.5rem", fontSize: "1.5rem" }}>💎</div>
+                Este cliente no tiene cupones o descuentos activos en este momento.
+              </div>
+            ) : (
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+                  gap: "1.5rem",
+                }}
+              >
+                {clientDiscounts.map((discount, index) => (
+                  <div
+                    key={index}
+                    style={{
+                      background: "#fff",
+                      padding: "1.75rem",
+                      borderRadius: 20,
+                      border: "2px solid #fcd34d",
+                      textAlign: "center",
+                      position: "relative",
+                      boxShadow: "0 10px 15px -3px rgba(180, 83, 9, 0.1)",
+                    }}
+                  >
+                    <div style={{
+                      position: "absolute",
+                      top: "-12px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "#fcd34d",
+                      color: "#92400e",
+                      padding: "0.25rem 0.75rem",
+                      borderRadius: 20,
+                      fontSize: "0.75rem",
+                      fontWeight: 800,
+                      textTransform: "uppercase"
+                    }}>
+                      Cupón Activo
+                    </div>
+                    <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "#d97706", marginBottom: "0.25rem" }}>
+                      {discount.discount_percentage}%
+                    </div>
+                    <div style={{ fontSize: "0.9rem", fontWeight: 700, color: "#92400e", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                      De Descuento
+                    </div>
+                    <div style={{ color: "#64748b", marginTop: "1rem", fontSize: "0.9rem", fontWeight: 500 }}>
+                      Aplicable en: <span style={{ color: "#1e293b", fontWeight: 700 }}>{servicesOptions.find(s => s.value === discount.service_type)?.label || discount.service_type}</span>
+                    </div>
+                    <div style={{ fontSize: "0.75rem", color: "#94a3b8", marginTop: "0.5rem" }}>
+                      Basado en {discount.completed_services} servicios previos
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Discount Configuration Management Section */}
+          <div
+            style={{
+              background: "#fff",
+              padding: "2.5rem",
+              borderRadius: 24,
+              marginBottom: "2.5rem",
+              border: "1px solid #f1f5f9",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
             }}
           >
             <div
@@ -607,12 +773,19 @@ export default function CRMView({
                 display: "flex",
                 justifyContent: "space-between",
                 alignItems: "center",
-                marginBottom: "1rem",
+                marginBottom: "2rem",
+                flexWrap: "wrap",
+                gap: "1rem"
               }}
             >
-              <h3 style={{ color: "#0c4a6e", fontSize: "1.2rem" }}>
-                ⚙️ Configuración de Descuentos
-              </h3>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                <div style={{ background: "#f1f5f9", padding: "0.5rem", borderRadius: 10, color: "#475569" }}>
+                  <Settings size={20} />
+                </div>
+                <h3 style={{ color: "#1e293b", margin: 0, fontSize: "1.25rem", fontWeight: 800 }}>
+                  Configuración Global de Descuentos
+                </h3>
+              </div>
               <button
                 onClick={() => {
                   setEditingDiscount(null)
@@ -620,217 +793,314 @@ export default function CRMView({
                   setShowDiscountConfigModal(true)
                 }}
                 style={{
-                  background: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
-                  color: "white",
-                  border: "none",
-                  borderRadius: 8,
-                  padding: "0.5rem 1rem",
-                  fontWeight: "600",
+                  background: "#f8fafc",
+                  color: "#1e293b",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: 12,
+                  padding: "0.75rem 1.25rem",
+                  fontWeight: "700",
                   cursor: "pointer",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontSize: "0.9rem",
+                  transition: "all 0.2s"
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = "#fff"
+                  e.currentTarget.style.borderColor = "#cbd5e1"
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.background = "#f8fafc"
+                  e.currentTarget.style.borderColor = "#e2e8f0"
                 }}
               >
-                ➕ Nueva Configuración
+                <Plus size={18} /> Nueva Regla
               </button>
             </div>
 
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-                gap: "1rem",
+                gridTemplateColumns: "repeat(auto-fill, minmax(320px, 1fr))",
+                gap: "1.25rem",
               }}
             >
               {discountConfig.map((config) => (
                 <div
                   key={config.id}
                   style={{
-                    background: "white",
-                    padding: "1rem",
-                    borderRadius: 8,
-                    border: "1px solid #e2e8f0",
+                    background: "#f8fafc",
+                    padding: "1.25rem",
+                    borderRadius: 20,
+                    border: "1px solid #f1f5f9",
                     display: "flex",
                     justifyContent: "space-between",
                     alignItems: "center",
+                    transition: "all 0.2s"
                   }}
+                  onMouseEnter={e => e.currentTarget.style.background = "#fff"}
+                  onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
                 >
-                  <div>
-                    <div style={{ fontWeight: "600", color: "#1f2937" }}>
-                      {servicesOptions.find(s => s.value === config.service_type)?.label || config.service_type}
+                  <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                    <div style={{ background: "#fff", padding: "0.6rem", borderRadius: 12, border: "1px solid #f1f5f9", color: "#6366f1" }}>
+                      <Target size={20} />
                     </div>
-                    <div style={{ color: "#64748b", fontSize: "0.9rem" }}>
-                      {config.services_required} servicios → {config.discount_percentage}% descuento
+                    <div>
+                      <div style={{ fontWeight: "700", color: "#1e293b", fontSize: "0.95rem" }}>
+                        {servicesOptions.find(s => s.value === config.service_type)?.label || config.service_type}
+                      </div>
+                      <div style={{ color: "#64748b", fontSize: "0.85rem", fontWeight: 600, marginTop: "0.1rem" }}>
+                        {config.services_required} servicios completados → <span style={{ color: "#10b981" }}>{config.discount_percentage}% OFF</span>
+                      </div>
                     </div>
                   </div>
-                  <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div style={{ display: "flex", gap: "0.4rem" }}>
                     <button
                       onClick={() => handleEditDiscount(config)}
                       style={{
-                        background: "#eff6ff",
-                        color: "#2563eb",
-                        border: "1px solid #bfdbfe",
-                        borderRadius: 4,
-                        padding: "0.25rem 0.5rem",
-                        fontSize: "0.8rem",
-                        fontWeight: "600",
+                        background: "#fff",
+                        color: "#3b82f6",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 10,
+                        width: 36,
+                        height: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         cursor: "pointer",
+                        transition: "all 0.2s"
                       }}
+                      title="Editar regla"
+                      onMouseEnter={e => e.currentTarget.style.borderColor = "#3b82f6"}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}
                     >
-                      ✏️
+                      <Edit size={16} />
                     </button>
                     <button
                       onClick={() => handleDeleteDiscount(config.id)}
                       style={{
-                        background: "#fef2f2",
-                        color: "#dc2626",
-                        border: "1px solid #fecaca",
-                        borderRadius: 4,
-                        padding: "0.25rem 0.5rem",
-                        fontSize: "0.8rem",
-                        fontWeight: "600",
+                        background: "#fff",
+                        color: "#ef4444",
+                        border: "1px solid #e2e8f0",
+                        borderRadius: 10,
+                        width: 36,
+                        height: 36,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
                         cursor: "pointer",
+                        transition: "all 0.2s"
                       }}
+                      title="Eliminar regla"
+                      onMouseEnter={e => e.currentTarget.style.borderColor = "#ef4444"}
+                      onMouseLeave={e => e.currentTarget.style.borderColor = "#e2e8f0"}
                     >
-                      🗑️
+                      <Trash2 size={16} />
                     </button>
                   </div>
                 </div>
               ))}
             </div>
+            {discountConfig.length === 0 && (
+              <div style={{ textAlign: "center", padding: "2rem", color: "#94a3b8", fontStyle: "italic" }}>
+                No hay reglas de descuento configuradas.
+              </div>
+            )}
           </div>
 
-          {/* Service History */}
+          {/* Service History Section */}
           <div
             style={{
-              background: "white",
-              borderRadius: 12,
-              border: "1px solid #e2e8f0",
+              background: "#fff",
+              borderRadius: 24,
+              border: "1px solid #f1f5f9",
               overflow: "hidden",
+              boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
             }}
           >
             <div
               style={{
-                background: "#f8fafc",
-                padding: "1rem 1.5rem",
-                borderBottom: "1px solid #e5e7eb",
-                fontWeight: 600,
-                color: "#1f2937",
+                background: "linear-gradient(to right, #f8fafc, #fff)",
+                padding: "1.5rem 2rem",
+                borderBottom: "1px solid #f1f5f9",
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem"
               }}
             >
-              📋 Historial de Servicios - {selectedClient.name}
+              <div style={{ background: "#eff6ff", padding: "0.5rem", borderRadius: 10, color: "#3b82f6" }}>
+                <History size={20} />
+              </div>
+              <div>
+                <h3 style={{ margin: 0, fontSize: "1.1rem", fontWeight: 800, color: "#1e293b" }}>Historial de Servicios</h3>
+                <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 600 }}>{selectedClient.name}</div>
+              </div>
             </div>
 
             {clientHistory.length === 0 ? (
               <div
                 style={{
                   textAlign: "center",
-                  padding: "3rem",
-                  color: "#64748b",
+                  padding: "4rem 2rem",
+                  color: "#94a3b8",
                 }}
               >
-                No hay servicios registrados para este cliente
+                <div style={{ background: "#f8fafc", width: 64, height: 64, borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1rem" }}>
+                  <AlertCircle size={32} />
+                </div>
+                <div style={{ fontWeight: 600 }}>No hay servicios registrados</div>
+                <div style={{ fontSize: "0.85rem", marginTop: "0.25rem" }}>Este cliente aún no tiene reservas en el sistema.</div>
               </div>
             ) : (
-              <div style={{ maxHeight: "400px", overflowY: "auto" }}>
+              <div style={{ maxHeight: "500px", overflowY: "auto" }}>
                 {clientHistory.map((reservation) => (
                   <div
                     key={reservation.id}
                     style={{
-                      padding: "1rem 1.5rem",
+                      padding: "1.25rem 2rem",
                       borderBottom: "1px solid #f1f5f9",
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
+                      transition: "background 0.2s"
                     }}
+                    onMouseEnter={e => e.currentTarget.style.background = "#fafafa"}
+                    onMouseLeave={e => e.currentTarget.style.background = "transparent"}
                   >
-                    <div>
-                      <div style={{ fontWeight: "600", color: "#1f2937", marginBottom: "0.25rem" }}>
-                        {servicesOptions.find(s => s.value === reservation.service_name)?.label || reservation.service_name}
+                    <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+                      <div style={{
+                        width: 48,
+                        height: 48,
+                        borderRadius: 14,
+                        background: reservation.status === "completed" ? "#f0fdf4" : "#f8fafc",
+                        color: reservation.status === "completed" ? "#22c55e" : "#64748b",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontWeight: 800,
+                        fontSize: "0.85rem"
+                      }}>
+                        #{reservation.id.toString().slice(-3)}
                       </div>
-                      <div style={{ color: "#6b7280", fontSize: "0.9rem" }}>
-                        📅 {new Date(reservation.assigned_date).toLocaleDateString("es-ES")}
-                        {reservation.shift && ` • 🕐 ${reservation.shift === "mañana" ? "Mañana" : "Tarde"}`}
+                      <div>
+                        <div style={{ fontWeight: "700", color: "#1e293b", marginBottom: "0.25rem" }}>
+                          {servicesOptions.find(s => s.value === reservation.service_name)?.label || reservation.service_name}
+                        </div>
+                        <div style={{ display: "flex", alignItems: "center", gap: "1rem", color: "#64748b", fontSize: "0.85rem", fontWeight: 500 }}>
+                          <span style={{ display: "flex", alignItems: "center", gap: "0.3rem" }}>
+                            <Clock size={14} /> {new Date(reservation.assigned_date + 'T12:00:00').toLocaleDateString("es-ES", { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </span>
+                          {reservation.shift && (
+                            <span style={{ display: "flex", alignItems: "center", gap: "0.3rem", textTransform: "capitalize" }}>
+                              <Star size={12} /> {reservation.shift}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div style={{ textAlign: "right" }}>
+                    <div style={{ textAlign: "right", display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "0.75rem" }}>
                       <span
                         style={{
-                          padding: "0.25rem 0.75rem",
-                          borderRadius: "20px",
+                          padding: "0.4rem 0.75rem",
+                          borderRadius: 10,
                           fontSize: "0.8rem",
-                          fontWeight: "600",
+                          fontWeight: "700",
+                          display: "flex",
+                          alignItems: "center",
+                          gap: "0.4rem",
                           backgroundColor:
-                            reservation.status === "confirmed" ? "#dcfce7" :
-                            reservation.status === "completed" ? "#dbeafe" : "#fef3c7",
+                            reservation.status === "confirmed" ? "#f0fdf4" :
+                              reservation.status === "completed" ? "#eff6ff" : "#fff7ed",
                           color:
-                            reservation.status === "confirmed" ? "#166534" :
-                            reservation.status === "completed" ? "#1e40af" : "#92400e",
+                            reservation.status === "confirmed" ? "#15803d" :
+                              reservation.status === "completed" ? "#1d4ed8" : "#c2410c",
                         }}
                       >
+                        {reservation.status === "confirmed" ? <CheckCircle size={12} /> :
+                          reservation.status === "completed" ? <CheckCircle size={12} /> : <Clock size={12} />}
                         {reservation.status === "confirmed" ? "Confirmada" :
-                         reservation.status === "completed" ? "Completada" : "Pendiente"}
+                          reservation.status === "completed" ? "Finalizada" : "Pendiente"}
                       </span>
-                      {reservation.status === 'pending' && (
-                        <div style={{ marginTop: "0.5rem" }}>
-                          <button
-                            onClick={() => handleStatusChange(reservation.id, 'confirmed')}
-                            style={{
-                              background: "#dcfce7",
-                              color: "#166534",
-                              border: "1px solid #bbf7d0",
-                              borderRadius: 4,
-                              padding: "0.25rem 0.5rem",
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              cursor: "pointer",
-                              marginRight: "0.25rem",
-                            }}
-                          >
-                            ✓ Confirmar
-                          </button>
+
+                      {/* Quick Actions for History */}
+                      <div style={{ display: "flex", gap: "0.5rem" }}>
+                        {reservation.status === 'pending' && (
+                          <>
+                            <button
+                              onClick={() => handleStatusChange(reservation.id, 'confirmed')}
+                              style={{
+                                background: "#f0fdf4",
+                                color: "#15803d",
+                                border: "1px solid #dcfce7",
+                                borderRadius: 8,
+                                padding: "0.35rem 0.75rem",
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.3rem",
+                                transition: "all 0.2s"
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = "#dcfce7"}
+                              onMouseLeave={e => e.currentTarget.style.background = "#f0fdf4"}
+                            >
+                              Confirmar
+                            </button>
+                            <button
+                              onClick={async () => {
+                                await handleStatusChange(reservation.id, 'completed')
+                                await addLoyaltyPointsForCompletedService(reservation)
+                              }}
+                              style={{
+                                background: "#eff6ff",
+                                color: "#1d4ed8",
+                                border: "1px solid #dbeafe",
+                                borderRadius: 8,
+                                padding: "0.35rem 0.75rem",
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "0.3rem",
+                                transition: "all 0.2s"
+                              }}
+                              onMouseEnter={e => e.currentTarget.style.background = "#dbeafe"}
+                              onMouseLeave={e => e.currentTarget.style.background = "#eff6ff"}
+                            >
+                              Completar
+                            </button>
+                          </>
+                        )}
+                        {reservation.status === 'confirmed' && new Date(reservation.assigned_date) < new Date() && (
                           <button
                             onClick={async () => {
                               await handleStatusChange(reservation.id, 'completed')
-                              // Automatically add loyalty points when service is completed
                               await addLoyaltyPointsForCompletedService(reservation)
                             }}
                             style={{
-                              background: "#dbeafe",
-                              color: "#1e40af",
-                              border: "1px solid #bfdbfe",
-                              borderRadius: 4,
-                              padding: "0.25rem 0.5rem",
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
+                              background: "#fff7ed",
+                              color: "#c2410c",
+                              border: "1px solid #ffedd5",
+                              borderRadius: 8,
+                              padding: "0.35rem 0.75rem",
+                              fontSize: "0.75rem",
+                              fontWeight: 700,
                               cursor: "pointer",
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "0.3rem",
+                              transition: "all 0.2s"
                             }}
+                            onMouseEnter={e => e.currentTarget.style.background = "#ffedd5"}
+                            onMouseLeave={e => e.currentTarget.style.background = "#fff7ed"}
                           >
-                            ✓ Completar
+                            Finalizar Servicio
                           </button>
-                        </div>
-                      )}
-                      {reservation.status === 'confirmed' && new Date(reservation.assigned_date) < new Date() && (
-                        <div style={{ marginTop: "0.5rem" }}>
-                          <button
-                            onClick={async () => {
-                              await handleStatusChange(reservation.id, 'completed')
-                              // Automatically add loyalty points when service is completed
-                              await addLoyaltyPointsForCompletedService(reservation)
-                            }}
-                            style={{
-                              background: "#fef3c7",
-                              color: "#92400e",
-                              border: "1px solid #fde68a",
-                              borderRadius: 4,
-                              padding: "0.25rem 0.5rem",
-                              fontSize: "0.7rem",
-                              fontWeight: 600,
-                              cursor: "pointer",
-                            }}
-                          >
-                            ✅ Completar Servicio
-                          </button>
-                        </div>
-                      )}
+                        )}
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -849,102 +1119,145 @@ export default function CRMView({
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.6)",
+            background: "rgba(15, 23, 42, 0.75)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 11000,
-            backdropFilter: "blur(4px)",
+            padding: "1rem",
+            backdropFilter: "blur(6px)",
           }}
           onClick={() => setShowLoyaltyModal(false)}
         >
           <div
             style={{
               background: "#fff",
-              padding: "2rem",
-              borderRadius: 16,
-              maxWidth: 400,
-              width: "90%",
-              boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+              padding: "2.5rem",
+              borderRadius: 32,
+              maxWidth: 420,
+              width: "100%",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              position: "relative",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ color: "#1f2937", marginBottom: "1.5rem", textAlign: "center" }}>
-              🎁 Agregar Puntos de Fidelidad
-            </h3>
+            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              <div style={{
+                width: 64, height: 64, background: "#fef3c7", color: "#f59e0b",
+                borderRadius: 20, display: "flex", alignItems: "center",
+                justifyContent: "center", margin: "0 auto 1rem"
+              }}>
+                <Gift size={32} />
+              </div>
+              <h3 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
+                Agregar Puntos
+              </h3>
+              <p style={{ color: "#64748b", fontSize: "0.9rem", marginTop: "0.5rem" }}>
+                Otorga puntos de fidelidad manuales al cliente
+                <span style={{ color: "#1e293b", fontWeight: 700 }}> {selectedClient.name}</span>.
+              </p>
+            </div>
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontWeight: "600", color: "#374151", marginBottom: "0.5rem" }}>
-                Servicio
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem" }}>
+                Tipo de Servicio
               </label>
-              <select
-                value={selectedService}
-                onChange={(e) => setSelectedService(e.target.value)}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  fontSize: "1rem",
-                }}
-              >
-                <option value="">Seleccionar servicio</option>
-                {servicesOptions.map((service) => (
-                  <option key={service.value} value={service.value}>
-                    {service.label}
-                  </option>
-                ))}
-              </select>
+              <div style={{ position: "relative" }}>
+                <select
+                  value={selectedService}
+                  onChange={(e) => setSelectedService(e.target.value)}
+                  style={{
+                    width: "100%",
+                    padding: "0.85rem 1rem 0.85rem 2.5rem",
+                    borderRadius: 14,
+                    border: "1.5px solid #e2e8f0",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    color: "#1e293b",
+                    appearance: "none",
+                    background: "#fff"
+                  }}
+                >
+                  <option value="">Seleccionar servicio</option>
+                  {servicesOptions.map((service) => (
+                    <option key={service.value} value={service.value}>
+                      {service.label}
+                    </option>
+                  ))}
+                </select>
+                <Target size={18} color="#94a3b8" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)" }} />
+              </div>
             </div>
 
             <div style={{ marginBottom: "2rem" }}>
-              <label style={{ display: "block", fontWeight: "600", color: "#374151", marginBottom: "0.5rem" }}>
-                Puntos a Agregar
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem" }}>
+                Puntos a Otorgar
               </label>
-              <input
-                type="number"
-                min="1"
-                value={pointsToAdd}
-                onChange={(e) => setPointsToAdd(parseInt(e.target.value) || 0)}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  fontSize: "1rem",
-                }}
-                placeholder="Ej: 10"
-              />
+              <div style={{ position: "relative" }}>
+                <input
+                  type="number"
+                  min="1"
+                  value={pointsToAdd}
+                  onChange={(e) => setPointsToAdd(parseInt(e.target.value) || 0)}
+                  style={{
+                    width: "100%",
+                    padding: "0.85rem 1rem 0.85rem 2.5rem",
+                    borderRadius: 14,
+                    border: "1.5px solid #e2e8f0",
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: "#1e293b",
+                  }}
+                  placeholder="Ej: 10"
+                />
+                <Award size={18} color="#94a3b8" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)" }} />
+              </div>
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
               <button
                 onClick={() => setShowLoyaltyModal(false)}
                 style={{
-                  background: "#f3f4f6",
-                  color: "#374151",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 8,
-                  padding: "0.75rem 1.5rem",
-                  fontWeight: "600",
+                  flex: 1,
+                  padding: "0.85rem",
+                  borderRadius: 14,
+                  border: "1px solid #e2e8f0",
+                  background: "#f8fafc",
+                  color: "#64748b",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
                   cursor: "pointer",
+                  transition: "all 0.2s"
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
+                onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
               >
                 Cancelar
               </button>
               <button
                 onClick={handleAddLoyaltyPoints}
+                disabled={loading}
                 style={{
-                  background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
-                  color: "white",
+                  flex: 2,
+                  padding: "0.85rem",
+                  borderRadius: 14,
                   border: "none",
-                  borderRadius: 8,
-                  padding: "0.75rem 1.5rem",
-                  fontWeight: "600",
+                  background: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)",
+                  color: "#white",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
                   cursor: "pointer",
+                  transition: "all 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  boxShadow: "0 4px 12px rgba(99, 102, 241, 0.25)"
                 }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
               >
-                Agregar Puntos
+                {loading ? "Procesando..." : "Otorgar Puntos"}
               </button>
             </div>
           </div>
@@ -960,125 +1273,174 @@ export default function CRMView({
             left: 0,
             right: 0,
             bottom: 0,
-            background: "rgba(0,0,0,0.6)",
+            background: "rgba(15, 23, 42, 0.75)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             zIndex: 11000,
-            backdropFilter: "blur(4px)",
+            padding: "1rem",
+            backdropFilter: "blur(6px)",
           }}
           onClick={() => setShowDiscountConfigModal(false)}
         >
           <div
             style={{
               background: "#fff",
-              padding: "2rem",
-              borderRadius: 16,
-              maxWidth: 500,
-              width: "90%",
-              boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
-              border: "1px solid #e5e7eb",
+              padding: "2.5rem",
+              borderRadius: 32,
+              maxWidth: 480,
+              width: "100%",
+              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+              position: "relative",
             }}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 style={{ color: "#1f2937", marginBottom: "1.5rem", textAlign: "center" }}>
-              {editingDiscount ? 'Editar Configuración de Descuento' : 'Nueva Configuración de Descuento'}
-            </h3>
-
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontWeight: "600", color: "#374151", marginBottom: "0.5rem" }}>
-                Servicio
-              </label>
-              <select
-                value={newDiscount.service_type}
-                onChange={(e) => setNewDiscount({...newDiscount, service_type: e.target.value})}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  fontSize: "1rem",
-                }}
-              >
-                <option value="">Seleccionar servicio</option>
-                {servicesOptions.map((service) => (
-                  <option key={service.value} value={service.value}>
-                    {service.label}
-                  </option>
-                ))}
-              </select>
+            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+              <div style={{
+                width: 64, height: 64, background: "#eff6ff", color: "#3b82f6",
+                borderRadius: 20, display: "flex", alignItems: "center",
+                justifyContent: "center", margin: "0 auto 1rem"
+              }}>
+                <Settings size={32} />
+              </div>
+              <h3 style={{ fontSize: "1.5rem", fontWeight: 800, color: "#1e293b", margin: 0 }}>
+                {editingDiscount ? 'Editar Regla' : 'Nueva Regla de Descuento'}
+              </h3>
+              <p style={{ color: "#64748b", fontSize: "0.9rem", marginTop: "0.5rem" }}>
+                Configura los umbrales de beneficios automáticos para el sistema de fidelidad.
+              </p>
             </div>
 
-            <div style={{ marginBottom: "1rem" }}>
-              <label style={{ display: "block", fontWeight: "600", color: "#374151", marginBottom: "0.5rem" }}>
-                Servicios Requeridos
+            <div style={{ marginBottom: "1.25rem" }}>
+              <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem" }}>
+                Servicio Aplicable
               </label>
-              <input
-                type="number"
-                min="1"
-                value={newDiscount.services_required}
-                onChange={(e) => setNewDiscount({...newDiscount, services_required: e.target.value})}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  fontSize: "1rem",
-                }}
-                placeholder="Ej: 5"
-              />
+              <div style={{ position: "relative" }}>
+                <select
+                  value={newDiscount.service_type}
+                  onChange={(e) => setNewDiscount({ ...newDiscount, service_type: e.target.value })}
+                  disabled={!!editingDiscount}
+                  style={{
+                    width: "100%",
+                    padding: "0.85rem 1rem 0.85rem 2.5rem",
+                    borderRadius: 14,
+                    border: "1.5px solid #e2e8f0",
+                    fontSize: "0.95rem",
+                    fontWeight: 500,
+                    color: "#1e293b",
+                    appearance: "none",
+                    background: editingDiscount ? "#f8fafc" : "#fff",
+                    cursor: editingDiscount ? "not-allowed" : "pointer"
+                  }}
+                >
+                  <option value="">Seleccionar servicio</option>
+                  {servicesOptions.map((service) => (
+                    <option key={service.value} value={service.value}>
+                      {service.label}
+                    </option>
+                  ))}
+                </select>
+                <Target size={18} color="#94a3b8" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)" }} />
+              </div>
             </div>
 
-            <div style={{ marginBottom: "2rem" }}>
-              <label style={{ display: "block", fontWeight: "600", color: "#374151", marginBottom: "0.5rem" }}>
-                Porcentaje de Descuento
-              </label>
-              <input
-                type="number"
-                min="0"
-                max="100"
-                step="0.1"
-                value={newDiscount.discount_percentage}
-                onChange={(e) => setNewDiscount({...newDiscount, discount_percentage: e.target.value})}
-                style={{
-                  width: "100%",
-                  padding: "0.75rem",
-                  borderRadius: 8,
-                  border: "1px solid #d1d5db",
-                  fontSize: "1rem",
-                }}
-                placeholder="Ej: 10.0"
-              />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem", marginBottom: "2rem" }}>
+              <div>
+                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem" }}>
+                  Meta (Servicios)
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="number"
+                    min="1"
+                    value={newDiscount.services_required}
+                    onChange={(e) => setNewDiscount({ ...newDiscount, services_required: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "0.85rem 1rem 0.85rem 2.5rem",
+                      borderRadius: 14,
+                      border: "1.5px solid #e2e8f0",
+                      fontSize: "0.95rem",
+                      fontWeight: 600,
+                      color: "#1e293b",
+                    }}
+                    placeholder="Ej: 5"
+                  />
+                  <CheckCircle size={16} color="#94a3b8" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)" }} />
+                </div>
+              </div>
+
+              <div>
+                <label style={{ display: "block", fontSize: "0.85rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem" }}>
+                  Descuento (%)
+                </label>
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    value={newDiscount.discount_percentage}
+                    onChange={(e) => setNewDiscount({ ...newDiscount, discount_percentage: e.target.value })}
+                    style={{
+                      width: "100%",
+                      padding: "0.85rem 1rem 0.85rem 2.5rem",
+                      borderRadius: 14,
+                      border: "1.5px solid #e2e8f0",
+                      fontSize: "0.95rem",
+                      fontWeight: 600,
+                      color: "#1d4ed8",
+                    }}
+                    placeholder="Ej: 10"
+                  />
+                  <TrendingUp size={16} color="#94a3b8" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)" }} />
+                </div>
+              </div>
             </div>
 
-            <div style={{ display: "flex", gap: "1rem", justifyContent: "center" }}>
+            <div style={{ display: "flex", gap: "0.75rem" }}>
               <button
                 onClick={() => setShowDiscountConfigModal(false)}
                 style={{
-                  background: "#f3f4f6",
-                  color: "#374151",
-                  border: "1px solid #d1d5db",
-                  borderRadius: 8,
-                  padding: "0.75rem 1.5rem",
-                  fontWeight: "600",
+                  flex: 1,
+                  padding: "0.85rem",
+                  borderRadius: 14,
+                  border: "1px solid #e2e8f0",
+                  background: "#f8fafc",
+                  color: "#64748b",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
                   cursor: "pointer",
+                  transition: "all 0.2s"
                 }}
+                onMouseEnter={e => e.currentTarget.style.background = "#f1f5f9"}
+                onMouseLeave={e => e.currentTarget.style.background = "#f8fafc"}
               >
                 Cancelar
               </button>
               <button
                 onClick={handleSaveDiscountConfig}
                 style={{
-                  background: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)",
-                  color: "white",
+                  flex: 2,
+                  padding: "0.85rem",
+                  borderRadius: 14,
                   border: "none",
-                  borderRadius: 8,
-                  padding: "0.75rem 1.5rem",
-                  fontWeight: "600",
+                  background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+                  color: "#white",
+                  fontWeight: 700,
+                  fontSize: "0.95rem",
                   cursor: "pointer",
+                  transition: "all 0.2s",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "0.5rem",
+                  boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)"
                 }}
+                onMouseEnter={e => e.currentTarget.style.transform = "translateY(-1px)"}
+                onMouseLeave={e => e.currentTarget.style.transform = "translateY(0)"}
               >
-                {editingDiscount ? 'Actualizar' : 'Crear'} Configuración
+                {editingDiscount ? 'Guardar Cambios' : 'Crear Regla'}
               </button>
             </div>
           </div>

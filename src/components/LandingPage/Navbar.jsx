@@ -65,29 +65,29 @@ const Navbar = ({ navigationHandler, showClientButton = true }) => {
         </div>
 
         <ul className={`navbar-menu desktop-menu`}>
-           {menuItems.map((item, idx) => (
-             <li key={item.name} className="navbar-menu-item" style={{ animationDelay: `${idx * 0.1}s` }}>
-               <a
-                 href="#"
-                 onClick={e => { e.preventDefault(); handleNavClick(item); }}
-                 tabIndex={0}
-               >
-                 {item.name}
-               </a>
-             </li>
-           ))}
-           {showClientButton && !isReservasPage && (
-             <li className="navbar-menu-item" style={{ animationDelay: `${menuItems.length * 0.1}s` }}>
-               <button
-                 onClick={handleClientAreaClick}
-                 className="navbar-client-button"
-                 tabIndex={0}
-               >
-                 Área de Clientes
-               </button>
-             </li>
-           )}
-         </ul>
+          {menuItems.map((item, idx) => (
+            <li key={item.name} className="navbar-menu-item" style={{ animationDelay: `${idx * 0.1}s` }}>
+              <a
+                href="#"
+                onClick={e => { e.preventDefault(); handleNavClick(item); }}
+                tabIndex={0}
+              >
+                {item.name}
+              </a>
+            </li>
+          ))}
+          {showClientButton && !isReservasPage && (
+            <li className="navbar-menu-item" style={{ animationDelay: `${menuItems.length * 0.1}s` }}>
+              <button
+                onClick={handleClientAreaClick}
+                className="navbar-client-button"
+                tabIndex={0}
+              >
+                Área de Clientes
+              </button>
+            </li>
+          )}
+        </ul>
 
         <button
           className="navbar-hamburger"
@@ -104,42 +104,42 @@ const Navbar = ({ navigationHandler, showClientButton = true }) => {
 
       <div className={`navbar-dropdown${isMenuOpen ? ' open' : ''}`} style={{ display: isMobile ? 'block' : 'none' }}>
         <ul>
-           {menuItems.map((item, idx) => (
-             <li key={item.name} style={{
-               transition: `all 0.35s cubic-bezier(.42,0,.58,1) ${idx * 0.04}s`
-             }}>
-               <button
-                 onClick={() => handleNavClick(item)}
-                 className="navbar-dropdown-link"
-                 tabIndex={0}
-               >
-                 {item.name}
-               </button>
-             </li>
-           ))}
-           {showClientButton && !isReservasPage && (
-             <li className="navbar-dropdown-client">
-               <button
-                 onClick={handleClientAreaClick}
-                 className="navbar-client-button"
-                 tabIndex={0}
-               >
-                 Área de Clientes
-               </button>
-             </li>
-           )}
-           {isReservasPage && (
-             <li className="navbar-dropdown-back">
-               <button
-                 onClick={() => navigate('/')}
-                 className="navbar-back-button"
-                 tabIndex={0}
-               >
-                 ← Volver al Inicio
-               </button>
-             </li>
-           )}
-         </ul>
+          {menuItems.map((item, idx) => (
+            <li key={item.name} style={{
+              transition: `all 0.35s cubic-bezier(.42,0,.58,1) ${idx * 0.04}s`
+            }}>
+              <button
+                onClick={() => handleNavClick(item)}
+                className="navbar-dropdown-link"
+                tabIndex={0}
+              >
+                {item.name}
+              </button>
+            </li>
+          ))}
+          {showClientButton && !isReservasPage && (
+            <li className="navbar-dropdown-client">
+              <button
+                onClick={handleClientAreaClick}
+                className="navbar-client-button"
+                tabIndex={0}
+              >
+                Área de Clientes
+              </button>
+            </li>
+          )}
+          {isReservasPage && (
+            <li className="navbar-dropdown-back">
+              <button
+                onClick={() => navigate('/')}
+                className="navbar-back-button"
+                tabIndex={0}
+              >
+                ← Volver al Inicio
+              </button>
+            </li>
+          )}
+        </ul>
       </div>
 
       <style>{`
@@ -147,23 +147,23 @@ const Navbar = ({ navigationHandler, showClientButton = true }) => {
           position: fixed;
           top: 0; left: 0; right: 0;
           z-index: 1000;
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
           border-bottom: 1px solid rgba(0, 0, 0, 0.05);
           transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           animation: navbar-float 6s ease-in-out infinite;
         }
         .navbar.scrolled {
-          background: rgba(255, 255, 255, 0.75);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
+          background: rgba(255, 255, 255, 0.65);
+          backdrop-filter: blur(18px);
+          -webkit-backdrop-filter: blur(18px);
           box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
           animation: none;
         }
         .navbar-reservas {
-          background: rgba(255, 255, 255, 0.95);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
+          background: rgba(255, 255, 255, 0.85);
+          backdrop-filter: blur(12px);
+          -webkit-backdrop-filter: blur(12px);
           animation: none;
         }
         @keyframes navbar-float {

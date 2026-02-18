@@ -4,6 +4,21 @@ import React from 'react'
 import { supabase } from '../../supabaseClient'
 import PhoneInput from 'react-phone-input-2'
 import 'react-phone-input-2/lib/style.css'
+import {
+  Lock,
+  Mail,
+  User,
+  Phone,
+  MapPin,
+  ArrowLeft,
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  X,
+  UserPlus,
+  LogIn,
+  KeyRound
+} from 'lucide-react'
 export default function AuthModal({
   showAuthModal,
   setShowAuthModal,
@@ -68,45 +83,92 @@ export default function AuthModal({
         left: 0,
         right: 0,
         bottom: 0,
-        background: "rgba(0,0,0,0.6)",
+        background: "rgba(15, 23, 42, 0.75)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         zIndex: 11000,
-        backdropFilter: "blur(4px)",
+        padding: "1rem",
+        backdropFilter: "blur(6px)",
+        transition: "all 0.4s cubic-bezier(0.4, 0, 0.2, 1)"
       }}
       onClick={() => setShowAuthModal(false)}
     >
       <div
         style={{
           background: "#fff",
-          padding: "2.5rem",
-          borderRadius: 24,
-          minWidth: 420,
-          maxWidth: 520,
+          padding: "3rem 2.5rem",
+          borderRadius: 32,
+          width: "100%",
+          maxWidth: 480,
           maxHeight: "90vh",
           overflowY: "auto",
-          boxShadow: "0 25px 80px rgba(0,0,0,0.15)",
+          boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
           position: "relative",
-          border: "1px solid #e5e7eb",
+          border: "1px solid rgba(255, 255, 255, 0.1)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close Button */}
+        <button
+          onClick={() => setShowAuthModal(false)}
+          style={{
+            position: "absolute",
+            top: "1.5rem",
+            right: "1.5rem",
+            background: "#f8fafc",
+            border: "none",
+            borderRadius: "50%",
+            width: 36,
+            height: 36,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+            color: "#64748b",
+            transition: "all 0.2s"
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.background = "#f1f5f9"
+            e.currentTarget.style.color = "#1e293b"
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.background = "#f8fafc"
+            e.currentTarget.style.color = "#64748b"
+          }}
+        >
+          <X size={20} />
+        </button>
+
         {authMode === "forgotPassword" ? (
           <>
-            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                background: "#f0f9ff",
+                borderRadius: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 1.5rem",
+                color: "#0ea5e9"
+              }}>
+                <KeyRound size={32} />
+              </div>
               <h3
                 style={{
                   fontSize: "1.75rem",
-                  fontWeight: 800,
-                  color: "#1f2937",
-                  marginBottom: "0.5rem",
+                  fontWeight: 900,
+                  color: "#1e293b",
+                  marginBottom: "0.75rem",
+                  letterSpacing: "-0.025em"
                 }}
               >
-                🔐 Recuperar Contraseña
+                Recuperar Contraseña
               </h3>
-              <p style={{ color: "#64748b", fontSize: "0.95rem" }}>
-                Ingresa tu correo y te enviaremos las instrucciones
+              <p style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
+                Te enviaremos un enlace de recuperación a tu correo electrónico.
               </p>
             </div>
 
@@ -115,14 +177,19 @@ export default function AuthModal({
                 style={{
                   background: "#fef2f2",
                   color: "#dc2626",
-                  padding: "1rem",
-                  borderRadius: 12,
-                  marginBottom: "1.5rem",
-                  border: "1px solid #fecaca",
+                  padding: "1rem 1.25rem",
+                  borderRadius: 16,
+                  marginBottom: "2rem",
+                  border: "1px solid #fee2e2",
                   fontSize: "0.9rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  fontWeight: 500
                 }}
               >
-                ❌ {resetError}
+                <AlertCircle size={18} />
+                {resetError}
               </div>
             )}
 
@@ -131,55 +198,66 @@ export default function AuthModal({
                 style={{
                   background: "#f0fdf4",
                   color: "#166534",
-                  padding: "1rem",
-                  borderRadius: 12,
-                  marginBottom: "1.5rem",
-                  border: "1px solid #bbf7d0",
+                  padding: "1rem 1.25rem",
+                  borderRadius: 16,
+                  marginBottom: "2rem",
+                  border: "1px solid #dcfce7",
                   fontSize: "0.9rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  fontWeight: 500
                 }}
               >
-                ✅ {resetSuccess}
+                <CheckCircle size={18} />
+                {resetSuccess}
               </div>
             )}
 
             <form onSubmit={handleResetPassword}>
-              <div style={{ marginBottom: "1.5rem" }}>
+              <div style={{ marginBottom: "2rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Correo Electrónico
                 </label>
-                <input
-                  type="email"
-                  value={resetEmail}
-                  onChange={(e) => setResetEmail(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22c55e"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  required
-                  placeholder="tu@email.com"
-                />
+                <div style={{ position: "relative" }}>
+                  <Mail style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    type="email"
+                    value={resetEmail}
+                    onChange={(e) => setResetEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#0ea5e9"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    required
+                    placeholder="ejemplo@email.com"
+                  />
+                </div>
               </div>
 
               <button
@@ -187,54 +265,45 @@ export default function AuthModal({
                 disabled={resetLoading || resetSuccess}
                 style={{
                   background: (resetLoading || resetSuccess)
-                    ? "#9ca3af"
-                    : "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                  color: "#fff",
-                  fontWeight: 700,
+                    ? "#e2e8f0"
+                    : "linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)",
+                  color: (resetLoading || resetSuccess) ? "#94a3b8" : "#fff",
+                  fontWeight: 800,
                   border: "none",
-                  borderRadius: 12,
+                  borderRadius: 18,
                   fontSize: "1.1rem",
-                  padding: "1rem",
+                  padding: "1.1rem",
                   width: "100%",
                   cursor: (resetLoading || resetSuccess) ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: (resetLoading || resetSuccess) ? "none" : "0 8px 24px rgba(34,197,94,0.3)",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  boxShadow: (resetLoading || resetSuccess) ? "none" : "0 10px 15px -3px rgba(14, 165, 233, 0.3)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "0.5rem",
+                  gap: "0.75rem",
                 }}
                 onMouseEnter={(e) => {
                   if (!resetLoading && !resetSuccess) {
                     e.currentTarget.style.transform = "translateY(-2px)"
-                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(34,197,94,0.4)"
+                    e.currentTarget.style.boxShadow = "0 20px 25px -5px rgba(14, 165, 233, 0.4)"
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!resetLoading && !resetSuccess) {
                     e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(34,197,94,0.3)"
+                    e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(14, 165, 233, 0.3)"
                   }
                 }}
               >
                 {resetLoading ? (
                   <>
-                    <div
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        border: "2px solid #ffffff",
-                        borderTop: "2px solid transparent",
-                        borderRadius: "50%",
-                        animation: "spin 1s linear infinite",
-                      }}
-                    />
-                    Enviando...
+                    <Loader2 size={24} className="spin" />
+                    Enviando enlace...
                   </>
                 ) : resetSuccess ? (
                   "Enlace Enviado"
                 ) : (
-                  "Enviar Enlace"
+                  "Enviar Enlace de Recuperación"
                 )}
               </button>
             </form>
@@ -242,9 +311,9 @@ export default function AuthModal({
             <div
               style={{
                 textAlign: "center",
-                marginTop: "1.5rem",
+                marginTop: "2.5rem",
                 paddingTop: "1.5rem",
-                borderTop: "1px solid #e5e7eb",
+                borderTop: "1px solid #f1f5f9",
               }}
             >
               <button
@@ -252,39 +321,58 @@ export default function AuthModal({
                   background: "none",
                   border: "none",
                   color: "#64748b",
-                  fontWeight: 600,
+                  fontWeight: 700,
                   cursor: "pointer",
-                  fontSize: "0.9rem",
+                  fontSize: "0.95rem",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "0.5rem",
+                  gap: "0.6rem",
                   margin: "0 auto",
+                  transition: "all 0.2s"
                 }}
+                onMouseEnter={e => e.currentTarget.style.color = "#1e293b"}
+                onMouseLeave={e => e.currentTarget.style.color = "#64748b"}
                 onClick={() => {
                   setAuthMode("login")
                   setResetError("")
                   setResetSuccess("")
                 }}
               >
-                ← Volver al inicio de sesión
+                <ArrowLeft size={18} /> Volver al inicio de sesión
               </button>
             </div>
           </>
         ) : authMode === "login" ? (
           <>
-            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                background: "#f0fdf4",
+                borderRadius: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 1.5rem",
+                color: "#22c55e"
+              }}>
+                <LogIn size={32} />
+              </div>
               <h3
                 style={{
                   fontSize: "1.75rem",
-                  fontWeight: 800,
-                  color: "#1f2937",
-                  marginBottom: "0.5rem",
+                  fontWeight: 900,
+                  color: "#1e293b",
+                  marginBottom: "0.75rem",
+                  letterSpacing: "-0.025em"
                 }}
               >
-                👤 Iniciar Sesión
+                Bienvenido
               </h3>
-              <p style={{ color: "#64748b", fontSize: "0.95rem" }}>Accede a tu cuenta para gestionar tus reservas</p>
+              <p style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
+                Inicia sesión para gestionar tus servicios y reservas.
+              </p>
             </div>
 
             {loginError && (
@@ -292,14 +380,19 @@ export default function AuthModal({
                 style={{
                   background: "#fef2f2",
                   color: "#dc2626",
-                  padding: "1rem",
-                  borderRadius: 12,
-                  marginBottom: "1.5rem",
-                  border: "1px solid #fecaca",
+                  padding: "1rem 1.25rem",
+                  borderRadius: 16,
+                  marginBottom: "2rem",
+                  border: "1px solid #fee2e2",
                   fontSize: "0.9rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  fontWeight: 500
                 }}
               >
-                ❌ {loginError}
+                <AlertCircle size={18} />
+                {loginError}
               </div>
             )}
 
@@ -307,83 +400,95 @@ export default function AuthModal({
               <div style={{ marginBottom: "1.5rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Correo Electrónico
                 </label>
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22c55e"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  required
-                  placeholder="tu@email.com"
-                />
+                <div style={{ position: "relative" }}>
+                  <Mail style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#22c55e"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    required
+                    placeholder="tu@email.com"
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: "2rem" }}>
+              <div style={{ marginBottom: "1.25rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Contraseña
                 </label>
-                <input
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#22c55e"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(34,197,94,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  required
-                  minLength={6}
-                  placeholder="••••••••"
-                />
+                <div style={{ position: "relative" }}>
+                  <Lock style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#22c55e"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    required
+                    minLength={6}
+                    placeholder="••••••••"
+                  />
+                </div>
               </div>
 
-              <div style={{ textAlign: "right", marginBottom: "1.5rem", marginTop: "-1rem" }}>
+              <div style={{ textAlign: "right", marginBottom: "2rem" }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -395,12 +500,13 @@ export default function AuthModal({
                     border: "none",
                     color: "#3b82f6",
                     fontSize: "0.9rem",
-                    fontWeight: 500,
+                    fontWeight: 700,
                     cursor: "pointer",
-                    textDecoration: "none",
+                    transition: "all 0.2s",
+                    textDecoration: "none"
                   }}
-                  onMouseEnter={(e) => (e.target.style.textDecoration = "underline")}
-                  onMouseLeave={(e) => (e.target.style.textDecoration = "none")}
+                  onMouseEnter={e => e.currentTarget.style.color = "#2563eb"}
+                  onMouseLeave={e => e.currentTarget.style.color = "#3b82f6"}
                 >
                   ¿Olvidaste tu contraseña?
                 </button>
@@ -410,47 +516,38 @@ export default function AuthModal({
                 type="submit"
                 disabled={loginLoading}
                 style={{
-                  background: loginLoading ? "#9ca3af" : "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
-                  color: "#fff",
-                  fontWeight: 700,
+                  background: loginLoading ? "#e2e8f0" : "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                  color: loginLoading ? "#94a3b8" : "#fff",
+                  fontWeight: 800,
                   border: "none",
-                  borderRadius: 12,
+                  borderRadius: 18,
                   fontSize: "1.1rem",
-                  padding: "1rem",
+                  padding: "1.1rem",
                   width: "100%",
                   cursor: loginLoading ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: loginLoading ? "none" : "0 8px 24px rgba(34,197,94,0.3)",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  boxShadow: loginLoading ? "none" : "0 10px 15px -3px rgba(34, 197, 94, 0.3)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "0.5rem",
+                  gap: "0.75rem",
                 }}
                 onMouseEnter={(e) => {
                   if (!loginLoading) {
                     e.currentTarget.style.transform = "translateY(-2px)"
-                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(34,197,94,0.4)"
+                    e.currentTarget.style.boxShadow = "0 20px 25px -5px rgba(34, 197, 94, 0.4)"
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!loginLoading) {
                     e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(34,197,94,0.3)"
+                    e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(34, 197, 94, 0.3)"
                   }
                 }}
               >
                 {loginLoading ? (
                   <>
-                    <div
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        border: "2px solid #ffffff",
-                        borderTop: "2px solid transparent",
-                        borderRadius: "50%",
-                        animation: "spin 1s linear infinite",
-                      }}
-                    />
+                    <Loader2 size={24} className="spin" />
                     Iniciando sesión...
                   </>
                 ) : (
@@ -462,45 +559,65 @@ export default function AuthModal({
             <div
               style={{
                 textAlign: "center",
-                marginTop: "1.5rem",
+                marginTop: "2.5rem",
                 paddingTop: "1.5rem",
-                borderTop: "1px solid #e5e7eb",
+                borderTop: "1px solid #f1f5f9",
               }}
             >
-              <span style={{ color: "#64748b", fontSize: "0.95rem" }}>¿No tienes cuenta? </span>
+              <p style={{ color: "#64748b", fontSize: "1rem", marginBottom: "0.5rem" }}>
+                ¿Aún no tienes una cuenta?
+              </p>
               <button
                 style={{
                   background: "none",
                   border: "none",
                   color: "#3b82f6",
-                  fontWeight: 600,
+                  fontWeight: 800,
                   cursor: "pointer",
-                  textDecoration: "underline",
-                  fontSize: "0.95rem",
+                  fontSize: "1rem",
+                  transition: "all 0.2s"
                 }}
+                onMouseEnter={e => e.currentTarget.style.color = "#2563eb"}
+                onMouseLeave={e => e.currentTarget.style.color = "#3b82f6"}
                 onClick={() => {
                   setAuthMode("register")
                   clearAuthFields()
                 }}
               >
-                Crear una cuenta
+                Crear una cuenta ahora
               </button>
             </div>
           </>
         ) : (
           <>
-            <div style={{ textAlign: "center", marginBottom: "2rem" }}>
+            <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+              <div style={{
+                width: 64,
+                height: 64,
+                background: "#eff6ff",
+                borderRadius: 20,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                margin: "0 auto 1.5rem",
+                color: "#3b82f6"
+              }}>
+                <UserPlus size={32} />
+              </div>
               <h3
                 style={{
                   fontSize: "1.75rem",
-                  fontWeight: 800,
-                  color: "#1f2937",
-                  marginBottom: "0.5rem",
+                  fontWeight: 900,
+                  color: "#1e293b",
+                  marginBottom: "0.75rem",
+                  letterSpacing: "-0.025em"
                 }}
               >
                 Crear Cuenta
               </h3>
-              <p style={{ color: "#64748b", fontSize: "0.95rem" }}>Únete para gestionar tus reservas fácilmente</p>
+              <p style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
+                Únete para gestionar tus reservas fácilmente.
+              </p>
             </div>
 
             {regError && (
@@ -508,14 +625,19 @@ export default function AuthModal({
                 style={{
                   background: "#fef2f2",
                   color: "#dc2626",
-                  padding: "1rem",
-                  borderRadius: 12,
-                  marginBottom: "1.5rem",
-                  border: "1px solid #fecaca",
+                  padding: "1rem 1.25rem",
+                  borderRadius: 16,
+                  marginBottom: "2rem",
+                  border: "1px solid #fee2e2",
                   fontSize: "0.9rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  fontWeight: 500
                 }}
               >
-                ❌ {regError}
+                <AlertCircle size={18} />
+                {regError}
               </div>
             )}
 
@@ -524,153 +646,168 @@ export default function AuthModal({
                 style={{
                   background: "#f0fdf4",
                   color: "#166534",
-                  padding: "1rem",
-                  borderRadius: 12,
-                  marginBottom: "1.5rem",
-                  border: "1px solid #bbf7d0",
+                  padding: "1rem 1.25rem",
+                  borderRadius: 16,
+                  marginBottom: "2rem",
+                  border: "1px solid #dcfce7",
                   fontSize: "0.9rem",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  fontWeight: 500
                 }}
               >
-                ✅ {regSuccess}
+                <CheckCircle size={18} />
+                {regSuccess}
               </div>
             )}
 
             <form onSubmit={handleRegister}>
-              <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ marginBottom: "1.5rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Correo Electrónico *
                 </label>
-                <input
-                  type="email"
-                  value={regEmail}
-                  onChange={(e) => setRegEmail(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#3b82f6"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  required
-                  placeholder="tu@email.com"
-                />
+                <div style={{ position: "relative" }}>
+                  <Mail style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    type="email"
+                    value={regEmail}
+                    onChange={(e) => setRegEmail(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#3b82f6"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    required
+                    placeholder="tu@email.com"
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ marginBottom: "1.5rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Contraseña *
                 </label>
-                <input
-                  type="password"
-                  value={regPassword}
-                  onChange={(e) => setRegPassword(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#3b82f6"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  required
-                  minLength={6}
-                  placeholder="Mínimo 6 caracteres"
-                />
-                <p
-                  style={{
-                    fontSize: "0.8rem",
-                    color: "#64748b",
-                    marginTop: "0.375rem",
-                    marginLeft: "0.25rem",
-                  }}
-                >
-                  Mínimo 6 caracteres
-                </p>
+                <div style={{ position: "relative" }}>
+                  <Lock style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    type="password"
+                    value={regPassword}
+                    onChange={(e) => setRegPassword(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#3b82f6"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    required
+                    minLength={6}
+                    placeholder="Mínimo 6 caracteres"
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ marginBottom: "1.5rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Nombre Completo *
                 </label>
-                <input
-                  value={regName}
-                  onChange={(e) => setRegName(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#3b82f6"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  required
-                  placeholder="Juan Pérez"
-                />
+                <div style={{ position: "relative" }}>
+                  <User style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    value={regName}
+                    onChange={(e) => setRegName(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#3b82f6"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    required
+                    placeholder="Juan Pérez"
+                  />
+                </div>
               </div>
 
-              <div style={{ marginBottom: "1.25rem" }}>
+              <div style={{ marginBottom: "1.5rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Teléfono
@@ -681,19 +818,20 @@ export default function AuthModal({
                   onChange={phone => setRegPhone('+' + phone)}
                   inputStyle={{
                     width: "100%",
-                    paddingTop: "0.875rem",
-                    paddingBottom: "0.875rem",
+                    padding: "1rem 1rem 1rem 3.5rem",
                     height: "auto",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
+                    borderRadius: 16,
+                    border: "2px solid #f1f5f9",
                     fontSize: "1rem",
                     transition: "all 0.2s ease",
+                    background: "#f8fafc"
                   }}
                   buttonStyle={{
-                    borderRadius: "12px 0 0 12px",
-                    border: "2px solid #e5e7eb",
+                    borderRadius: "16px 0 0 16px",
+                    border: "2px solid #f1f5f9",
                     borderRight: "none",
-                    background: "white"
+                    background: "#f8fafc",
+                    paddingLeft: "0.5rem"
                   }}
                   containerStyle={{
                     width: "100%"
@@ -702,88 +840,85 @@ export default function AuthModal({
                 />
               </div>
 
-              <div style={{ marginBottom: "2rem" }}>
+              <div style={{ marginBottom: "2.5rem" }}>
                 <label
                   style={{
-                    fontWeight: 600,
-                    color: "#374151",
+                    fontWeight: 700,
+                    color: "#475569",
                     display: "block",
-                    marginBottom: "0.5rem",
-                    fontSize: "0.95rem",
+                    marginBottom: "0.75rem",
+                    fontSize: "0.9rem",
+                    textTransform: "uppercase",
+                    letterSpacing: "0.05em"
                   }}
                 >
                   Dirección
                 </label>
-                <input
-                  value={regAddress}
-                  onChange={(e) => setRegAddress(e.target.value)}
-                  style={{
-                    width: "100%",
-                    padding: "0.875rem",
-                    borderRadius: 12,
-                    border: "2px solid #e5e7eb",
-                    fontSize: "1rem",
-                    transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
-                  }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#3b82f6"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
-                  }}
-                  placeholder="Calle 123, Ciudad"
-                />
+                <div style={{ position: "relative" }}>
+                  <MapPin style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                  <input
+                    value={regAddress}
+                    onChange={(e) => setRegAddress(e.target.value)}
+                    style={{
+                      width: "100%",
+                      padding: "1rem 1rem 1rem 3rem",
+                      borderRadius: 16,
+                      border: "2px solid #f1f5f9",
+                      fontSize: "1rem",
+                      transition: "all 0.2s ease",
+                      outline: "none",
+                      boxSizing: "border-box",
+                      background: "#f8fafc"
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "#3b82f6"
+                      e.target.style.background = "#fff"
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "#f1f5f9"
+                      e.target.style.background = "#f8fafc"
+                    }}
+                    placeholder="Calle 123, Ciudad"
+                  />
+                </div>
               </div>
 
               <button
                 type="submit"
                 disabled={regLoading}
                 style={{
-                  background: regLoading ? "#9ca3af" : "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
-                  color: "#fff",
-                  fontWeight: 700,
+                  background: regLoading ? "#e2e8f0" : "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)",
+                  color: regLoading ? "#94a3b8" : "#fff",
+                  fontWeight: 800,
                   border: "none",
-                  borderRadius: 12,
+                  borderRadius: 18,
                   fontSize: "1.1rem",
-                  padding: "1rem",
+                  padding: "1.1rem",
                   width: "100%",
                   cursor: regLoading ? "not-allowed" : "pointer",
-                  transition: "all 0.2s ease",
-                  boxShadow: regLoading ? "none" : "0 8px 24px rgba(59,130,246,0.3)",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  boxShadow: regLoading ? "none" : "0 10px 15px -3px rgba(59, 130, 246, 0.3)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "0.5rem",
+                  gap: "0.75rem",
                 }}
                 onMouseEnter={(e) => {
                   if (!regLoading) {
                     e.currentTarget.style.transform = "translateY(-2px)"
-                    e.currentTarget.style.boxShadow = "0 12px 32px rgba(59,130,246,0.4)"
+                    e.currentTarget.style.boxShadow = "0 20px 25px -5px rgba(59, 130, 246, 0.4)"
                   }
                 }}
                 onMouseLeave={(e) => {
                   if (!regLoading) {
                     e.currentTarget.style.transform = "translateY(0)"
-                    e.currentTarget.style.boxShadow = "0 8px 24px rgba(59,130,246,0.3)"
+                    e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(59, 130, 246, 0.3)"
                   }
                 }}
               >
                 {regLoading ? (
                   <>
-                    <div
-                      style={{
-                        width: "16px",
-                        height: "16px",
-                        border: "2px solid #ffffff",
-                        borderTop: "2px solid transparent",
-                        borderRadius: "50%",
-                        animation: "spin 1s linear infinite",
-                      }}
-                    />
+                    <Loader2 size={24} className="spin" />
                     Creando cuenta...
                   </>
                 ) : (
@@ -795,33 +930,49 @@ export default function AuthModal({
             <div
               style={{
                 textAlign: "center",
-                marginTop: "1.5rem",
+                marginTop: "2.5rem",
                 paddingTop: "1.5rem",
-                borderTop: "1px solid #e5e7eb",
+                borderTop: "1px solid #f1f5f9",
               }}
             >
-              <span style={{ color: "#64748b", fontSize: "0.95rem" }}>¿Ya tienes cuenta? </span>
+              <p style={{ color: "#64748b", fontSize: "1rem", marginBottom: "0.5rem" }}>
+                ¿Ya tienes una cuenta?
+              </p>
               <button
                 style={{
                   background: "none",
                   border: "none",
                   color: "#3b82f6",
-                  fontWeight: 600,
+                  fontWeight: 800,
                   cursor: "pointer",
-                  textDecoration: "underline",
-                  fontSize: "0.95rem",
+                  fontSize: "1rem",
+                  transition: "all 0.2s"
                 }}
+                onMouseEnter={e => e.currentTarget.style.color = "#2563eb"}
+                onMouseLeave={e => e.currentTarget.style.color = "#3b82f6"}
                 onClick={() => {
                   setAuthMode("login")
                   clearAuthFields()
                 }}
               >
-                Iniciar sesión
+                Inicia sesión aquí
               </button>
             </div>
           </>
         )}
       </div>
-    </div >
+
+      <style>
+        {`
+          @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+          }
+          .spin {
+            animation: spin 1s linear infinite;
+          }
+        `}
+      </style>
+    </div>
   )
 }
