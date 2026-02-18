@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../../supabaseClient'
 import { servicesOptions } from './constants'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
 
 export default function ReservationModal({
   showReservationModal,
@@ -120,11 +122,11 @@ export default function ReservationModal({
             <strong>Fecha:</strong>{" "}
             {selectedDate
               ? selectedDate.toLocaleDateString("es-ES", {
-                  weekday: "long",
-                  year: "numeric",
-                  month: "long",
-                  day: "numeric",
-                })
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })
               : ""}
           </div>
         </div>
@@ -266,20 +268,30 @@ export default function ReservationModal({
             >
               📞 Teléfono *
             </label>
-            <input
-              type="tel"
+            <PhoneInput
+              country={'es'}
               value={reservationPhone}
-              onChange={(e) => setReservationPhone(e.target.value)}
-              style={{
+              onChange={phone => setReservationPhone('+' + phone)}
+              inputStyle={{
                 width: "100%",
-                padding: "0.75rem",
+                paddingTop: "0.75rem",
+                paddingBottom: "0.75rem",
+                height: "auto",
                 borderRadius: 12,
                 border: "2px solid #e5e7eb",
                 fontSize: "1rem",
                 transition: "all 0.3s ease",
               }}
+              buttonStyle={{
+                borderRadius: "12px 0 0 12px",
+                border: "2px solid #e5e7eb",
+                borderRight: "none",
+                background: "white"
+              }}
+              containerStyle={{
+                width: "100%"
+              }}
               placeholder="+34 123 456 789"
-              required
             />
           </div>
 

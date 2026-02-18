@@ -2,6 +2,8 @@
 
 import React from 'react'
 import { supabase } from '../../supabaseClient'
+import PhoneInput from 'react-phone-input-2'
+import 'react-phone-input-2/lib/style.css'
 export default function AuthModal({
   showAuthModal,
   setShowAuthModal,
@@ -673,26 +675,28 @@ export default function AuthModal({
                 >
                   Teléfono
                 </label>
-                <input
+                <PhoneInput
+                  country={'es'}
                   value={regPhone}
-                  onChange={(e) => setRegPhone(e.target.value)}
-                  style={{
+                  onChange={phone => setRegPhone('+' + phone)}
+                  inputStyle={{
                     width: "100%",
-                    padding: "0.875rem",
+                    paddingTop: "0.875rem",
+                    paddingBottom: "0.875rem",
+                    height: "auto",
                     borderRadius: 12,
                     border: "2px solid #e5e7eb",
                     fontSize: "1rem",
                     transition: "all 0.2s ease",
-                    outline: "none",
-                    boxSizing: "border-box",
                   }}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "#3b82f6"
-                    e.target.style.boxShadow = "0 0 0 3px rgba(59,130,246,0.1)"
+                  buttonStyle={{
+                    borderRadius: "12px 0 0 12px",
+                    border: "2px solid #e5e7eb",
+                    borderRight: "none",
+                    background: "white"
                   }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "#e5e7eb"
-                    e.target.style.boxShadow = "none"
+                  containerStyle={{
+                    width: "100%"
                   }}
                   placeholder="+1234567890"
                 />
