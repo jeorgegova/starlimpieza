@@ -95,11 +95,12 @@ export default function AuthModal({
       onClick={() => setShowAuthModal(false)}
     >
       <div
+        className="auth-modal-container"
         style={{
           background: "#fff",
           padding: "3rem 2.5rem",
           borderRadius: 32,
-          width: "100%",
+          width: "95%",
           maxWidth: 480,
           maxHeight: "90vh",
           overflowY: "auto",
@@ -112,6 +113,7 @@ export default function AuthModal({
         {/* Close Button */}
         <button
           onClick={() => setShowAuthModal(false)}
+          className="auth-modal-close-button"
           style={{
             position: "absolute",
             top: "1.5rem",
@@ -126,7 +128,8 @@ export default function AuthModal({
             justifyContent: "center",
             cursor: "pointer",
             color: "#64748b",
-            transition: "all 0.2s"
+            transition: "all 0.2s",
+            zIndex: 10
           }}
           onMouseEnter={e => {
             e.currentTarget.style.background = "#f1f5f9"
@@ -142,32 +145,36 @@ export default function AuthModal({
 
         {authMode === "forgotPassword" ? (
           <>
-            <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                background: "#f0f9ff",
-                borderRadius: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1.5rem",
-                color: "#0ea5e9"
-              }}>
+            <div className="auth-modal-header" style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+              <div
+                className="auth-modal-icon-container"
+                style={{
+                  width: 64,
+                  height: 64,
+                  background: "#f0f9ff",
+                  borderRadius: 20,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 1.5rem",
+                  color: "#0ea5e9"
+                }}
+              >
                 <KeyRound size={32} />
               </div>
               <h3
+                className="auth-modal-title"
                 style={{
                   fontSize: "1.75rem",
                   fontWeight: 900,
                   color: "#1e293b",
-                  marginBottom: "0.75rem",
+                  marginBottom: "0.25rem",
                   letterSpacing: "-0.025em"
                 }}
               >
                 Recuperar Contraseña
               </h3>
-              <p style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
+              <p className="auth-modal-description" style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
                 Te enviaremos un enlace de recuperación a tu correo electrónico.
               </p>
             </div>
@@ -345,32 +352,36 @@ export default function AuthModal({
           </>
         ) : authMode === "login" ? (
           <>
-            <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                background: "#f0fdf4",
-                borderRadius: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1.5rem",
-                color: "#22c55e"
-              }}>
+            <div className="auth-modal-header" style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+              <div
+                className="auth-modal-icon-container"
+                style={{
+                  width: 64,
+                  height: 64,
+                  background: "#f0fdf4",
+                  borderRadius: 20,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 1.5rem",
+                  color: "#22c55e"
+                }}
+              >
                 <LogIn size={32} />
               </div>
               <h3
+                className="auth-modal-title"
                 style={{
                   fontSize: "1.75rem",
                   fontWeight: 900,
                   color: "#1e293b",
-                  marginBottom: "0.75rem",
+                  marginBottom: "0.25rem",
                   letterSpacing: "-0.025em"
                 }}
               >
                 Bienvenido
               </h3>
-              <p style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
+              <p className="auth-modal-description" style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
                 Inicia sesión para gestionar tus servicios y reservas.
               </p>
             </div>
@@ -399,6 +410,7 @@ export default function AuthModal({
             <form onSubmit={handleLogin}>
               <div style={{ marginBottom: "1.5rem" }}>
                 <label
+                  className="auth-modal-label"
                   style={{
                     fontWeight: 700,
                     color: "#475569",
@@ -411,12 +423,13 @@ export default function AuthModal({
                 >
                   Correo Electrónico
                 </label>
-                <div style={{ position: "relative" }}>
-                  <Mail style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                <div className="auth-modal-form-group" style={{ position: "relative" }}>
+                  <Mail className="auth-modal-input-icon" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
                   <input
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
+                    className="auth-modal-input"
                     style={{
                       width: "100%",
                       padding: "1rem 1rem 1rem 3rem",
@@ -444,6 +457,7 @@ export default function AuthModal({
 
               <div style={{ marginBottom: "1.25rem" }}>
                 <label
+                  className="auth-modal-label"
                   style={{
                     fontWeight: 700,
                     color: "#475569",
@@ -456,12 +470,13 @@ export default function AuthModal({
                 >
                   Contraseña
                 </label>
-                <div style={{ position: "relative" }}>
-                  <Lock style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
+                <div className="auth-modal-form-group" style={{ position: "relative" }}>
+                  <Lock className="auth-modal-input-icon" style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }} size={20} />
                   <input
                     type="password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    className="auth-modal-input"
                     style={{
                       width: "100%",
                       padding: "1rem 1rem 1rem 3rem",
@@ -488,7 +503,7 @@ export default function AuthModal({
                 </div>
               </div>
 
-              <div style={{ textAlign: "right", marginBottom: "2rem" }}>
+              <div className="auth-modal-forgot-password" style={{ textAlign: "right", marginBottom: "2rem" }}>
                 <button
                   type="button"
                   onClick={() => {
@@ -515,6 +530,7 @@ export default function AuthModal({
               <button
                 type="submit"
                 disabled={loginLoading}
+                className="auth-modal-submit-button"
                 style={{
                   background: loginLoading ? "#e2e8f0" : "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
                   color: loginLoading ? "#94a3b8" : "#fff",
@@ -557,6 +573,7 @@ export default function AuthModal({
             </form>
 
             <div
+              className="auth-modal-footer"
               style={{
                 textAlign: "center",
                 marginTop: "2.5rem",
@@ -564,7 +581,7 @@ export default function AuthModal({
                 borderTop: "1px solid #f1f5f9",
               }}
             >
-              <p style={{ color: "#64748b", fontSize: "1rem", marginBottom: "0.5rem" }}>
+              <p className="auth-modal-p" style={{ color: "#64748b", fontSize: "1rem", marginBottom: "0.5rem" }}>
                 ¿Aún no tienes una cuenta?
               </p>
               <button
@@ -590,32 +607,36 @@ export default function AuthModal({
           </>
         ) : (
           <>
-            <div style={{ textAlign: "center", marginBottom: "2.5rem" }}>
-              <div style={{
-                width: 64,
-                height: 64,
-                background: "#eff6ff",
-                borderRadius: 20,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 1.5rem",
-                color: "#3b82f6"
-              }}>
+            <div className="auth-modal-header" style={{ textAlign: "center", marginBottom: "2.5rem" }}>
+              <div
+                className="auth-modal-icon-container"
+                style={{
+                  width: 64,
+                  height: 64,
+                  background: "#eff6ff",
+                  borderRadius: 20,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  margin: "0 auto 1.5rem",
+                  color: "#3b82f6"
+                }}
+              >
                 <UserPlus size={32} />
               </div>
               <h3
+                className="auth-modal-title"
                 style={{
                   fontSize: "1.75rem",
                   fontWeight: 900,
                   color: "#1e293b",
-                  marginBottom: "0.75rem",
+                  marginBottom: "0.25rem",
                   letterSpacing: "-0.025em"
                 }}
               >
                 Crear Cuenta
               </h3>
-              <p style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
+              <p className="auth-modal-description" style={{ color: "#64748b", fontSize: "1rem", lineHeight: 1.6, margin: 0 }}>
                 Únete para gestionar tus reservas fácilmente.
               </p>
             </div>

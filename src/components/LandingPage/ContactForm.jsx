@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
+import { Briefcase } from "lucide-react"
 
 const MAP_SRC =
   "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d742.3130216254883!2d3.1533424520107025!3d41.908939298115264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDHCsDU0JzMyLjIiTiAzwrAwOScxNC40IkU!5e0!3m2!1ses!2sco!4v1757478879723!5m2!1ses!2sco"
@@ -33,19 +34,28 @@ const ContactForm = ({ onOpenJobModal }) => {
         />
       </div>
       <div className="contact-hero2-content">
-        <form className="contact-hero2-form">
-          <h2>Contáctenos</h2>
-          <div className="subtitle">¿Tiene alguna duda? ¡Escríbanos!</div>
-          <input type="text" placeholder="Nombre" required />
-          <input type="email" placeholder="Email" required />
-          <input type="text" placeholder="Asunto" required />
-          <textarea placeholder="Mensaje" rows="4" required />
-          <button type="submit">Enviar</button>
-        </form>
+        <div className="contact-main-grid">
+          <form className="contact-hero2-form">
+            <h2>Contáctenos</h2>
+            <div className="subtitle">¿Tiene alguna duda? ¡Escríbanos!</div>
+            <input type="text" placeholder="Nombre" required />
+            <input type="email" placeholder="Email" required />
+            <input type="text" placeholder="Asunto" required />
+            <textarea placeholder="Mensaje" rows="4" required />
+            <button type="submit">Enviar</button>
+          </form>
 
-        <button className="job-button" onClick={onOpenJobModal}>
-          Trabaja con Nosotros
-        </button>
+          <div className="job-side-card">
+            <div className="job-side-icon">
+              <Briefcase size={24} />
+            </div>
+            <h3>Trabaja con Nosotros</h3>
+            <p>Buscamos personas comprometidas para crecer con nosotros en Star Limpiezas.</p>
+            <button onClick={onOpenJobModal}>
+              Crear Solicitud
+            </button>
+          </div>
+        </div>
       </div>
 
       <style>{`
@@ -78,174 +88,191 @@ const ContactForm = ({ onOpenJobModal }) => {
         }
         .contact-hero2-content {
           position: absolute;
-          left: 2rem;
-          top: 50%;
-          transform: translateY(-50%);
+          left: 0;
+          top: 12%;
+          transform: translateY(0);
           z-index: 3;
           width: 100%;
-          max-width: 450px;
+          padding: 0 20px;
+          height: auto;
           pointer-events: none;
+          box-sizing: border-box;
+        }
+        .contact-main-grid {
+          display: flex;
+          align-items: flex-start;
+          justify-content: flex-start;
+          width: 100%;
         }
         .contact-hero2-form {
-          width: 85%;
+          width: 450px;
           display: flex;
           flex-direction: column;
-          gap: 1.5rem;
-          background: rgba(54, 54, 54, 0.19);
+          margin-left: 20px;
+          gap: 1.25rem;
+          background: rgba(15, 23, 42, 0.3);
           border-radius: 24px;
-          padding: 2.5rem 2rem;
-          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.22), 0 0 0 1px rgba(255, 255, 255, 0.19);
-          backdrop-filter: blur(5px);
-          -webkit-backdrop-filter: blur(30px) saturate(170%);
-          border: 1px solid rgba(8, 8, 8, 0.26);
+          padding: 2.25rem 2rem;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.22);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           transform: translateY(0);
           transition: all 0.3s ease;
           pointer-events: auto;
         }
+        .job-side-card {
+          width: 350px;
+          margin-top: 20px;
+          background: rgba(15, 23, 42, 0.3);
+          backdrop-filter: blur(10px);
+          -webkit-backdrop-filter: blur(10px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          border-radius: 20px;
+          padding: 1.75rem;
+          color: #fff;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+          gap: 1rem;
+          box-shadow: 0 25px 50px rgba(0, 0, 0, 0.22);
+          pointer-events: auto;
+          animation: slideInRight 0.8s ease-out;
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(30px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .job-side-icon {
+          width: 44px;
+          height: 44px;
+          background: rgba(255, 255, 255, 0.05);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          color: #fff;
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .job-side-card h3 {
+          font-size: 1.35rem;
+          font-weight: 700;
+          margin: 0;
+          color: #fff;
+        }
+        .job-side-card p {
+          font-size: 0.9rem;
+          line-height: 1.5;
+          color: rgba(255, 255, 255, 0.7);
+          margin: 0;
+        }
+        .job-side-card button {
+          width: 100%;
+          padding: 0.85rem;
+          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+          color: #fff;
+          font-weight: 600;
+          border: 1px solid rgba(255, 255, 255, 0.15);
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+        }
+        .job-side-card button:hover {
+          transform: translateY(-2px);
+          background: linear-gradient(135deg, #334155 0%, #475569 100%);
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+          border-color: rgba(255, 255, 255, 0.3);
+        }
         .contact-hero2-form:hover {
           transform: translateY(-5px);
-          box-shadow: 0 35px 70px rgba(0, 0, 0, 0.20), 0 0 0 1px rgba(255, 255, 255, 0.26);
+          box-shadow: 0 35px 70px rgba(0, 0, 0, 0.3);
         }
         .contact-hero2-form h2 {
-          font-size: 2.5rem;
+          font-size: 2.22rem;
           font-weight: 700;
           color: #fff;
           margin: 0 0 0.5rem 0;
           text-align: center;
-          text-shadow: 0 2px 8px rgba(0,0,0,0.26);
         }
         .contact-hero2-form .subtitle {
-          font-size: 1.1rem;
-          color: rgb(252, 252, 252);
+          font-size: 1rem;
+          color: rgba(255, 255, 255, 0.8);
           text-align: center;
-          margin-bottom: 1rem;
-          font-weight: 500;
+          margin-bottom: 0.5rem;
         }
         .contact-hero2-form input,
         .contact-hero2-form textarea {
           width: 100%;
-          max-width: 100%;
-          box-sizing: border-box;
-          padding: 1rem 1.25rem;
-          background: rgba(255, 255, 255, 0.95);
-          border: 2px solid rgba(88, 88, 88, 0.3);
+          padding: 0.85rem 1.15rem;
+          background: rgba(255, 255, 255, 0.98);
+          border: 1px solid rgba(0,0,0,0.1);
           border-radius: 12px;
-          font-size: 1rem;
-          color: #24334d;
-          backdrop-filter: blur(2px);
-          transition: all 0.3s;
-          box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+          font-size: 0.95rem;
+          color: #0f172a;
+          transition: all 0.2s;
         }
         .contact-hero2-form input:focus,
         .contact-hero2-form textarea:focus {
           outline: none;
-          border-color: #0f172a;
-          background: rgba(255,255,255,0.97);
-          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.11), 0 8px 25px rgba(0,0,0,0.14);
-          transform: translateY(-2px);
+          background: #fff;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
         }
-        .contact-hero2-form input::placeholder,
-        .contact-hero2-form textarea::placeholder {
-          color: #8e9daf;
-          font-weight: 500;
-        }
-        .contact-hero2-form textarea {
-          resize: vertical;
-          min-height: 120px;
-          font-family: inherit;
-        }
-        .contact-hero2-form button {
+        .contact-hero2-form button[type="submit"] {
           margin-top: 0.5rem;
-          padding: 1rem 2rem;
-          background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+          padding: 1rem;
+          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
           color: #fff;
           font-size: 1rem;
-          font-weight: 600;
-          border: none;
+          font-weight: 700;
+          border: 1px solid rgba(255, 255, 255, 0.15);
           border-radius: 12px;
           cursor: pointer;
-          box-shadow: 0 6px 20px rgba(15, 23, 42, 0.3);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+          transition: all 0.3s ease;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          letter-spacing: 1px;
         }
-        .contact-hero2-form button:hover {
-          background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
-          transform: translateY(-3px);
-          box-shadow: 0 12px 40px rgba(15, 23, 42, 0.4);
-        }
-        .contact-hero2-form button:active {
-          transform: translateY(0);
-        }
-        .job-button {
-          display: block;
-          width: 85%;
-          margin: 1rem auto 0;
-          padding: 0.9rem 2rem;
-          background: #fff;
-          color: #1a1a1a;
-          font-size: 0.95rem;
-          font-weight: 600;
-          border: none;
-          border-radius: 12px;
-          cursor: pointer;
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          pointer-events: auto;
-        }
-        .job-button:hover {
-          background: #f5f5f5;
-          transform: translateY(-3px);
-          box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+        .contact-hero2-form button[type="submit"]:hover {
+          transform: translateY(-2px);
+          background: linear-gradient(135deg, #334155 0%, #475569 100%);
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
         }
         @media (max-width: 1024px) {
-          .contact-hero2-content {
-            left: auto;
-            top: 10vh;
-            transform: none;
-            margin: 0 auto;
-            right: 0;
-            max-width: 430px;
-          }
+          .contact-hero2-form { width: 400px; }
+          .job-side-card { width: 320px; }
         }
-        @media (max-width: 768px) {
+        @media (max-width: 850px) {
           .contact-hero2 {
-            align-items: flex-start;
-            min-height: 600px;
+            min-height: auto;
+            padding: 4rem 1rem;
           }
           .contact-hero2-content {
-            position: static;
+            position: relative;
             transform: none;
-            max-width: 100vw;
+            left: 0; top: 0;
             width: 100%;
-            top: auto;
-            left: 0;
-            padding: 2rem 0.5rem;
-            display: flex;
+            padding: 0;
+          }
+          .contact-main-grid {
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            height: auto !important;
-            margin: 0 auto;
-            background: none;
+            gap: 2rem;
           }
-          .contact-hero2-form {
-            padding: 2rem 1rem;
-            max-width: 390px;
-            border-radius: 16px;
+          .contact-hero2-form, .job-side-card {
+            margin-left: 10px;
+            width: 100%;
+            max-width: 450px;
           }
-          .contact-hero2-form h2 {
-            font-size: 1.55rem;
-          }
-          .job-button {
-            max-width: 390px;
-            width: calc(85% + 1rem);
-            margin-left: auto;
-            margin-right: auto;
-            left: auto;
-            right: auto;
-            position: relative;
-          }
+        }
+        @media (max-width: 500px) {
+          .contact-hero2-form h2 { font-size: 1.75rem; }
+          .job-side-card h3 { font-size: 1.25rem; }
+        }
+        @media (max-width: 500px) {
+          .contact-hero2-form h2 { font-size: 1.75rem; }
+          .job-side-card h3 { font-size: 1.25rem; }
         }
         @media (max-width: 500px) {
           .contact-hero2-content {

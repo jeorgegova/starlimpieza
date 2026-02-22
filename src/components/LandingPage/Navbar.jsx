@@ -177,7 +177,7 @@ const Navbar = ({ navigationHandler, showClientButton = true }) => {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          height: 80px;
+          height: 65px;
         }
         .navbar-logo {
           display: flex;
@@ -437,7 +437,7 @@ const Navbar = ({ navigationHandler, showClientButton = true }) => {
             display: flex !important;
           }
           .navbar-container {
-            height: 68px;
+            height: 50px;
             padding-left: 1rem;
             padding-right: 1rem;
           }

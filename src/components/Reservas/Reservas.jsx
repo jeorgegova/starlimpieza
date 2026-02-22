@@ -964,7 +964,7 @@ export default function ReservaMejorada() {
           }}
         >
           <LogIn size={20} />
-          <span>Acceder</span>
+          <span>Iniciar Sesión</span>
         </button>
       )}
 

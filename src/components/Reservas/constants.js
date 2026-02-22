@@ -101,7 +101,88 @@ export const responsiveModalStyles = `
        width: 100% !important;
        min-width: unset !important;
      }
-   }
+
+      /* AuthModal Responsive Styles */
+      .auth-modal-container {
+        padding: 1rem !important;
+        border-radius: 24px !important;
+        margin: 0.5rem !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 95vh !important;
+      }
+
+      .auth-modal-description {
+        display: none !important;
+      }
+
+      .auth-modal-title {
+        font-size: 1.35rem !important;
+        margin-bottom: 0 !important;
+      }
+
+      .auth-modal-header {
+        margin-bottom: 0.75rem !important;
+      }
+
+      .auth-modal-close-button {
+        top: 0.75rem !important;
+        right: 0.75rem !important;
+        width: 32px !important;
+        height: 32px !important;
+      }
+
+      .auth-modal-icon-container {
+        width: 36px !important;
+        height: 36px !important;
+        margin-bottom: 0.5rem !important;
+      }
+
+      .auth-modal-icon-container svg {
+        width: 18px !important;
+        height: 18px !important;
+      }
+
+      .auth-modal-form-group {
+        margin-bottom: 0.5rem !important;
+      }
+
+      .auth-modal-input {
+        padding: 0.75rem 0.75rem 0.75rem 2.5rem !important;
+        font-size: 0.95rem !important;
+      }
+
+      .auth-modal-input-icon {
+        left: 0.75rem !important;
+        width: 18px !important;
+        height: 18px !important;
+      }
+
+      .auth-modal-label {
+        font-size: 0.75rem !important;
+        margin-bottom: 0.25rem !important;
+      }
+
+      .auth-modal-forgot-password {
+        margin-top: -0.25rem !important;
+        margin-bottom: 0.75rem !important;
+      }
+
+      .auth-modal-submit-button {
+        padding: 0.75rem !important;
+        font-size: 0.95rem !important;
+      }
+
+      .auth-modal-footer {
+        margin-top: 0.75rem !important;
+        padding-top: 0.75rem !important;
+      }
+
+      .auth-modal-p {
+        font-size: 0.85rem !important;
+        margin-bottom: 0.1rem !important;
+      }
+    }
 
    @media (max-width: 1024px) {
      .info-cards-grid {
