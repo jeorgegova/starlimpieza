@@ -1,23 +1,80 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { supabase, supabaseKey } from '../../supabaseClient';
 
 const JobApplicationForm = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const fileInputRef = useRef(null);
+
+  const handleFileSelect = (file) => {
+    if (file) {
+      const validTypes = ['application/pdf', 'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (validTypes.includes(file.type) || file.name.match(/\.(pdf|doc|docx)$/i)) {
+        setSelectedFile(file);
+      } else {
+        setMessage('Por favor, selecciona un archivo PDF, DOC o DOCX.');
+      }
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    handleFileSelect(file);
+  };
+
+  const handleDragEnter = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const file = e.dataTransfer.files[0];
+    handleFileSelect(file);
+  };
+
+  const handleRemoveFile = () => {
+    setSelectedFile(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (!selectedFile) {
+      setMessage('Por favor, adjunta tu CV.');
+      return;
+    }
+
     setIsSubmitting(true);
     setMessage('');
 
     try {
       const formData = new FormData(e.target);
-      const file = formData.get('cv');
+      const fileName = `${Date.now()}_${selectedFile.name}`;
 
-      const fileName = `${Date.now()}_${file.name}`;
       const { error: uploadError } = await supabase.storage
         .from('cvs')
-        .upload(fileName, file);
+        .upload(fileName, selectedFile);
 
       if (uploadError) throw uploadError;
 
@@ -51,6 +108,7 @@ const JobApplicationForm = ({ onClose }) => {
 
       setMessage('¡Aplicación enviada exitosamente!');
       e.target.reset();
+      setSelectedFile(null);
     } catch (error) {
       console.error('Error:', error);
       setMessage('Error al enviar la aplicación. Inténtalo de nuevo.');
@@ -63,6 +121,12 @@ const JobApplicationForm = ({ onClose }) => {
     onClose();
   };
 
+  const formatFileSize = (bytes) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+  };
+
   return (
     <>
       <div className="modal-overlay" onClick={closeModal}>
@@ -70,7 +134,7 @@ const JobApplicationForm = ({ onClose }) => {
           <div className="modal-header">
             <h2>Trabaja con Nosotros</h2>
             <button className="close-button" onClick={closeModal}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M18 6L6 18M6 6l12 12" />
               </svg>
             </button>
@@ -79,7 +143,7 @@ const JobApplicationForm = ({ onClose }) => {
           <form onSubmit={handleSubmit} className="job-form">
             <div className="form-group">
               <label className="form-label">Nombre completo</label>
-              <input type="text" name="name" required className="form-input" placeholder="Tu nombre" />
+              <input type="text" name="name" required className="form-input" placeholder="Tu nombre completo" />
             </div>
 
             <div className="form-row">
@@ -115,24 +179,70 @@ const JobApplicationForm = ({ onClose }) => {
 
             <div className="form-group">
               <label className="form-label">Habilidades y experiencia</label>
-              <textarea name="skills" required rows={4} className="form-textarea" placeholder="Cuéntanos sobre ti..." />
+              <textarea name="skills" required rows={4} className="form-textarea" placeholder="Cuéntanos sobre tu experiencia y habilidades..." />
             </div>
 
             <div className="form-group file-upload-group">
               <label className="form-label">CV (PDF, DOC, DOCX)</label>
-              <div className="file-drop-zone">
-                <input type="file" name="cv" accept=".pdf,.doc,.docx" required className="file-input" />
-                <div className="file-drop-content">
-                  <svg className="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
-                  </svg>
-                  <span className="file-drop-text">Arrastra tu CV aquí o haz clic para buscar</span>
-                </div>
+              <div
+                className={`file-drop-zone ${isDragging ? 'dragging' : ''} ${selectedFile ? 'has-file' : ''}`}
+                onDragEnter={handleDragEnter}
+                onDragLeave={handleDragLeave}
+                onDragOver={handleDragOver}
+                onDrop={handleDrop}
+              >
+                <input
+                  type="file"
+                  name="cv"
+                  accept=".pdf,.doc,.docx"
+                  className="file-input"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                />
+
+                {selectedFile ? (
+                  <div className="file-selected">
+                    <div className="file-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                        <path d="M14 2v6h6M16 13H8M16 17H8M10 9H8" />
+                      </svg>
+                    </div>
+                    <div className="file-info">
+                      <span className="file-name">{selectedFile.name}</span>
+                      <span className="file-size">{formatFileSize(selectedFile.size)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className="file-remove-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleRemoveFile();
+                      }}
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M18 6L6 18M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="file-drop-content">
+                    <svg className="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+                    </svg>
+                    <span className="file-drop-text">
+                      <strong>Arrastra tu CV aquí</strong>
+                      <span className="file-drop-or">o</span>
+                      <span className="file-browse-link">busca en tu dispositivo</span>
+                    </span>
+                    <span className="file-formats">PDF, DOC, DOCX (máx. 5MB)</span>
+                  </div>
+                )}
               </div>
             </div>
 
             {message && (
-              <div className={`message ${message.includes('Error') ? 'error' : 'success'}`}>
+              <div className={`message ${message.includes('Error') || message.includes('Por favor') ? 'error' : 'success'}`}>
                 {message}
               </div>
             )}
@@ -163,66 +273,74 @@ const JobApplicationForm = ({ onClose }) => {
           left: 0;
           right: 0;
           bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          backdrop-filter: blur(6px);
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(8px);
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 1000;
-          animation: fadeIn 0.3s ease-out;
+          animation: fadeIn 0.25s ease-out;
+          padding: 1rem;
         }
 
         .modal-content {
-          background: #ffffff;
-          border-radius: 24px;
-          box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15);
-          max-width: 600px;
-          width: 90%;
+          background: linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+          border-radius: 20px;
+          box-shadow: 
+            0 4px 6px -1px rgba(0, 0, 0, 0.1),
+            0 20px 50px -12px rgba(0, 0, 0, 0.25);
+          max-width: 540px;
+          width: 100%;
           max-height: 90vh;
           overflow-y: auto;
-          animation: slideUp 0.4s ease-out;
+          animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          border: 1px solid rgba(0, 0, 0, 0.05);
         }
 
         .modal-header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 2rem 2rem 1.5rem;
-          border-bottom: 1px solid #f0f0f0;
+          padding: 1.5rem 1.75rem;
+          background: linear-gradient(135deg, rgba(15, 23, 42, 0.95) 0%, rgba(30, 41, 59, 0.95) 100%);
+          border-radius: 20px 20px 0 0;
+          position: sticky;
+          top: 0;
+          z-index: 10;
         }
 
         .modal-header h2 {
           margin: 0;
-          color: #1a1a1a;
-          font-size: 1.75rem;
-          font-weight: 700;
-          letter-spacing: -0.02em;
+          color: #ffffff;
+          font-size: 1.35rem;
+          font-weight: 600;
+          letter-spacing: -0.01em;
         }
 
         .close-button {
-          background: none;
+          background: rgba(255, 255, 255, 0.15);
           border: none;
-          color: #666;
+          color: #fff;
           cursor: pointer;
-          padding: 8px;
-          border-radius: 12px;
-          transition: all 0.2s;
+          padding: 6px;
+          border-radius: 8px;
+          transition: all 0.2s ease;
           display: flex;
           align-items: center;
           justify-content: center;
         }
 
         .close-button:hover {
-          background: #f5f5f5;
-          color: #1a1a1a;
+          background: rgba(255, 255, 255, 0.25);
+          transform: scale(1.05);
         }
 
         .job-form {
-          padding: 2rem;
+          padding: 1.75rem;
         }
 
         .form-group {
-          margin-bottom: 1.5rem;
+          margin-bottom: 1.25rem;
         }
 
         .form-row {
@@ -234,42 +352,49 @@ const JobApplicationForm = ({ onClose }) => {
         .form-label {
           display: block;
           font-weight: 600;
-          color: #333;
-          margin-bottom: 0.5rem;
-          font-size: 0.9rem;
+          color: #374151;
+          margin-bottom: 0.4rem;
+          font-size: 0.85rem;
         }
 
         .form-input,
         .form-select,
         .form-textarea {
           width: 100%;
-          padding: 0.9rem 1rem;
-          border: 1.5px solid #e5e5e5;
-          border-radius: 12px;
-          font-size: 1rem;
-          transition: all 0.2s;
-          background: #fafafa;
-          color: #333;
+          padding: 0.75rem 1rem;
+          border: 1.5px solid #e5e7eb;
+          border-radius: 10px;
+          font-size: 0.95rem;
+          transition: all 0.2s ease;
+          background: #ffffff;
+          color: #1f2937;
+        }
+
+        .form-input:hover,
+        .form-select:hover,
+        .form-textarea:hover {
+          border-color: #d1d5db;
         }
 
         .form-input:focus,
         .form-select:focus,
         .form-textarea:focus {
           outline: none;
-          border-color: #1a1a1a;
-          box-shadow: 0 0 0 3px rgba(26, 26, 26, 0.08);
+          border-color: rgba(15, 23, 42, 0.6);
+          box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
           background: #fff;
         }
 
         .form-input::placeholder,
         .form-textarea::placeholder {
-          color: #999;
+          color: #9ca3af;
         }
 
         .form-textarea {
           resize: vertical;
-          min-height: 100px;
+          min-height: 90px;
           font-family: inherit;
+          line-height: 1.5;
         }
 
         .select-wrapper {
@@ -286,7 +411,7 @@ const JobApplicationForm = ({ onClose }) => {
           height: 0;
           border-left: 5px solid transparent;
           border-right: 5px solid transparent;
-          border-top: 6px solid #666;
+          border-top: 5px solid #6b7280;
           pointer-events: none;
         }
 
@@ -297,7 +422,7 @@ const JobApplicationForm = ({ onClose }) => {
         }
 
         .checkbox-group {
-          margin-bottom: 1.5rem;
+          margin-bottom: 1.25rem;
         }
 
         .checkbox-label {
@@ -305,7 +430,8 @@ const JobApplicationForm = ({ onClose }) => {
           align-items: center;
           cursor: pointer;
           font-weight: 500;
-          color: #444;
+          color: #4b5563;
+          user-select: none;
         }
 
         .checkbox-input {
@@ -316,27 +442,27 @@ const JobApplicationForm = ({ onClose }) => {
 
         .checkmark {
           position: relative;
-          height: 22px;
-          width: 22px;
+          height: 20px;
+          width: 20px;
           background-color: #fff;
-          border: 2px solid #ddd;
-          border-radius: 6px;
-          margin-right: 12px;
-          transition: all 0.2s;
+          border: 2px solid #d1d5db;
+          border-radius: 5px;
+          margin-right: 10px;
+          transition: all 0.15s ease;
           flex-shrink: 0;
         }
 
         .checkbox-input:checked ~ .checkmark {
-          background-color: #1a1a1a;
-          border-color: #1a1a1a;
+          background-color: rgba(15, 23, 42, 0.85);
+          border-color: rgba(15, 23, 42, 0.85);
         }
 
         .checkmark:after {
           content: '';
           position: absolute;
           display: none;
-          left: 7px;
-          top: 3px;
+          left: 6px;
+          top: 2px;
           width: 5px;
           height: 10px;
           border: solid white;
@@ -349,15 +475,21 @@ const JobApplicationForm = ({ onClose }) => {
         }
 
         .checkbox-text {
-          font-size: 0.95rem;
+          font-size: 0.9rem;
         }
 
         .file-upload-group {
-          margin-bottom: 1.5rem;
+          margin-bottom: 1.25rem;
         }
 
         .file-drop-zone {
           position: relative;
+          border-radius: 12px;
+          transition: all 0.2s ease;
+        }
+
+        .file-drop-zone.dragging {
+          transform: scale(1.01);
         }
 
         .file-input {
@@ -374,38 +506,149 @@ const JobApplicationForm = ({ onClose }) => {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          padding: 2rem;
-          border: 2px dashed #ddd;
-          border-radius: 16px;
-          background: #fafafa;
-          transition: all 0.2s;
+          padding: 1.75rem 1.5rem;
+          border: 2px dashed #d1d5db;
+          border-radius: 12px;
+          background: #f9fafb;
+          transition: all 0.2s ease;
+        }
+
+        .file-drop-zone.dragging .file-drop-content {
+          border-color: rgba(15, 23, 42, 0.5);
+          background: rgba(15, 23, 42, 0.05);
+          border-style: solid;
         }
 
         .file-input:hover ~ .file-drop-content,
         .file-input:focus ~ .file-drop-content {
-          border-color: #1a1a1a;
-          background: #f5f5f5;
+          border-color: rgba(15, 23, 42, 0.5);
+          background: rgba(15, 23, 42, 0.03);
         }
 
         .file-upload-icon {
-          width: 40px;
-          height: 40px;
-          color: #999;
-          margin-bottom: 0.75rem;
+          width: 36px;
+          height: 36px;
+          color: #9ca3af;
+          margin-bottom: 0.5rem;
+          transition: color 0.2s ease;
+        }
+
+        .file-drop-zone.dragging .file-upload-icon,
+        .file-input:hover ~ .file-drop-content .file-upload-icon {
+          color: rgba(15, 23, 42, 0.7);
         }
 
         .file-drop-text {
-          color: #666;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 0.25rem;
+          color: #6b7280;
           font-size: 0.9rem;
           text-align: center;
         }
 
-        .message {
+        .file-drop-text strong {
+          color: #374151;
+        }
+
+        .file-drop-or {
+          color: #9ca3af;
+          font-size: 0.8rem;
+        }
+
+        .file-browse-link {
+          color: rgba(15, 23, 42, 0.8);
+          font-weight: 600;
+          text-decoration: underline;
+          cursor: pointer;
+        }
+
+        .file-formats {
+          font-size: 0.75rem;
+          color: #9ca3af;
+          margin-top: 0.5rem;
+        }
+
+        .file-selected {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
           padding: 1rem 1.25rem;
+          background: rgba(15, 23, 42, 0.04);
+          border: 2px solid rgba(15, 23, 42, 0.3);
           border-radius: 12px;
-          margin-bottom: 1.5rem;
+        }
+
+        .file-icon {
+          width: 40px;
+          height: 40px;
+          background: rgba(15, 23, 42, 0.1);
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          flex-shrink: 0;
+        }
+
+        .file-icon svg {
+          width: 22px;
+          height: 22px;
+          color: rgba(15, 23, 42, 0.7);
+        }
+
+        .file-info {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 0.15rem;
+        }
+
+        .file-name {
+          font-weight: 600;
+          color: #1f2937;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+
+        .file-size {
+          font-size: 0.8rem;
+          color: #6b7280;
+        }
+
+        .file-remove-btn {
+          width: 32px;
+          height: 32px;
+          border-radius: 8px;
+          border: none;
+          background: #fee2e2;
+          color: #ef4444;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s ease;
+          flex-shrink: 0;
+        }
+
+        .file-remove-btn:hover {
+          background: #fecaca;
+        }
+
+        .file-remove-btn svg {
+          width: 16px;
+          height: 16px;
+        }
+
+        .message {
+          padding: 0.85rem 1rem;
+          border-radius: 10px;
+          margin-bottom: 1.25rem;
           font-weight: 500;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
         }
 
         .message.success {
@@ -422,21 +665,21 @@ const JobApplicationForm = ({ onClose }) => {
 
         .form-actions {
           display: flex;
-          gap: 1rem;
+          gap: 0.75rem;
           justify-content: flex-end;
-          margin-top: 2rem;
-          padding-top: 1.5rem;
-          border-top: 1px solid #f0f0f0;
+          margin-top: 1.5rem;
+          padding-top: 1.25rem;
+          border-top: 1px solid #f3f4f6;
         }
 
         .btn-primary,
         .btn-secondary {
-          padding: 0.85rem 1.75rem;
-          border-radius: 12px;
+          padding: 0.7rem 1.5rem;
+          border-radius: 10px;
           font-weight: 600;
-          font-size: 0.95rem;
+          font-size: 0.9rem;
           cursor: pointer;
-          transition: all 0.2s;
+          transition: all 0.2s ease;
           display: flex;
           align-items: center;
           gap: 0.5rem;
@@ -444,15 +687,18 @@ const JobApplicationForm = ({ onClose }) => {
         }
 
         .btn-primary {
-          background: #1a1a1a;
+          background: linear-gradient(135deg, rgba(15, 23, 42, 0.85) 0%, rgba(30, 41, 59, 0.9) 100%);
           color: #fff;
           border: none;
         }
 
         .btn-primary:hover:not(:disabled) {
-          background: #000;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+        }
+
+        .btn-primary:active:not(:disabled) {
+          transform: translateY(0);
         }
 
         .btn-primary:disabled {
@@ -463,22 +709,22 @@ const JobApplicationForm = ({ onClose }) => {
 
         .btn-secondary {
           background: #fff;
-          color: #333;
-          border: 1.5px solid #ddd;
+          color: #4b5563;
+          border: 1.5px solid #e5e7eb;
         }
 
         .btn-secondary:hover {
-          background: #f5f5f5;
-          border-color: #bbb;
+          background: #f9fafb;
+          border-color: #d1d5db;
         }
 
         .spinner {
-          width: 18px;
-          height: 18px;
+          width: 16px;
+          height: 16px;
           border: 2px solid transparent;
           border-top-color: currentColor;
           border-radius: 50%;
-          animation: spin 0.8s linear infinite;
+          animation: spin 0.7s linear infinite;
         }
 
         @keyframes fadeIn {
@@ -487,21 +733,53 @@ const JobApplicationForm = ({ onClose }) => {
         }
 
         @keyframes slideUp {
-          from { opacity: 0; transform: translateY(20px) scale(0.98); }
-          to { opacity: 1; transform: translateY(0) scale(1); }
+          from { opacity: 0; transform: translateY(16px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes spin {
           to { transform: rotate(360deg); }
         }
 
+        /* Scrollbar styling */
+        .modal-content::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 3px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+
         @media (max-width: 640px) {
-          .modal-content {
-            margin: 1rem;
-            max-height: calc(100vh - 2rem);
+          .modal-overlay {
+            padding: 0;
+            align-items: flex-end;
           }
 
-          .modal-header,
+          .modal-content {
+            max-height: 95vh;
+            border-radius: 20px 20px 0 0;
+            animation: slideUpMobile 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+          }
+
+          .modal-header {
+            border-radius: 20px 20px 0 0;
+            padding: 1.25rem 1.5rem;
+          }
+
+          .modal-header h2 {
+            font-size: 1.2rem;
+          }
+
           .job-form {
             padding: 1.5rem;
           }
@@ -511,14 +789,20 @@ const JobApplicationForm = ({ onClose }) => {
           }
 
           .form-actions {
-            flex-direction: column;
+            flex-direction: column-reverse;
           }
 
           .btn-primary,
           .btn-secondary {
             width: 100%;
             justify-content: center;
+            padding: 0.85rem 1.5rem;
           }
+        }
+
+        @keyframes slideUpMobile {
+          from { opacity: 0; transform: translateY(100%); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </>
