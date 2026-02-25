@@ -3,13 +3,80 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 import { Briefcase } from "lucide-react"
+import Alert from "../Reservas/Alert"
 
 const MAP_SRC =
   "https://www.google.com/maps/embed?pb=!1m17!1m12!1m3!1d742.3130216254883!2d3.1533424520107025!3d41.908939298115264!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m2!1m1!2zNDHCsDU0JzMyLjIiTiAzwrAwOScxNC40IkU!5e0!3m2!1ses!2sco!4v1757478879723!5m2!1ses!2sco"
 
 const ContactForm = ({ onOpenJobModal }) => {
   const [isVisible, setIsVisible] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [alertMessage, setAlertMessage] = useState("")
+  const [alertType, setAlertType] = useState("")
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  })
   const navigate = useNavigate()
+
+  const handleChange = (e) => {
+    setForm({ ...form, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+
+    try {
+      setLoading(true)
+
+      const res = await fetch(
+        "https://gvivprtrbphfvedbiice.supabase.co/functions/v1/emailContact",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(form),
+        }
+      )
+
+      const data = await res.json()
+
+      if (!res.ok || !data.success) {
+        throw new Error(data?.error || "Error enviando mensaje")
+      }
+
+      setAlertMessage("Mensaje enviado correctamente")
+      setAlertType("success")
+
+      setForm({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+      })
+
+    } catch (err) {
+      console.error(err)
+      setAlertMessage("No se pudo enviar el mensaje")
+      setAlertType("error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Auto-clear alert after 5 seconds
+  useEffect(() => {
+    if (alertMessage) {
+      const timer = setTimeout(() => {
+        setAlertMessage("")
+        setAlertType("")
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [alertMessage])
 
   useEffect(() => {
     const handleScroll = () => {
@@ -20,45 +87,78 @@ const ContactForm = ({ onOpenJobModal }) => {
   }, [])
 
   return (
-    <section id="contact" className={`contact-hero2${isVisible ? " visible" : ""}`}>
-      <div className="contact-hero2-map-background">
-        <iframe
-          title="Ubicación"
-          src={MAP_SRC}
-          width="100%"
-          height="100%"
-          style={{ border: 0 }}
-          allowFullScreen=""
-          loading="lazy"
-          referrerPolicy="no-referrer-when-downgrade"
-        />
-      </div>
-      <div className="contact-hero2-content">
-        <div className="contact-main-grid">
-          <form className="contact-hero2-form">
-            <h2>Contáctenos</h2>
-            <div className="subtitle">¿Tiene alguna duda? ¡Escríbanos!</div>
-            <input type="text" placeholder="Nombre" required />
-            <input type="email" placeholder="Email" required />
-            <input type="text" placeholder="Asunto" required />
-            <textarea placeholder="Mensaje" rows="4" required />
-            <button type="submit">Enviar</button>
-          </form>
+    <>
+      <Alert alertMessage={alertMessage} alertType={alertType} setAlertMessage={setAlertMessage} />
 
-          <div className="job-side-card">
-            <div className="job-side-icon">
-              <Briefcase size={24} />
+      <section id="contact" className={`contact-hero2${isVisible ? " visible" : ""}`}>
+        <div className="contact-hero2-map-background">
+          <iframe
+            title="Ubicación"
+            src={MAP_SRC}
+            width="100%"
+            height="100%"
+            style={{ border: 0 }}
+            allowFullScreen=""
+            loading="lazy"
+            referrerPolicy="no-referrer-when-downgrade"
+          />
+        </div>
+        <div className="contact-hero2-content">
+          <div className="contact-main-grid">
+            <form className="contact-hero2-form" onSubmit={handleSubmit}>
+              <h2>Contáctenos</h2>
+              <div className="subtitle">¿Tiene alguna duda? ¡Escríbanos!</div>
+              <input
+                type="text"
+                name="name"
+                placeholder="Nombre"
+                value={form.name}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="email"
+                name="email"
+                placeholder="Email"
+                value={form.email}
+                onChange={handleChange}
+                required
+              />
+              <input
+                type="text"
+                name="subject"
+                placeholder="Asunto"
+                value={form.subject}
+                onChange={handleChange}
+                required
+              />
+              <textarea
+                name="message"
+                placeholder="Mensaje"
+                rows="4"
+                value={form.message}
+                onChange={handleChange}
+                required
+              />
+              <button type="submit" disabled={loading}>
+                {loading ? "Enviando..." : "Enviar"}
+              </button>
+            </form>
+
+            <div className="job-side-card">
+              <div className="job-side-icon">
+                <Briefcase size={24} />
+              </div>
+              <h3>Trabaja con Nosotros</h3>
+              <p>Buscamos personas comprometidas para crecer con nosotros en Star Limpiezas.</p>
+              <button onClick={onOpenJobModal}>
+                Crear Solicitud
+              </button>
             </div>
-            <h3>Trabaja con Nosotros</h3>
-            <p>Buscamos personas comprometidas para crecer con nosotros en Star Limpiezas.</p>
-            <button onClick={onOpenJobModal}>
-              Crear Solicitud
-            </button>
           </div>
         </div>
-      </div>
 
-      <style>{`
+        <style>{`
         .contact-hero2 {
           position: relative;
           width: 100vw;
@@ -287,7 +387,8 @@ const ContactForm = ({ onOpenJobModal }) => {
           }
         }
       `}</style>
-    </section>
+      </section>
+    </>
   )
 }
 
