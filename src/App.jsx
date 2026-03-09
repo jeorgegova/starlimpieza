@@ -150,7 +150,7 @@ function App() {
         schema={combinedSchema}
       />
 
-      <Navbar currentSection={currentSection} navigationHandler={handleNavigation} />
+      <Navbar currentSection={currentSection} navigationHandler={handleNavigation} location={location} />
       <Routes>
         <Route
           path="/"

@@ -4,11 +4,9 @@ import {
 } from "react-big-calendar"
 import moment from "moment"
 import "react-big-calendar/lib/css/react-big-calendar.css"
-import {
-  servicesOptions,
-  calendarStyles,
-  responsiveModalStyles
-} from './constants'
+import { servicesOptions, calendarStyles, responsiveModalStyles } from './constants'
+import { supabase } from '../../supabaseClient'
+import { useState, useEffect } from 'react'
 import {
   Rocket,
   Info,
@@ -39,6 +37,47 @@ export default function CalendarView({
   locationOptions,
   openReservationDetail,
 }) {
+  const [availableServices, setAvailableServices] = useState([])
+
+  // Fetch services from service_available table
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('service_available')
+          .select('*')
+          .order('name', { ascending: true })
+
+        if (error) throw error
+
+        if (data && data.length > 0) {
+          setAvailableServices(data)
+
+          // Set default service to ID 8 if not already set
+          const service8 = data.find(s => s.id === 8)
+          if (service8 && !service) {
+            setService(service8.name)
+          }
+        } else {
+          // Fallback to servicesOptions if table is empty
+          setAvailableServices(servicesOptions.map(s => ({ id: s.value, name: s.label, description: s.description })))
+        }
+      } catch (error) {
+        console.error('Error fetching services:', error)
+        // Fallback to servicesOptions on error
+        setAvailableServices(servicesOptions.map(s => ({ id: s.value, name: s.label, description: s.description })))
+      }
+    }
+
+    fetchServices()
+  }, [])
+
+  // Get the current service object based on the service value (which is now the ID from service_available)
+  const currentService = availableServices.find(s => s.id === service)
+    || availableServices.find(s => s.id === 8)  // Default to service ID 8
+    || availableServices[0]
+    || { id: null, name: service || 'Seleccionar servicio', description: '' }
+
   return (
     <>
       <style>{calendarStyles + responsiveModalStyles}</style>
@@ -142,9 +181,9 @@ export default function CalendarView({
                 e.target.style.boxShadow = "0 2px 4px rgba(0,0,0,0.02)"
               }}
             >
-              {servicesOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
+              {availableServices.map((option) => (
+                <option key={option.id} value={option.id}>
+                  {option.name}
                 </option>
               ))}
             </select>
@@ -177,7 +216,7 @@ export default function CalendarView({
             <div style={{ color: "#3b82f6", marginTop: "2px" }}>
               <Info size={18} />
             </div>
-            <span>{selectedService?.description}</span>
+            <span>{currentService?.description || `Servicio: ${currentService?.name || service}`}</span>
           </div>
         </div>
       </div>

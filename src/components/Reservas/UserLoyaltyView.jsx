@@ -22,6 +22,7 @@ export default function UserLoyaltyView({ user }) {
   const [completedServices, setCompletedServices] = useState({})
   const [serviceProgress, setServiceProgress] = useState({})
   const [loading, setLoading] = useState(true)
+  const [availableServices, setAvailableServices] = useState([])
 
   useEffect(() => {
     if (user) {
@@ -29,14 +30,18 @@ export default function UserLoyaltyView({ user }) {
       fetchLoyaltyPoints()
       fetchDiscountConfigs()
       fetchCompletedServices()
+      fetchAvailableServices()
     }
   }, [user])
 
+  // Calculate service progress when configs and completed services are loaded
   useEffect(() => {
-    if (discountConfigs.length > 0 && Object.keys(completedServices).length > 0) {
+    // Only run if we have discount configs and completed services data
+    // Also ensure availableServices is loaded for proper service name mapping
+    if (discountConfigs.length > 0 && Object.keys(completedServices).length >= 0 && availableServices.length > 0) {
       calculateServiceProgress()
     }
-  }, [discountConfigs, completedServices])
+  }, [discountConfigs, completedServices, availableServices])
 
   const fetchUserDiscounts = async () => {
     try {
@@ -72,16 +77,39 @@ export default function UserLoyaltyView({ user }) {
 
   const fetchDiscountConfigs = async () => {
     try {
+      // First try with the join
       const { data, error } = await supabase
         .from('service_discount_config')
-        .select('*')
+        .select(`
+          *,
+          service_available:service_type (name)
+        `)
+        .eq('active', true)
         .order('service_type', { ascending: true })
         .order('services_required', { ascending: true })
 
       if (error) throw error
-      setDiscountConfigs(data || [])
+
+      // Transform data to include service_name from the join
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        service_name: item.service_available?.name || item.service_type
+      }))
+      setDiscountConfigs(transformedData)
     } catch (error) {
       console.error('Error fetching discount configs:', error)
+      // Fallback: try without join
+      try {
+        const { data } = await supabase
+          .from('service_discount_config')
+          .select('*')
+          .eq('active', true)
+          .order('services_required', { ascending: true })
+
+        setDiscountConfigs(data || [])
+      } catch (fallbackError) {
+        console.error('Fallback also failed:', fallbackError)
+      }
     }
   }
 
@@ -102,7 +130,7 @@ export default function UserLoyaltyView({ user }) {
 
       console.log('All user services:', userServices)
 
-      // Count completed services by service type
+      // Count completed services by service type (store raw values - mapping happens in calculateServiceProgress)
       const servicesCount = {}
       userServices.forEach(service => {
         if (service.status === 'completed') {
@@ -121,48 +149,74 @@ export default function UserLoyaltyView({ user }) {
     }
   }
 
+  const fetchAvailableServices = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('service_available')
+        .select('id, name')
+        .order('name', { ascending: true })
+
+      if (error) throw error
+      setAvailableServices(data || [])
+    } catch (error) {
+      console.error('Error fetching available services:', error)
+    }
+  }
+
   const calculateServiceProgress = () => {
-    const progress = {}
+    // Create a simple map: service_name -> completed count
+    // The completedServices already has service names as keys
+    const completedCounts = { ...completedServices }
 
-    // Group configs by service type
-    const configsByService = discountConfigs.reduce((acc, config) => {
-      if (!acc[config.service_type]) {
-        acc[config.service_type] = []
+    // Build a map from service_type ID to service_name using availableServices
+    const serviceIdToName = {}
+    const serviceNameToId = {}
+    availableServices.forEach(service => {
+      serviceIdToName[service.id] = service.name
+      serviceIdToName[service.id.toString()] = service.name
+      serviceNameToId[service.name] = service.id
+    })
+
+    // Also add mappings from servicesOptions as fallback
+    servicesOptions.forEach(opt => {
+      serviceIdToName[opt.value] = opt.label
+      serviceIdToName[opt.value.toString()] = opt.label
+      serviceNameToId[opt.label] = opt.value
+    })
+
+    // For each discount config, calculate progress
+    const progressData = discountConfigs.map(config => {
+      // Get service name - try to get from join, fallback to availableServices lookup, then to raw value
+      let serviceName = config.service_name
+      if (!serviceName && config.service_type) {
+        serviceName = serviceIdToName[config.service_type] || config.service_type.toString()
       }
-      acc[config.service_type].push(config)
-      return acc
-    }, {})
 
-    // For each service, calculate progress
-    Object.keys(configsByService).forEach(serviceType => {
-      const configs = configsByService[serviceType]
-      const completedCount = completedServices[serviceType] || 0
+      // Get completed count for this service - try multiple keys for flexibility
+      let completedCount = completedCounts[serviceName] || 0
 
-      // Find current discount level (highest unlocked)
-      const currentDiscount = configs
-        .filter(config => config.services_required <= completedCount)
-        .sort((a, b) => b.discount_percentage - a.discount_percentage)[0]
+      // If not found, try by service_type ID
+      if (completedCount === 0 && config.service_type) {
+        completedCount = completedCounts[config.service_type] ||
+          completedCounts[config.service_type.toString()] ||
+          completedCounts[serviceIdToName[config.service_type]] || 0
+      }
 
-      // Find next discount level
-      const nextDiscount = configs
-        .filter(config => config.services_required > completedCount)
-        .sort((a, b) => a.services_required - b.services_required)[0]
+      const progress = Math.min((completedCount / config.services_required) * 100, 100)
+      const isCompleted = completedCount >= config.services_required
 
-      progress[serviceType] = {
-        completed: completedCount,
-        currentDiscount: currentDiscount ? {
-          percentage: currentDiscount.discount_percentage,
-          required: currentDiscount.services_required
-        } : null,
-        nextDiscount: nextDiscount ? {
-          percentage: nextDiscount.discount_percentage,
-          required: nextDiscount.services_required,
-          remaining: nextDiscount.services_required - completedCount
-        } : null
+      return {
+        id: config.id,
+        serviceName: serviceName,
+        completedCount: completedCount,
+        servicesRequired: config.services_required,
+        discountPercentage: config.discount_percentage,
+        progress: progress,
+        isCompleted: isCompleted
       }
     })
 
-    setServiceProgress(progress)
+    setServiceProgress(progressData)
   }
 
   const getTotalPoints = () => {
@@ -192,70 +246,9 @@ export default function UserLoyaltyView({ user }) {
   }
 
   const totalPoints = getTotalPoints()
-  const tier = getLoyaltyTier(totalPoints)
 
   return (
     <div style={{ maxWidth: 1000, margin: "0 auto", paddingBottom: "2rem" }}>
-      {/* Tier Header Card */}
-      <div
-        style={{
-          background: `linear-gradient(135deg, ${tier.color}11 0%, ${tier.color}22 100%)`,
-          padding: "3rem 2rem",
-          borderRadius: 28,
-          marginBottom: "3rem",
-          color: tier.color,
-          textAlign: "center",
-          position: "relative",
-          overflow: "hidden",
-          boxShadow: `0 10px 15px -3px ${tier.color}11`,
-          border: `1px solid ${tier.color}33`
-        }}
-      >
-        <div style={{ position: "relative", zIndex: 1 }}>
-          <div style={{
-            width: 80, height: 80, background: "white",
-            borderRadius: 24, display: "flex",
-            alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem",
-            boxShadow: `0 8px 16px ${tier.color}22`,
-            color: tier.color
-          }}>
-            {tier.name === "VIP Oro" ? <Trophy size={40} /> : tier.name === "VIP Plata" ? <Award size={40} /> : tier.name === "VIP Bronce" ? <Trophy size={40} /> : <Star size={40} />}
-          </div>
-          <h2
-            style={{
-              fontSize: "2.5rem",
-              fontWeight: 900,
-              marginBottom: "0.5rem",
-              letterSpacing: "-0.025em",
-              color: "#1e293b"
-            }}
-          >
-            {tier.name}
-          </h2>
-          <p style={{ fontSize: "1.1rem", color: "#64748b", fontWeight: 600, marginBottom: "2rem" }}>
-            {tier.benefits}
-          </p>
-          <div
-            style={{
-              background: tier.color,
-              color: "white",
-              padding: "0.75rem 1.5rem",
-              borderRadius: 16,
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "0.6rem",
-              fontWeight: 800,
-              fontSize: "1.1rem",
-              boxShadow: `0 10px 15px -3px ${tier.color}44`
-            }}
-          >
-            <Zap size={20} fill="white" /> {totalPoints} puntos acumulados
-          </div>
-        </div>
-        {/* Decorative background circle */}
-        <div style={{ position: "absolute", right: "-10%", top: "-20%", width: 300, height: 300, background: `${tier.color}08`, borderRadius: "50%", zIndex: 0 }} />
-      </div>
-
       {/* Main Content Section */}
       <div
         style={{
@@ -284,7 +277,7 @@ export default function UserLoyaltyView({ user }) {
           <div style={{ flex: 1, height: 2, background: "#f1f5f9", marginLeft: "1rem" }} className="hide-sm" />
         </div>
 
-        {Object.keys(serviceProgress).length === 0 ? (
+        {Object.keys(serviceProgress).length === 0 || !Array.isArray(serviceProgress) ? (
           <div style={{ textAlign: "center", padding: "4rem 2rem", background: "#f8fafc", borderRadius: 24, border: "2px dashed #e2e8f0" }}>
             <div style={{ width: 64, height: 64, background: "#fff", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 1.5rem", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" }}>
               <Target size={32} color="#94a3b8" />
@@ -300,158 +293,68 @@ export default function UserLoyaltyView({ user }) {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "repeat(auto-fit, minmax(340px, 1fr))",
-              gap: "2rem",
+              gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+              gap: "1.5rem",
             }}
           >
-            {Object.entries(serviceProgress).map(([serviceType, progress]) => {
-              const serviceLabel = servicesOptions.find(s => s.value === serviceType)?.label || serviceType
-              const isUnlocked = !!progress.currentDiscount
+            {serviceProgress.map((progress) => {
+              const isCompleted = progress.isCompleted
 
               return (
                 <div
-                  key={serviceType}
+                  key={progress.id}
                   style={{
-                    background: isUnlocked ? "#fff" : "#fafafa",
-                    padding: "2rem",
-                    borderRadius: 24,
-                    border: isUnlocked ? "2px solid #22c55e" : "1px solid #f1f5f9",
+                    background: isCompleted ? "#f0fdf4" : "#f8fafc",
+                    padding: "1.5rem",
+                    borderRadius: 20,
+                    border: `2px solid ${isCompleted ? '#22c55e' : '#e2e8f0'}`,
                     position: "relative",
-                    transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                    display: "flex",
-                    flexDirection: "column",
-                    boxShadow: isUnlocked ? "0 15px 30px -10px rgba(34, 197, 94, 0.2)" : "none"
-                  }}
-                  onMouseEnter={e => {
-                    e.currentTarget.style.transform = "translateY(-4px)"
-                    if (!isUnlocked) e.currentTarget.style.borderColor = "#e2e8f0"
-                  }}
-                  onMouseLeave={e => {
-                    e.currentTarget.style.transform = "translateY(0)"
-                    if (!isUnlocked) e.currentTarget.style.borderColor = "#f1f5f9"
+                    overflow: "hidden"
                   }}
                 >
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "1.5rem" }}>
-                    <div>
-                      <h4
-                        style={{
-                          color: "#1e293b",
-                          margin: 0,
-                          fontSize: "1.2rem",
-                          fontWeight: 800,
-                          marginBottom: "0.25rem"
-                        }}
-                      >
-                        {serviceLabel}
-                      </h4>
-                      <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>
-                        Servicio de Fidelidad
-                      </div>
-                    </div>
+                  {isCompleted && (
                     <div style={{
-                      width: 44, height: 44, borderRadius: 14,
-                      background: isUnlocked ? "#f0fdf4" : "#f1f5f9",
-                      color: isUnlocked ? "#22c55e" : "#94a3b8",
-                      display: "flex", alignItems: "center", justifyContent: "center"
+                      position: "absolute",
+                      top: "8px",
+                      right: "8px",
+                      background: "#22c55e",
+                      color: "white",
+                      padding: "0.2rem 0.5rem",
+                      borderRadius: 8,
+                      fontSize: "0.7rem",
+                      fontWeight: 800
                     }}>
-                      {isUnlocked ? <Gift size={24} /> : <Target size={24} />}
-                    </div>
-                  </div>
-
-                  {/* Unlocked Discount Badge */}
-                  {isUnlocked && (
-                    <div
-                      style={{
-                        background: "#f0fdf4",
-                        color: "#166534",
-                        padding: "0.75rem 1rem",
-                        borderRadius: 14,
-                        fontSize: "0.95rem",
-                        fontWeight: 700,
-                        marginBottom: "1.5rem",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.5rem",
-                        border: "1px solid #dcfce7"
-                      }}
-                    >
-                      <CheckCircle size={18} /> {progress.currentDiscount.percentage}% Descuento Activo
+                      ✓ DESCUENTO ACTIVO
                     </div>
                   )}
-
-                  {/* Progress Visualization */}
-                  <div style={{ marginTop: "auto" }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "0.75rem", fontSize: "0.85rem", fontWeight: 700 }}>
-                      <span style={{ color: "#64748b" }}>Progreso de recompensa</span>
-                      <span style={{ color: "#1e293b" }}>{progress.completed} / {progress.nextDiscount ? progress.nextDiscount.required : progress.currentDiscount?.required || 0}</span>
+                  <div style={{ fontWeight: "800", color: "#1e293b", fontSize: "1rem", marginBottom: "0.5rem" }}>
+                    {progress.serviceName}
+                  </div>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: "0.4rem", marginBottom: "0.75rem" }}>
+                    <div style={{ fontSize: "1.75rem", fontWeight: 900, color: isCompleted ? "#22c55e" : "#6366f1" }}>
+                      {progress.completedCount}
                     </div>
+                    <div style={{ fontSize: "0.9rem", fontWeight: 600, color: "#64748b" }}>
+                      / {progress.servicesRequired} servicios
+                    </div>
+                  </div>
+                  {/* Progress bar */}
+                  <div style={{ height: 8, background: "#e2e8f0", borderRadius: 4, marginBottom: "0.5rem" }}>
                     <div
                       style={{
-                        background: "#f1f5f9",
-                        borderRadius: "12px",
-                        height: "10px",
-                        overflow: "hidden",
-                        marginBottom: "1.25rem",
+                        width: `${progress.progress}%`,
+                        height: "100%",
+                        background: isCompleted ? "#22c55e" : "#6366f1",
+                        borderRadius: 4,
+                        transition: "width 0.3s ease"
                       }}
-                    >
-                      <div
-                        style={{
-                          background: isUnlocked ? "linear-gradient(to right, #22c55e, #10b981)" : "linear-gradient(to right, #3b82f6, #2563eb)",
-                          height: "100%",
-                          width: progress.nextDiscount
-                            ? `${(progress.completed / progress.nextDiscount.required) * 100}%`
-                            : "100%",
-                          borderRadius: "12px",
-                          transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)",
-                        }}
-                      />
-                    </div>
-
-                    {/* Next step info */}
-                    {progress.nextDiscount ? (
-                      <div
-                        style={{
-                          background: "#fff",
-                          border: "1.5px solid #eff6ff",
-                          color: "#1d4ed8",
-                          padding: "1rem",
-                          borderRadius: 16,
-                          fontSize: "0.9rem",
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.75rem"
-                        }}
-                      >
-                        <div style={{ background: "#dbeafe", color: "#1d4ed8", padding: "0.4rem", borderRadius: 8 }}>
-                          <TrendingUp size={16} />
-                        </div>
-                        <div>
-                          <div>Próximo beneficio: {progress.nextDiscount.percentage}% OFF</div>
-                          <div style={{ fontSize: "0.75rem", color: "#64748b", fontWeight: 500 }}>
-                            Faltan {progress.nextDiscount.remaining} servicio{progress.nextDiscount.remaining !== 1 ? 's' : ''}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div
-                        style={{
-                          background: "#fffbeb",
-                          color: "#92400e",
-                          padding: "1rem",
-                          borderRadius: 16,
-                          fontSize: "0.9rem",
-                          fontWeight: 700,
-                          display: "flex",
-                          alignItems: "center",
-                          gap: "0.75rem",
-                          border: "1px solid #fef3c7"
-                        }}
-                      >
-                        <Trophy size={20} color="#f59e0b" />
-                        <div>¡Nivel máximo alcanzado!</div>
-                      </div>
-                    )}
+                    />
+                  </div>
+                  <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>
+                    {isCompleted
+                      ? <span style={{ color: "#22c55e" }}>¡Has completado! Obtienes {progress.discountPercentage}% de descuento</span>
+                      : `Faltan ${progress.servicesRequired - progress.completedCount} servicios para obtener ${progress.discountPercentage}% de descuento`
+                    }
                   </div>
                 </div>
               )

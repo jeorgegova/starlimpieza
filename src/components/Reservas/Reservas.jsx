@@ -30,6 +30,7 @@ import MyReservationsView from './MyReservationsView'
 import AdminView from './AdminView'
 import CRMView from './CRMView'
 import UserLoyaltyView from './UserLoyaltyView'
+import UsersView from './UsersView'
 import AuthModal from './AuthModal'
 import ReservationModal from './ReservationModal'
 import EditModal from './EditModal'
@@ -43,10 +44,12 @@ const localizer = momentLocalizer(moment)
 
 export default function ReservaMejorada() {
   // Estados principales
-  const [service, setService] = useState(servicesOptions[0].value)
+  const [service, setService] = useState('')
   const [reservedEvents, setReservedEvents] = useState([])
   const [events, setEvents] = useState([])
   const [loading, setLoading] = useState(false)
+  const [servicesLoading, setServicesLoading] = useState(true)
+  const [availableServices, setAvailableServices] = useState([])
   const [allReservations, setAllReservations] = useState([])
   const [userReservations, setUserReservations] = useState([])
   const [selectedDate, setSelectedDate] = useState(null)
@@ -112,6 +115,41 @@ export default function ReservaMejorada() {
 
   // Ubicaciones desde la base de datos
   const [locationOptions, setLocationOptions] = useState([])
+
+  // Fetch available services from database on mount
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('service_available')
+          .select('*')
+          .order('name', { ascending: true })
+
+        if (error) throw error
+
+        if (data && data.length > 0) {
+          setAvailableServices(data)
+          // Default to ID 8
+          const limpiezaService = data.find(s => s.id === 8)
+          if (limpiezaService) {
+            setService(limpiezaService.id)
+          } else {
+            setService(data[0].id)
+          }
+        } else {
+          // Fallback to servicesOptions
+          setService(servicesOptions[0].value)
+        }
+        setServicesLoading(false)
+      } catch (error) {
+        console.error('Error fetching services:', error)
+        setService(servicesOptions[0].value)
+        setServicesLoading(false)
+      }
+    }
+
+    fetchServices()
+  }, [])
 
   useEffect(() => {
     window.scrollTo(0, 0)
@@ -277,16 +315,19 @@ export default function ReservaMejorada() {
 
   async function fetchAllReservations() {
     setLoading(true)
+    // First get all reservations for this service (by ID)
     const { data, error } = await supabase
       .from("user_services")
-      .select("*, users(name, phone, email)")
+      .select("*")
       .eq("service_name", service)
       .order("assigned_date", { ascending: true })
 
     if (error) {
+      console.error('Error fetching reservations:', error)
       setAllReservations([])
       setReservedEvents([])
     } else {
+      // Then fetch user details separately if needed
       setAllReservations(data)
       const mappedReserved = data
         .filter((r) => !user || r.user_id !== user.id) // Excluir reservas del usuario actual
@@ -346,10 +387,12 @@ export default function ReservaMejorada() {
     const dateStr = `${selected.getFullYear()}-${String(selected.getMonth() + 1).padStart(2, '0')}-${String(selected.getDate()).padStart(2, '0')}`
 
     let isReserved = false
-    if (service === "Limpieza de casas") {
+    // Check if service ID is 8 (Limpieza de casas)
+    const isLimpiezaCasas = service === 8 || service === "8" || service === "Limpieza de casas"
+    if (isLimpiezaCasas) {
       const reservationsOnDate = allReservations.filter(r =>
         r.assigned_date === dateStr &&
-        r.service_name === "Limpieza de casas" &&
+        r.service_name === 8 &&
         (!user || r.user_id !== user.id)
       )
       isReserved = reservationsOnDate.length >= 2
@@ -363,7 +406,7 @@ export default function ReservaMejorada() {
     }
 
     if (isReserved) {
-      if (service === "Limpieza de casas") {
+      if (isLimpiezaCasas) {
         setAlertMessage("Esta fecha ya tiene dos reservas para Limpieza de casas. Por favor elige otra fecha.")
         setAlertType("error")
       } else {
@@ -374,9 +417,9 @@ export default function ReservaMejorada() {
     }
 
     // Check if user already has 2 reservations on this date for Limpieza de casas
-    if (service === "Limpieza de casas" && user && user.role !== "admin") {
+    if (isLimpiezaCasas && user && user.role !== "admin") {
       const userReservationsOnDate = userReservations.filter(r =>
-        r.assigned_date === dateStr && r.service_name === "Limpieza de casas"
+        r.assigned_date === dateStr && r.service_name === 8
       )
       if (userReservationsOnDate.length >= 2) {
         setAlertMessage("Ya hay dos reservas para esta fecha.")
@@ -441,6 +484,14 @@ export default function ReservaMejorada() {
 
         if (userError) {
           setLoginError("Error al obtener datos del usuario.")
+          return
+        }
+
+        // Check if user is active
+        if (userData.state === 'inactive') {
+          setLoginError("Tu cuenta se encuentra inactiva. Contacta al administrador para más información.")
+          // Sign out the user since they're inactive
+          await supabase.auth.signOut()
           return
         }
 
@@ -559,8 +610,9 @@ export default function ReservaMejorada() {
   }
 
   function handleConfirmReserve(applicableDiscount = 0) {
-    // Calculate total cost
-    const totalCost = service === "Limpieza de casas" ? Math.round(reservationHours * 20 * (1 - applicableDiscount / 100)) : null
+    // Calculate total cost - service ID 8 is Limpieza de casas
+    const isLimpiezaCasasConfirm = service === 8 || service === "8" || service === "Limpieza de casas"
+    const totalCost = isLimpiezaCasasConfirm ? Math.round(reservationHours * 20 * (1 - applicableDiscount / 100)) : null
 
     // Set confirmation data
     setConfirmationData({
@@ -603,19 +655,22 @@ export default function ReservaMejorada() {
       return
     }
 
-    if (service === "Limpieza de casas" && (!reservationShift || !reservationHours)) {
+    // Check if service ID is 8 (Limpieza de casas)
+    const isLimpiezaCasasHandle = service === 8 || service === "8" || service === "Limpieza de casas"
+
+    if (isLimpiezaCasasHandle && (!reservationShift || !reservationHours)) {
       setAlertMessage("Por favor selecciona una jornada y las horas de servicio")
       setAlertType("error")
       return
     }
 
-    if (service === "Limpieza de casas") {
+    if (isLimpiezaCasasHandle) {
       const dateStr = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`
       const { data: existingShift, error: shiftError } = await supabase
         .from("user_services")
         .select("id")
         .eq("assigned_date", dateStr)
-        .eq("service_name", "Limpieza de casas")
+        .eq("service_name", 8)
         .eq("shift", reservationShift)
 
       if (shiftError) {
@@ -643,7 +698,7 @@ export default function ReservaMejorada() {
         location_id: reservationLocation,
         address: reservationAddress,
         phone: reservationPhone,
-        ...(service === "Limpieza de casas" && { shift: reservationShift, hours: reservationHours }),
+        ...(isLimpiezaCasasHandle && { shift: reservationShift, hours: reservationHours }),
       },
     ])
 
@@ -651,7 +706,7 @@ export default function ReservaMejorada() {
       setAlertMessage("Error al crear la reserva: " + error.message)
       setAlertType("error")
     } else {
-      const totalCost = service === "Limpieza de casas" ? Math.round(reservationHours * 20 * (1 - (confirmationData?.applicableDiscount || 0) / 100)) : null
+      const totalCost = isLimpiezaCasasHandle ? Math.round(reservationHours * 20 * (1 - (confirmationData?.applicableDiscount || 0) / 100)) : null
       setAlertMessage(`¡Reserva creada exitosamente${isAdminCreating ? ` para ${adminSelectedClient.name}` : ''}!${totalCost ? ` Valor a cancelar: ${totalCost}€. El administrador se comunicará para confirmar el servicio y proceder con el pago.` : ''}`)
       setAlertType("success")
 
@@ -681,10 +736,10 @@ export default function ReservaMejorada() {
                 month: 'long', day: 'numeric'
               }),
               location: locationName,
-              shift: service === 'Limpieza de casas' ? reservationShift : undefined,
-              hours: service === 'Limpieza de casas' ? reservationHours : undefined,
-              totalCost: service === 'Limpieza de casas' ? String(totalCost) : undefined,
-              discount: service === 'Limpieza de casas' ? confirmationData?.applicableDiscount : undefined,
+              shift: isLimpiezaCasasHandle ? reservationShift : undefined,
+              hours: isLimpiezaCasasHandle ? reservationHours : undefined,
+              totalCost: isLimpiezaCasasHandle ? String(totalCost) : undefined,
+              discount: isLimpiezaCasasHandle ? confirmationData?.applicableDiscount : undefined,
               isConfirmed: user.role === 'admin',
             }
           })
@@ -931,7 +986,7 @@ export default function ReservaMejorada() {
           border: "1px solid #f1f5f9",
         }}
       >
-        <Header />
+        <Header user={user} />
 
         <Alert alertMessage={alertMessage} alertType={alertType} setAlertMessage={setAlertMessage} />
 
@@ -940,7 +995,16 @@ export default function ReservaMejorada() {
         <TabNavigation user={user} activeTab={activeTab} setActiveTab={setActiveTab} userReservations={userReservations} />
 
         {/* Contenido principal basado en la pestaña activa */}
-        {(!user || activeTab === "calendar") && (
+        {servicesLoading ? (
+          <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <div style={{
+              width: 48, height: 48, border: '3px solid #f1f5f9',
+              borderTopColor: '#3b82f6', borderRadius: '50%',
+              animation: 'spin 1s linear infinite', margin: '0 auto 1rem'
+            }} />
+            <p style={{ color: '#64748b', fontWeight: 600 }}>Cargando servicios...</p>
+          </div>
+        ) : (!user || activeTab === "calendar") && (
           <CalendarView
             user={user}
             service={service}
@@ -964,6 +1028,7 @@ export default function ReservaMejorada() {
             setActiveTab={setActiveTab}
             openReservationDetail={openReservationDetail}
             locationOptions={locationOptions}
+            availableServices={availableServices}
           />
         )}
 
@@ -984,12 +1049,28 @@ export default function ReservaMejorada() {
           />
         )}
 
+        {user && user.role === "admin" && activeTab === "users" && (
+          <UsersView
+            allUsers={allUsers}
+            fetchAllUsers={fetchAllUsers}
+            showAlert={(message, type) => {
+              setAlertMessage(message)
+              setAlertType(type)
+            }}
+          />
+        )}
+
         {user && user.role === "admin" && activeTab === "crm" && (
           <CRMView
             allReservations={allReservations}
             allUsers={allUsers}
             handleStatusChange={handleStatusChange}
             fetchAllUsers={fetchAllUsers}
+            availableServices={availableServices}
+            alertMessage={alertMessage}
+            setAlertMessage={setAlertMessage}
+            alertType={alertType}
+            setAlertType={setAlertType}
           />
         )}
 
@@ -1047,6 +1128,7 @@ export default function ReservaMejorada() {
         setShowReservationModal={setShowReservationModal}
         selectedDate={selectedDate}
         service={service}
+        availableServices={availableServices}
         reservationLocation={reservationLocation}
         setReservationLocation={setReservationLocation}
         reservationAddress={reservationAddress}
@@ -1133,7 +1215,7 @@ export default function ReservaMejorada() {
                     day: "numeric",
                   })
                   : ""}
-                {confirmationData.service === "Limpieza de casas" && (
+                {(confirmationData.service === "Limpieza de casas" || confirmationData.service === 8 || confirmationData.service === "8") && (
                   <>
                     <br />
                     <strong>Horas:</strong> {confirmationData.reservationHours}

@@ -53,12 +53,14 @@ const Navbar = ({ navigationHandler, showClientButton = true }) => {
   };
 
   const isReservasPage = location.pathname === '/reservas';
+  const navbarHeight = isReservasPage ? 45 : 65;
+  const logoHeight = isReservasPage ? 35 : 75;
 
   return (
     <nav className={`navbar ${isScrolled ? 'scrolled' : ''} ${isReservasPage ? 'navbar-reservas' : ''}`}>
-      <div className="navbar-container">
+      <div className="navbar-container" style={{ height: navbarHeight + 'px' }}>
         <div className={`navbar-logo ${showLogoShine ? 'logo-shine' : ''}`} onClick={() => navigationHandler('hero')}>
-          <img src={logo} alt="Logo Star Limpiezas" />
+          <img src={logo} alt="Logo Star Limpiezas" style={{ height: logoHeight + 'px' }} />
           <div className="logo-sparkle sparkle-1"></div>
           <div className="logo-sparkle sparkle-2"></div>
           <div className="logo-sparkle sparkle-3"></div>

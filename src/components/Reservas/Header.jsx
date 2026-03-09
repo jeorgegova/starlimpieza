@@ -5,7 +5,10 @@ import {
   Sparkles
 } from 'lucide-react'
 
-export default function Header() {
+export default function Header({ user }) {
+  // If user is logged in, don't show the header with cards
+  if (user) return null
+
   return (
     <>
       {/* Header premium - Light Theme */}
@@ -13,7 +16,7 @@ export default function Header() {
         style={{
           textAlign: "center",
           marginBottom: "2.5rem",
-          padding: "3rem 2rem",
+          padding: "2rem 2rem",
           background: "linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%)",
           borderRadius: 32,
           color: "#1e293b",

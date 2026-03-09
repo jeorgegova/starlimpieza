@@ -16,7 +16,8 @@ import {
   CreditCard,
   Calendar,
   Sparkles,
-  Zap
+  Zap,
+  Info
 } from 'lucide-react'
 
 export default function ReservationModal({
@@ -24,6 +25,7 @@ export default function ReservationModal({
   setShowReservationModal,
   selectedDate,
   service,
+  availableServices,
   reservationLocation,
   setReservationLocation,
   reservationAddress,
@@ -74,8 +76,12 @@ export default function ReservationModal({
 
   if (!showReservationModal) return null
 
-  const selectedService = servicesOptions.find((s) => s.value === service)
-  const totalPrice = service === "Limpieza de casas"
+  // service is now an ID from service_available, get the name
+  const serviceObj = availableServices?.find(s => s.id === service)
+  const selectedServiceName = serviceObj?.name || service
+  // Check if service ID is 8 (Limpieza de casas)
+  const isLimpiezaCasas = service === 8 || serviceObj?.name?.toLowerCase().includes('casa')
+  const totalPrice = isLimpiezaCasas
     ? Math.round(reservationHours * 20 * (1 - applicableDiscount / 100))
     : null;
 
@@ -86,7 +92,7 @@ export default function ReservationModal({
         return
       }
     }
-    if (step === 2 && service === "Limpieza de casas") {
+    if (step === 2 && isLimpiezaCasas) {
       if (!reservationHours || !reservationShift) {
         alert("Por favor, selecciona las horas y la jornada")
         return
@@ -199,7 +205,7 @@ export default function ReservationModal({
                 <Zap size={24} color="#22c55e" />
                 <div>
                   <div style={{ color: "#166534", fontWeight: 700, fontSize: "0.95rem" }}>Servicio Seleccionado</div>
-                  <div style={{ color: "#15803d", fontSize: "0.85rem" }}>{selectedService?.label}</div>
+                  <div style={{ color: "#15803d", fontSize: "0.85rem" }}>{selectedServiceName}</div>
                 </div>
               </div>
 
@@ -262,7 +268,7 @@ export default function ReservationModal({
 
           {step === 2 && (
             <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              {service === "Limpieza de casas" ? (
+              {isLimpiezaCasas ? (
                 <>
                   <div style={{ background: "#eff6ff", padding: "1.25rem", borderRadius: 16, border: "1px solid #dbeafe" }}>
                     <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", color: "#1e40af", fontWeight: 700, marginBottom: "0.5rem" }}>
@@ -349,7 +355,7 @@ export default function ReservationModal({
                 <div style={{ display: "flex", flexDirection: "column", gap: "0.85rem" }}>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ color: "#64748b" }}>Servicio</span>
-                    <span style={{ fontWeight: 600, color: "#1e293b" }}>{selectedService?.label}</span>
+                    <span style={{ fontWeight: 600, color: "#1e293b" }}>{selectedServiceName}</span>
                   </div>
                   <div style={{ display: "flex", justifyContent: "space-between" }}>
                     <span style={{ color: "#64748b" }}>Fecha</span>
@@ -359,7 +365,7 @@ export default function ReservationModal({
                     <span style={{ color: "#64748b" }}>Dirección</span>
                     <span style={{ fontWeight: 600, color: "#1e293b", textAlign: "right", maxWidth: "60%" }}>{reservationAddress}</span>
                   </div>
-                  {service === "Limpieza de casas" && (
+                  {isLimpiezaCasas && (
                     <div style={{ display: "flex", justifyContent: "space-between" }}>
                       <span style={{ color: "#64748b" }}>Duración</span>
                       <span style={{ fontWeight: 600, color: "#1e293b" }}>{reservationHours} Horas ({reservationShift})</span>
@@ -369,7 +375,7 @@ export default function ReservationModal({
 
                 <div style={{ height: 1, background: "#e2e8f0", margin: "1rem 0" }} />
 
-                {service === "Limpieza de casas" ? (
+                {isLimpiezaCasas ? (
                   <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
                     {applicableDiscount > 0 && (
                       <div style={{ display: "flex", justifyContent: "space-between", color: "#22c55e", fontWeight: 600, fontSize: "0.9rem" }}>

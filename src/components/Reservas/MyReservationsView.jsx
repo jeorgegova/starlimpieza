@@ -23,6 +23,7 @@ export default function MyReservationsView({
   setActiveTab,
   openReservationDetail,
   locationOptions,
+  availableServices
 }) {
   const [filterStatus, setFilterStatus] = useState(null);
 
@@ -285,8 +286,9 @@ export default function MyReservationsView({
             ) : (
               filteredReservations.map((reservation) => {
                 const statusInfo = getStatusInfo(reservation.status);
-                const service = servicesOptions.find((s) => s.value === reservation.service_name);
-                const location = locationOptions.find(l => l.id === reservation.location_id);
+                // Get service name from availableServices using ID
+                const service = availableServices?.find(s => s.id === reservation.service_name);
+                const serviceName = service?.name || `Servicio #${reservation.service_name}`;
 
                 return (
                   <div
@@ -331,7 +333,7 @@ export default function MyReservationsView({
                         </div>
                         <div>
                           <h4 style={{ color: "#1e293b", margin: 0, fontSize: "1.15rem", fontWeight: 800 }}>
-                            {service?.label || reservation.service_name}
+                            {serviceName}
                           </h4>
                           <span style={{ fontSize: '0.8rem', color: '#94a3b8', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.05em' }}>
                             ID #{reservation.id.toString().slice(-6)}

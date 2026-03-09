@@ -1,47 +1,31 @@
 import {
   Calendar,
-  ClipboardList,
-  Gift,
   Settings,
-  Users
+  Users,
+  UserCog
 } from 'lucide-react'
 
 export default function TabNavigation({ user, activeTab, setActiveTab, userReservations }) {
   if (!user) return null
 
-  const tabs = [
-    {
-      id: "calendar",
-      label: "Hacer Reserva",
-      icon: <Calendar size={20} />,
-      color: "#22c55e",
-      bg: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
-    },
-    {
-      id: "myReservations",
-      label: "Mis Reservas",
-      icon: <ClipboardList size={20} />,
-      color: "#3b82f6",
-      bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-      count: userReservations.length
-    },
-    {
-      id: "loyalty",
-      label: "Bonificaciones",
-      icon: <Gift size={20} />,
-      color: "#f59e0b",
-      bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
-    },
-  ]
+  let tabs = []
 
+  // Admin tabs order: Gestión de Reservas, Hacer Reserva, CRM, Usuarios
   if (user.role === "admin") {
-    tabs.push(
+    tabs = [
       {
         id: "admin",
-        label: "Administrar",
+        label: "Gestión de Reservas",
         icon: <Settings size={20} />,
         color: "#6366f1",
         bg: "linear-gradient(135deg, #6366f1 0%, #4f46e5 100%)"
+      },
+      {
+        id: "calendar",
+        label: "Hacer Reserva",
+        icon: <Calendar size={20} />,
+        color: "#22c55e",
+        bg: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
       },
       {
         id: "crm",
@@ -49,8 +33,41 @@ export default function TabNavigation({ user, activeTab, setActiveTab, userReser
         icon: <Users size={20} />,
         color: "#8b5cf6",
         bg: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)"
+      },
+      {
+        id: "users",
+        label: "Usuarios",
+        icon: <UserCog size={20} />,
+        color: "#0ea5e9",
+        bg: "linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
+      },
+    ]
+  } else {
+    // Non-admin users get these tabs
+    tabs = [
+      {
+        id: "calendar",
+        label: "Hacer Reserva",
+        icon: <Calendar size={20} />,
+        color: "#22c55e",
+        bg: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)"
+      },
+      {
+        id: "myReservations",
+        label: "Mis Reservas",
+        icon: <Calendar size={20} />,
+        color: "#3b82f6",
+        bg: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+        count: userReservations.length
+      },
+      {
+        id: "loyalty",
+        label: "Bonificaciones",
+        icon: <Users size={20} />,
+        color: "#f59e0b",
+        bg: "linear-gradient(135deg, #f59e0b 0%, #d97706 100%)"
       }
-    )
+    ]
   }
 
   return (
