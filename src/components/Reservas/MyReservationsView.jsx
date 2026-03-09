@@ -290,6 +290,9 @@ export default function MyReservationsView({
                 const service = availableServices?.find(s => s.id === reservation.service_name);
                 const serviceName = service?.name || `Servicio #${reservation.service_name}`;
 
+                // Get location name from locationOptions using ID
+                const location = locationOptions?.find(l => l.id === reservation.location_id);
+
                 return (
                   <div
                     key={reservation.id}
@@ -372,7 +375,7 @@ export default function MyReservationsView({
                           day: "numeric",
                         })
                       } bold />
-                      <InfoItem icon={<MapPin size={16} />} text={location?.location || "S.D."} />
+                      <InfoItem icon={<MapPin size={16} />} text={location?.location || `Ubicación #${reservation.location_id}`} />
                       <InfoItem icon={<Home size={16} />} text={reservation.address} />
                       <InfoItem icon={<Phone size={16} />} text={reservation.phone} />
                     </div>

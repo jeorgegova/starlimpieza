@@ -77,7 +77,11 @@ export default function ReservaMejorada() {
   const [calView, setCalView] = useState("month")
 
   // Estados de vista
-  const [activeTab, setActiveTab] = useState("calendar")
+  const [activeTab, setActiveTab] = useState(() => {
+    // Recover saved tab from localStorage
+    const savedTab = localStorage.getItem('reservas_activeTab');
+    return savedTab || "calendar";
+  });
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [reservationToDelete, setReservationToDelete] = useState(null)
 
@@ -155,6 +159,11 @@ export default function ReservaMejorada() {
     window.scrollTo(0, 0)
   }, [])
 
+  // Save activeTab to localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('reservas_activeTab', activeTab)
+  }, [activeTab])
+
   useEffect(() => {
     fetchAllReservations()
     fetchLocations()
@@ -189,7 +198,13 @@ export default function ReservaMejorada() {
           if (!error && userData) {
             console.log("RESERVAS - Profile loaded:", userData.role);
             setUser(userData);
-            if (activeTab === "calendar") {
+            // Fetch users for admin
+            if (userData.role === "admin") {
+              fetchAllUsers();
+            }
+            // Only override saved tab if it's the default "calendar" tab
+            const savedTab = localStorage.getItem('reservas_activeTab');
+            if (!savedTab || activeTab === "calendar") {
               setActiveTab(userData.role === "admin" ? "admin" : "calendar");
             }
           } else {
@@ -498,8 +513,13 @@ export default function ReservaMejorada() {
         setUser(userData)
         clearAuthFields()
         setShowAuthModal(false)
-        // Set default tab based on user role
-        setActiveTab(userData.role === "admin" ? "admin" : "calendar")
+        // Set tab based on saved preference or user role
+        const savedTab = localStorage.getItem('reservas_activeTab');
+        if (savedTab) {
+          setActiveTab(savedTab);
+        } else {
+          setActiveTab(userData.role === "admin" ? "admin" : "calendar");
+        }
 
         // Notify admin about pending services
         if (userData.role === "admin") {
@@ -606,7 +626,7 @@ export default function ReservaMejorada() {
     setUser(null)
     setSelectedDate(null)
     setUserReservations([])
-    setActiveTab("calendar")
+    // Keep the saved tab preference in localStorage for next login
   }
 
   function handleConfirmReserve(applicableDiscount = 0) {
@@ -1046,6 +1066,7 @@ export default function ReservaMejorada() {
             locationOptions={locationOptions}
             handleStatusChange={handleStatusChange}
             users={allUsers}
+            availableServices={availableServices}
           />
         )}
 
@@ -1204,7 +1225,7 @@ export default function ReservaMejorada() {
                 📋 Detalles de la Reserva:
               </h4>
               <div style={{ color: "#64748b" }}>
-                <strong>Servicio:</strong> {confirmationData.service}
+                <strong>Servicio:</strong> {availableServices.find(s => s.id === confirmationData.service)?.name || confirmationData.service}
                 <br />
                 <strong>Fecha:</strong>{" "}
                 {confirmationData.selectedDate
@@ -1306,6 +1327,7 @@ export default function ReservaMejorada() {
         setShowReservationDetailModal={setShowReservationDetailModal}
         reservationDetail={reservationDetail}
         locationOptions={locationOptions}
+        availableServices={availableServices}
       />
 
       <ClientSelectionModal

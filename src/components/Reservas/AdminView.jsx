@@ -37,11 +37,14 @@ export default function AdminView({
   locationOptions,
   handleStatusChange,
   users,
+  availableServices,
 }) {
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState('all')
   const [locationFilter, setLocationFilter] = useState('all')
-  const [dateFilter, setDateFilter] = useState('')
+  const [serviceFilter, setServiceFilter] = useState('all')
+  const [dateFrom, setDateFrom] = useState('')
+  const [dateTo, setDateTo] = useState('')
   const [currentPage, setCurrentPage] = useState(1)
   const itemsPerPage = 10
   const [loyaltyData, setLoyaltyData] = useState({})
@@ -93,9 +96,20 @@ export default function AdminView({
 
     const matchesStatus = statusFilter === 'all' || reservation.status === statusFilter
     const matchesLocation = locationFilter === 'all' || reservation.location_id === locationFilter
-    const matchesDate = dateFilter === '' || reservation.assigned_date === dateFilter
 
-    return matchesSearch && matchesStatus && matchesLocation && matchesDate
+    // Date range filter
+    let matchesDate = true
+    if (dateFrom && dateTo) {
+      matchesDate = reservation.assigned_date >= dateFrom && reservation.assigned_date <= dateTo
+    } else if (dateFrom) {
+      matchesDate = reservation.assigned_date >= dateFrom
+    } else if (dateTo) {
+      matchesDate = reservation.assigned_date <= dateTo
+    }
+
+    const matchesService = serviceFilter === 'all' || reservation.service_name?.toString() === serviceFilter
+
+    return matchesSearch && matchesStatus && matchesLocation && matchesDate && matchesService
   })
 
   // Pagination logic
@@ -306,9 +320,9 @@ export default function AdminView({
       <div
         style={{
           background: "#fff",
-          padding: "2rem",
+          padding: "1.25rem",
           borderRadius: 24,
-          marginBottom: "2.5rem",
+          marginBottom: "2rem",
           border: "1px solid #f1f5f9",
           boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.05)",
         }}
@@ -318,75 +332,79 @@ export default function AdminView({
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            marginBottom: "2rem",
+            marginBottom: "1rem",
             flexWrap: "wrap",
-            gap: "1rem"
+            gap: "0.5rem"
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-            <div style={{ background: "#eff6ff", padding: "0.5rem", borderRadius: 10, color: "#3b82f6" }}>
-              <Filter size={20} />
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <div style={{ background: "#eff6ff", padding: "0.4rem", borderRadius: 8, color: "#3b82f6" }}>
+              <Filter size={18} />
             </div>
-            <h3 style={{ color: "#1e293b", fontSize: "1.25rem", fontWeight: 800, margin: 0 }}>
-              Filtros y Búsqueda
+            <h3 style={{ color: "#1e293b", fontSize: "1.1rem", fontWeight: 800, margin: 0 }}>
+              Filtros
             </h3>
           </div>
 
-          <div style={{ display: "flex", gap: "0.75rem" }}>
+          <div style={{ display: "flex", gap: "0.4rem" }}>
             <button
               onClick={() => {
                 setStatusFilter('pending')
                 setSearchTerm('')
                 setLocationFilter('all')
-                setDateFilter('')
+                setDateFrom('')
+                setDateTo('')
+                setServiceFilter('all')
                 handleFilterChange()
               }}
               style={{
                 background: "#fff7ed",
                 color: "#c2410c",
                 border: "1px solid #ffedd5",
-                borderRadius: 12,
-                padding: "0.6rem 1.25rem",
-                fontSize: "0.85rem",
+                borderRadius: 8,
+                padding: "0.35rem 0.6rem",
+                fontSize: "0.75rem",
                 fontWeight: 700,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem"
+                gap: "0.25rem"
               }}
               onMouseEnter={e => e.currentTarget.style.background = "#ffedd5"}
               onMouseLeave={e => e.currentTarget.style.background = "#fff7ed"}
             >
-              <Zap size={16} /> Pendientes
+              <Zap size={12} /> Pendientes
             </button>
             <button
               onClick={() => {
                 const today = new Date().toISOString().split('T')[0]
-                setDateFilter(today)
+                setDateFrom(today)
+                setDateTo(today)
                 setStatusFilter('all')
                 setSearchTerm('')
                 setLocationFilter('all')
+                setServiceFilter('all')
                 handleFilterChange()
               }}
               style={{
                 background: "#f0fdf4",
                 color: "#15803d",
                 border: "1px solid #dcfce7",
-                borderRadius: 12,
-                padding: "0.6rem 1.25rem",
-                fontSize: "0.85rem",
+                borderRadius: 8,
+                padding: "0.35rem 0.6rem",
+                fontSize: "0.75rem",
                 fontWeight: 700,
                 cursor: "pointer",
                 transition: "all 0.2s ease",
                 display: "flex",
                 alignItems: "center",
-                gap: "0.5rem"
+                gap: "0.25rem"
               }}
               onMouseEnter={e => e.currentTarget.style.background = "#dcfce7"}
               onMouseLeave={e => e.currentTarget.style.background = "#f0fdf4"}
             >
-              <Calendar size={16} /> Hoy
+              <Calendar size={12} /> Hoy
             </button>
           </div>
         </div>
@@ -394,21 +412,21 @@ export default function AdminView({
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
-            gap: "1.5rem",
+            gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: "0.75rem",
           }}
         >
           <div style={{ position: "relative" }}>
-            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+            <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.4rem" }}>
               Buscar cliente o detalle
             </label>
             <div style={{ position: "relative" }}>
-              <div style={{ position: "absolute", left: "1rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }}>
-                <Search size={18} />
+              <div style={{ position: "absolute", left: "0.75rem", top: "50%", transform: "translateY(-50%)", color: "#94a3b8" }}>
+                <Search size={16} />
               </div>
               <input
                 type="text"
-                placeholder="Nombre, teléfono, dirección..."
+                placeholder="Nombre, teléfono..."
                 value={searchTerm}
                 onChange={(e) => {
                   setSearchTerm(e.target.value)
@@ -416,10 +434,10 @@ export default function AdminView({
                 }}
                 style={{
                   width: "100%",
-                  padding: "0.85rem 1rem 0.85rem 2.75rem",
-                  borderRadius: 14,
+                  padding: "0.6rem 0.75rem 0.6rem 2.25rem",
+                  borderRadius: 10,
                   border: "1px solid #e2e8f0",
-                  fontSize: "0.95rem",
+                  fontSize: "0.85rem",
                   transition: "all 0.2s",
                   outline: "none"
                 }}
@@ -430,35 +448,61 @@ export default function AdminView({
           </div>
 
           <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
-              Filtrar por fecha
+            <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.4rem" }}>
+              Rango de fechas
             </label>
-            <div style={{ position: "relative" }}>
-              <input
-                type="date"
-                value={dateFilter}
-                onChange={(e) => {
-                  setDateFilter(e.target.value)
-                  handleFilterChange()
-                }}
-                style={{
-                  width: "100%",
-                  padding: "0.85rem 1rem",
-                  borderRadius: 14,
-                  border: "1px solid #e2e8f0",
-                  fontSize: "0.95rem",
-                  transition: "all 0.2s",
-                  outline: "none",
-                  backgroundColor: "#fff"
-                }}
-                onFocus={e => e.target.style.borderColor = "#3b82f6"}
-                onBlur={e => e.target.style.borderColor = "#e2e8f0"}
-              />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.7rem' }}>Desde</span>
+                <input
+                  type="date"
+                  value={dateFrom}
+                  onChange={(e) => {
+                    setDateFrom(e.target.value)
+                    handleFilterChange()
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem 0.5rem 0.5rem 2.25rem",
+                    borderRadius: 8,
+                    border: "1px solid #e2e8f0",
+                    fontSize: "0.75rem",
+                    transition: "all 0.2s",
+                    outline: "none",
+                    backgroundColor: "#fff"
+                  }}
+                  onFocus={e => e.target.style.borderColor = "#3b82f6"}
+                  onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                />
+              </div>
+              <div style={{ position: "relative" }}>
+                <span style={{ position: 'absolute', left: '8px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '0.7rem' }}>Hasta</span>
+                <input
+                  type="date"
+                  value={dateTo}
+                  onChange={(e) => {
+                    setDateTo(e.target.value)
+                    handleFilterChange()
+                  }}
+                  style={{
+                    width: "100%",
+                    padding: "0.5rem 0.5rem 0.5rem 2.25rem",
+                    borderRadius: 8,
+                    border: "1px solid #e2e8f0",
+                    fontSize: "0.75rem",
+                    transition: "all 0.2s",
+                    outline: "none",
+                    backgroundColor: "#fff"
+                  }}
+                  onFocus={e => e.target.style.borderColor = "#3b82f6"}
+                  onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                />
+              </div>
             </div>
           </div>
 
           <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+            <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.4rem" }}>
               Estado del servicio
             </label>
             <select
@@ -469,10 +513,10 @@ export default function AdminView({
               }}
               style={{
                 width: "100%",
-                padding: "0.85rem 1rem",
-                borderRadius: 14,
+                padding: "0.6rem 0.75rem",
+                borderRadius: 10,
                 border: "1px solid #e2e8f0",
-                fontSize: "0.95rem",
+                fontSize: "0.85rem",
                 transition: "all 0.2s",
                 outline: "none",
                 backgroundColor: "#fff",
@@ -490,7 +534,7 @@ export default function AdminView({
           </div>
 
           <div>
-            <label style={{ fontSize: "0.85rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.6rem" }}>
+            <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.4rem" }}>
               Ubicación / Zona
             </label>
             <select
@@ -501,10 +545,10 @@ export default function AdminView({
               }}
               style={{
                 width: "100%",
-                padding: "0.85rem 1rem",
-                borderRadius: 14,
+                padding: "0.6rem 0.75rem",
+                borderRadius: 10,
                 border: "1px solid #e2e8f0",
-                fontSize: "0.95rem",
+                fontSize: "0.85rem",
                 transition: "all 0.2s",
                 outline: "none",
                 backgroundColor: "#fff",
@@ -522,30 +566,66 @@ export default function AdminView({
               ))}
             </select>
           </div>
+
+          <div>
+            <label style={{ fontSize: "0.8rem", fontWeight: 700, color: "#64748b", display: "block", marginBottom: "0.4rem" }}>
+              Tipo de Servicio
+            </label>
+            <select
+              value={serviceFilter}
+              onChange={(e) => {
+                setServiceFilter(e.target.value)
+                handleFilterChange()
+              }}
+              style={{
+                width: "100%",
+                padding: "0.6rem 0.75rem",
+                borderRadius: 10,
+                border: "1px solid #e2e8f0",
+                fontSize: "0.85rem",
+                transition: "all 0.2s",
+                outline: "none",
+                backgroundColor: "#fff",
+                appearance: "none",
+                cursor: "pointer"
+              }}
+              onFocus={e => e.target.style.borderColor = "#3b82f6"}
+              onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+            >
+              <option value="all">Todos los servicios</option>
+              {availableServices?.map((serv) => (
+                <option key={serv.id} value={serv.id}>
+                  {serv.name}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
-        {(searchTerm || statusFilter !== 'all' || locationFilter !== 'all' || dateFilter) && (
-          <div style={{ marginTop: "1.5rem", textAlign: "center" }}>
+        {(searchTerm || statusFilter !== 'all' || locationFilter !== 'all' || dateFrom || dateTo || serviceFilter !== 'all') && (
+          <div style={{ marginTop: "1rem", textAlign: "center" }}>
             <button
               onClick={() => {
                 setSearchTerm('')
                 setStatusFilter('all')
                 setLocationFilter('all')
-                setDateFilter('')
+                setDateFrom('')
+                setDateTo('')
+                setServiceFilter('all')
                 setCurrentPage(1)
               }}
               style={{
                 background: "transparent",
                 color: "#64748b",
                 border: "none",
-                fontSize: "0.85rem",
+                fontSize: "0.8rem",
                 fontWeight: 700,
                 cursor: "pointer",
                 textDecoration: "underline",
-                padding: "0.5rem"
+                padding: "0.3rem"
               }}
             >
-              Restablecer todos los filtros
+              Restablecer filtros
             </button>
           </div>
         )}
@@ -576,9 +656,6 @@ export default function AdminView({
               <ClipboardList size={20} color="#3b82f6" />
               <h3 style={{ margin: 0, fontSize: "1.25rem", fontWeight: 800, color: "#1e293b" }}>Gestión de Reservas</h3>
             </div>
-            <p style={{ margin: 0, fontSize: "0.85rem", color: "#64748b", fontWeight: 500 }}>
-              Administrando servicios para: <span style={{ color: "#3b82f6", fontWeight: 700 }}>{service}</span>
-            </p>
           </div>
           <div style={{ textAlign: "right" }}>
             <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "#1e293b", lineHeight: 1 }}>
@@ -678,7 +755,9 @@ export default function AdminView({
                         </div>
                       </td>
                       <td className="hide-sm">
-                        <div style={{ fontSize: "0.9rem", color: "#334155", fontWeight: 600 }}>{reservation.service_name}</div>
+                        <div style={{ fontSize: "0.9rem", color: "#334155", fontWeight: 600 }}>
+                          {availableServices?.find(s => s.id === reservation.service_name)?.name || `Servicio #${reservation.service_name}`}
+                        </div>
                         {reservation.hours && (
                           <div style={{ fontSize: "0.75rem", color: "#64748b", display: "flex", alignItems: "center", gap: "0.25rem", marginTop: "0.25rem" }}>
                             <Clock size={12} /> {reservation.hours} horas

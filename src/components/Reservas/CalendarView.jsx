@@ -56,16 +56,45 @@ export default function CalendarView({
           // Set default service to ID 8 if not already set
           const service8 = data.find(s => s.id === 8)
           if (service8 && !service) {
-            setService(service8.name)
+            setService(service8.id)
           }
         } else {
-          // Fallback to servicesOptions if table is empty
-          setAvailableServices(servicesOptions.map(s => ({ id: s.value, name: s.label, description: s.description })))
+          // Fallback to servicesOptions if table is empty - try to match by name pattern
+          // Map string values to typical database IDs based on common patterns
+          const idMap = {
+            'Limpieza de casas': 8,
+            'Turismo & Airbnb': 1,
+            'Servicios Forestales': 2,
+            'Cristales Premium': 3,
+            'Gestión de Terrenos': 4,
+            'Limpiezas de Garajes': 5,
+            'Limpieza de Cocinas': 6,
+            'Comunidades': 7
+          }
+          setAvailableServices(servicesOptions.map(s => ({
+            id: idMap[s.value] || s.value,
+            name: s.label,
+            description: s.description
+          })))
         }
       } catch (error) {
         console.error('Error fetching services:', error)
         // Fallback to servicesOptions on error
-        setAvailableServices(servicesOptions.map(s => ({ id: s.value, name: s.label, description: s.description })))
+        const idMap = {
+          'Limpieza de casas': 8,
+          'Turismo & Airbnb': 1,
+          'Servicios Forestales': 2,
+          'Cristales Premium': 3,
+          'Gestión de Terrenos': 4,
+          'Limpiezas de Garajes': 5,
+          'Limpieza de Cocinas': 6,
+          'Comunidades': 7
+        }
+        setAvailableServices(servicesOptions.map(s => ({
+          id: idMap[s.value] || s.value,
+          name: s.label,
+          description: s.description
+        })))
       }
     }
 
@@ -73,7 +102,9 @@ export default function CalendarView({
   }, [])
 
   // Get the current service object based on the service value (which is now the ID from service_available)
-  const currentService = availableServices.find(s => s.id === service)
+  // Handle both number and string comparisons
+  const serviceIdNum = typeof service === 'number' ? service : parseInt(service, 10)
+  const currentService = availableServices.find(s => s.id === serviceIdNum || s.id === service)
     || availableServices.find(s => s.id === 8)  // Default to service ID 8
     || availableServices[0]
     || { id: null, name: service || 'Seleccionar servicio', description: '' }

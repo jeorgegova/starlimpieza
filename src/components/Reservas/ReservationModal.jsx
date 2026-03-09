@@ -25,7 +25,7 @@ export default function ReservationModal({
   setShowReservationModal,
   selectedDate,
   service,
-  availableServices,
+  availableServices: propAvailableServices,
   reservationLocation,
   setReservationLocation,
   reservationAddress,
@@ -44,6 +44,34 @@ export default function ReservationModal({
   const [applicableDiscount, setApplicableDiscount] = useState(0)
   const [loadingDiscount, setLoadingDiscount] = useState(false)
   const [step, setStep] = useState(1) // 1: Ubicación, 2: Detalles, 3: Resumen
+  const [availableServices, setAvailableServices] = useState(propAvailableServices || [])
+  const [fieldErrors, setFieldErrors] = useState({})
+  const [showErrorTooltip, setShowErrorTooltip] = useState(false)
+  const [errorMessage, setErrorMessage] = useState('')
+
+  // Sync availableServices from props or fetch if needed
+  useEffect(() => {
+    if (propAvailableServices && propAvailableServices.length > 0) {
+      setAvailableServices(propAvailableServices)
+    } else {
+      // Fetch services directly if not provided
+      const fetchServices = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('service_available')
+            .select('*')
+            .order('id')
+          if (error) throw error
+          if (data && data.length > 0) {
+            setAvailableServices(data)
+          }
+        } catch (err) {
+          console.error('Error fetching services:', err)
+        }
+      }
+      fetchServices()
+    }
+  }, [propAvailableServices])
 
   useEffect(() => {
     if (showReservationModal && user && service) {
@@ -77,27 +105,47 @@ export default function ReservationModal({
   if (!showReservationModal) return null
 
   // service is now an ID from service_available, get the name
-  const serviceObj = availableServices?.find(s => s.id === service)
-  const selectedServiceName = serviceObj?.name || service
-  // Check if service ID is 8 (Limpieza de casas)
-  const isLimpiezaCasas = service === 8 || serviceObj?.name?.toLowerCase().includes('casa')
+  // Handle both number and string comparisons
+  const serviceId = typeof service === 'number' ? service : parseInt(service, 10)
+  const serviceObj = availableServices?.find(s => s.id === serviceId || s.id === service)
+  const selectedServiceName = serviceObj?.name || (typeof service === 'number' ? `Servicio #${service}` : service)
+  // Check if service ID is 8 (Limpieza de casas) - handle both ID and name for backwards compatibility
+  const isLimpiezaCasas = serviceId === 8 || service === 8 || service === "8" || service === "Limpieza de casas" || (serviceObj?.name?.toLowerCase().includes('casa'))
   const totalPrice = isLimpiezaCasas
     ? Math.round(reservationHours * 20 * (1 - applicableDiscount / 100))
     : null;
 
   const nextStep = () => {
+    const errors = {}
+    let errorMsg = ''
+
     if (step === 1) {
-      if (!reservationLocation || !reservationAddress || !reservationPhone) {
-        alert("Por favor, completa los campos obligatorios")
-        return
+      if (!reservationLocation) errors.reservationLocation = true
+      if (!reservationAddress) errors.reservationAddress = true
+      if (!reservationPhone) errors.reservationPhone = true
+
+      if (Object.keys(errors).length > 0) {
+        errorMsg = 'Por favor completa los campos marcados en rojo'
       }
     }
     if (step === 2 && isLimpiezaCasas) {
-      if (!reservationHours || !reservationShift) {
-        alert("Por favor, selecciona las horas y la jornada")
-        return
+      if (!reservationHours) errors.reservationHours = true
+      if (!reservationShift) errors.reservationShift = true
+
+      if (Object.keys(errors).length > 0) {
+        errorMsg = 'Por favor selecciona las horas y la jornada'
       }
     }
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors)
+      setErrorMessage(errorMsg)
+      setShowErrorTooltip(true)
+      return
+    }
+
+    setFieldErrors({})
+    setShowErrorTooltip(false)
     setStep(step + 1)
   }
 
@@ -210,17 +258,17 @@ export default function ReservationModal({
               </div>
 
               <div>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-                  <MapPin size={18} color="#3b82f6" /> Ubicación
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, color: fieldErrors.reservationLocation ? "#dc2626" : "#475569", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
+                  <MapPin size={18} color={fieldErrors.reservationLocation ? "#dc2626" : "#3b82f6"} /> Ubicación {fieldErrors.reservationLocation && <span style={{ fontSize: '0.7rem' }}>(requerido)</span>}
                 </label>
                 <select
                   value={reservationLocation}
-                  onChange={(e) => setReservationLocation(e.target.value)}
+                  onChange={(e) => { setReservationLocation(e.target.value); setFieldErrors(prev => ({ ...prev, reservationLocation: false })); }}
                   style={{
-                    width: "100%", padding: "0.85rem", borderRadius: 14, border: "2px solid #e2e8f0", fontSize: "1rem", backgroundColor: "#fff", transition: "all 0.3s", outline: "none"
+                    width: "100%", padding: "0.85rem", borderRadius: 14, border: fieldErrors.reservationLocation ? "2px solid #dc2626" : "2px solid #e2e8f0", fontSize: "1rem", backgroundColor: "#fff", transition: "all 0.3s", outline: "none"
                   }}
-                  onFocus={e => e.target.style.borderColor = "#3b82f6"}
-                  onBlur={e => e.target.style.borderColor = "#e2e8f0"}
+                  onFocus={e => e.target.style.borderColor = fieldErrors.reservationLocation ? "#dc2626" : "#3b82f6"}
+                  onBlur={e => e.target.style.borderColor = fieldErrors.reservationLocation ? "#dc2626" : "#e2e8f0"}
                 >
                   <option value="">Selecciona zona de servicio</option>
                   {locationOptions.map((loc) => (
@@ -247,18 +295,18 @@ export default function ReservationModal({
               </div>
 
               <div>
-                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, color: "#475569", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
-                  <Phone size={18} color="#3b82f6" /> Teléfono de Contacto
+                <label style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontWeight: 700, color: fieldErrors.reservationPhone ? "#dc2626" : "#475569", marginBottom: "0.5rem", fontSize: "0.9rem" }}>
+                  <Phone size={18} color={fieldErrors.reservationPhone ? "#dc2626" : "#3b82f6"} /> Teléfono de Contacto {fieldErrors.reservationPhone && <span style={{ fontSize: '0.7rem' }}>(requerido)</span>}
                 </label>
                 <PhoneInput
                   country={'es'}
                   value={reservationPhone}
-                  onChange={phone => setReservationPhone('+' + phone)}
+                  onChange={phone => { setReservationPhone('+' + phone); setFieldErrors(prev => ({ ...prev, reservationPhone: false })); }}
                   inputStyle={{
-                    width: "100%", height: "48px", borderRadius: 14, border: "2px solid #e2e8f0", fontSize: "1rem", transition: "all 0.3s"
+                    width: "100%", height: "48px", borderRadius: 14, border: fieldErrors.reservationPhone ? "2px solid #dc2626" : "2px solid #e2e8f0", fontSize: "1rem", transition: "all 0.3s"
                   }}
                   buttonStyle={{
-                    borderRadius: "14px 0 0 14px", border: "2px solid #e2e8f0", background: "white"
+                    borderRadius: "14px 0 0 14px", border: fieldErrors.reservationPhone ? "2px solid #dc2626" : "2px solid #e2e8f0", background: "white"
                   }}
                   containerStyle={{ width: "100%" }}
                 />
@@ -419,14 +467,39 @@ export default function ReservationModal({
           )}
 
           {step < 3 ? (
-            <button
-              onClick={nextStep}
-              style={{
-                flex: 2, padding: "0.9rem", borderRadius: 14, border: "none", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", color: "#fff", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 12px rgba(34,197,94,0.2)"
-              }}
-            >
-              Siguiente <ChevronRight size={20} />
-            </button>
+            <div style={{ flex: 2, position: 'relative' }}>
+              {showErrorTooltip && (
+                <div
+                  style={{
+                    position: 'absolute',
+                    bottom: '100%',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    background: '#fef2f2',
+                    border: '1px solid #fecaca',
+                    borderRadius: '8px',
+                    padding: '8px 12px',
+                    marginBottom: '8px',
+                    color: '#dc2626',
+                    fontSize: '0.85rem',
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    boxShadow: '0 4px 6px rgba(0,0,0,0.1)',
+                    zIndex: 10
+                  }}
+                >
+                  ⚠️ {errorMessage}
+                </div>
+              )}
+              <button
+                onClick={nextStep}
+                style={{
+                  width: '100%', padding: "0.9rem", borderRadius: 14, border: "none", background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)", color: "#fff", fontWeight: 700, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", gap: "0.5rem", boxShadow: "0 4px 12px rgba(34,197,94,0.2)"
+                }}
+              >
+                Siguiente <ChevronRight size={20} />
+              </button>
+            </div>
           ) : (
             <button
               onClick={() => {

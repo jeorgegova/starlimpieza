@@ -19,7 +19,8 @@ import {
   Trash2,
   AlertCircle,
   BarChart3,
-  ChevronRight
+  ChevronRight,
+  Star
 } from 'lucide-react'
 
 export default function CRMView({
@@ -36,6 +37,7 @@ export default function CRMView({
   const [selectedClient, setSelectedClient] = useState(null)
   const [clientHistory, setClientHistory] = useState([])
   const [loading, setLoading] = useState(false)
+  const [usersLoading, setUsersLoading] = useState(true)
   const [clientDiscounts, setClientDiscounts] = useState([])
   const [discountConfig, setDiscountConfig] = useState([])
   const [showDiscountConfigModal, setShowDiscountConfigModal] = useState(false)
@@ -50,6 +52,13 @@ export default function CRMView({
 
   // Filter users to only show clients (role: "user")
   const clients = allUsers.filter(user => user.role === "user")
+
+  // Update loading state when users are loaded
+  useEffect(() => {
+    if (allUsers && allUsers.length > 0) {
+      setUsersLoading(false)
+    }
+  }, [allUsers])
 
   // Fetch users and discount config when component mounts
   useEffect(() => {
@@ -69,10 +78,19 @@ export default function CRMView({
 
   useEffect(() => {
     if (selectedClient) {
-      // Get client's reservation history
-      const history = allReservations.filter(res => res.user_id === selectedClient.id)
+      // Debug: log the IDs to check for type mismatch
+      console.log("Selected client ID:", selectedClient.id, typeof selectedClient.id);
+      console.log("All reservations user_ids:", allReservations.map(r => ({ id: r.id, user_id: r.user_id, type: typeof r.user_id })));
+
+      // Get client's reservation history - handle both string and number IDs
+      const history = allReservations.filter(res => {
+        const resUserId = res.user_id?.toString();
+        const clientId = selectedClient.id?.toString();
+        return resUserId === clientId;
+      })
         .sort((a, b) => new Date(b.assigned_date) - new Date(a.assigned_date))
 
+      console.log("Filtered history:", history.length, "reservations");
       setClientHistory(history)
 
       // Fetch service counts from database
@@ -466,85 +484,102 @@ export default function CRMView({
             </h3>
           </div>
           <div style={{ fontSize: "0.85rem", color: "#64748b", fontWeight: 600 }}>
-            {clients.length} Clientes registrados
+            {usersLoading ? 'Cargando...' : `${clients.length} Clientes registrados`}
           </div>
         </div>
 
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
-            gap: "1.25rem",
-          }}
-        >
-          {clients.map((client) => (
-            <div
-              key={client.id}
-              style={{
-                padding: "1.25rem",
-                border: selectedClient?.id === client.id ? "2px solid #6366f1" : "1px solid #f1f5f9",
-                borderRadius: 20,
-                background: selectedClient?.id === client.id ? "#f5f3ff" : "#fff",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
-                position: "relative",
-                display: "flex",
-                flexDirection: "column",
-                gap: "0.75rem",
-                boxShadow: selectedClient?.id === client.id ? "0 10px 15px -3px rgba(99, 102, 241, 0.1)" : "none"
-              }}
-              onClick={() => setSelectedClient(client)}
-              onMouseEnter={e => {
-                if (selectedClient?.id !== client.id) {
-                  e.currentTarget.style.borderColor = "#e2e8f0"
-                  e.currentTarget.style.transform = "translateY(-2px)"
-                }
-              }}
-              onMouseLeave={e => {
-                if (selectedClient?.id !== client.id) {
-                  e.currentTarget.style.borderColor = "#f1f5f9"
-                  e.currentTarget.style.transform = "translateY(0)"
-                }
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <div style={{
-                  width: 44,
-                  height: 44,
-                  borderRadius: 14,
-                  background: selectedClient?.id === client.id ? "#6366f1" : "#f8fafc",
-                  color: selectedClient?.id === client.id ? "#fff" : "#64748b",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "1.1rem",
-                  fontWeight: 800
-                }}>
-                  {client.name.charAt(0)}
-                </div>
-                <div>
-                  <div style={{ fontWeight: 700, color: "#1e293b", fontSize: "1rem" }}>{client.name}</div>
-                  <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>@{client.username}</div>
-                </div>
-              </div>
-
-              <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "0.75rem" }}>
-                <div style={{ fontSize: "0.85rem", color: "#475569", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
-                  <Mail size={14} color="#94a3b8" /> {client.email}
-                </div>
-                <div style={{ fontSize: "0.85rem", color: "#475569", display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                  <Phone size={14} color="#94a3b8" /> {client.phone}
-                </div>
-              </div>
-
-              {selectedClient?.id === client.id && (
-                <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", color: "#6366f1" }}>
-                  <CheckCircle size={20} fill="#f5f3ff" />
-                </div>
-              )}
+        {usersLoading ? (
+          <div style={{ textAlign: 'center', padding: '4rem 2rem' }}>
+            <div style={{ color: '#6366f1', fontSize: '1.5rem', marginBottom: '1rem' }}>
+              <div style={{ animation: 'spin 1s linear infinite', display: 'inline-block' }}>⏳</div>
             </div>
-          ))}
-        </div>
+            <p style={{ color: '#64748b', fontWeight: 600 }}>Cargando clientes...</p>
+          </div>
+        ) : clients.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '4rem 2rem', background: '#fff', borderRadius: 24, border: '1px solid #f1f5f9' }}>
+            <Users size={40} style={{ marginBottom: '1rem', color: '#cbd5e1' }} />
+            <p style={{ color: '#64748b', fontWeight: 600 }}>No se encontraron clientes</p>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "1.25rem",
+            }}
+          >
+            {clients.map((client) => (
+              <div
+                key={client.id}
+                style={{
+                  padding: "1.25rem",
+                  border: selectedClient?.id === client.id ? "2px solid #6366f1" : "1px solid #f1f5f9",
+                  borderRadius: 20,
+                  background: selectedClient?.id === client.id ? "#f5f3ff" : "#fff",
+                  cursor: "pointer",
+                  transition: "all 0.3s cubic-bezier(0.4, 0, 0.2, 1)",
+                  position: "relative",
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "0.75rem",
+                  boxShadow: selectedClient?.id === client.id ? "0 10px 15px -3px rgba(99, 102, 241, 0.1)" : "none"
+                }}
+                onClick={() => {
+                  console.log("Selected client:", client);
+                  setSelectedClient(client);
+                }}
+                onMouseEnter={e => {
+                  if (selectedClient?.id !== client.id) {
+                    e.currentTarget.style.borderColor = "#e2e8f0"
+                    e.currentTarget.style.transform = "translateY(-2px)"
+                  }
+                }}
+                onMouseLeave={e => {
+                  if (selectedClient?.id !== client.id) {
+                    e.currentTarget.style.borderColor = "#f1f5f9"
+                    e.currentTarget.style.transform = "translateY(0)"
+                  }
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+                  <div style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: 14,
+                    background: selectedClient?.id === client.id ? "#6366f1" : "#f8fafc",
+                    color: selectedClient?.id === client.id ? "#fff" : "#64748b",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    fontSize: "1.1rem",
+                    fontWeight: 800
+                  }}>
+                    {client.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, color: "#1e293b", fontSize: "1rem" }}>{client.name}</div>
+                    <div style={{ fontSize: "0.8rem", color: "#64748b", fontWeight: 500 }}>@{client.username}</div>
+                  </div>
+                </div>
+
+                <div style={{ borderTop: "1px solid rgba(0,0,0,0.05)", paddingTop: "0.75rem" }}>
+                  <div style={{ fontSize: "0.85rem", color: "#475569", display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.4rem" }}>
+                    <Mail size={14} color="#94a3b8" /> {client.email}
+                  </div>
+                  <div style={{ fontSize: "0.85rem", color: "#475569", display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                    <Phone size={14} color="#94a3b8" /> {client.phone}
+                  </div>
+                </div>
+
+                {selectedClient?.id === client.id && (
+                  <div style={{ position: "absolute", top: "1.25rem", right: "1.25rem", color: "#6366f1" }}>
+                    <CheckCircle size={20} fill="#f5f3ff" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Client Details View */}

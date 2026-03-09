@@ -17,6 +17,7 @@ export default function ReservationDetailModal({
   setShowReservationDetailModal,
   reservationDetail,
   locationOptions,
+  availableServices,
 }) {
   if (!showReservationDetailModal || !reservationDetail) return null
 
@@ -107,7 +108,13 @@ export default function ReservationDetailModal({
             </div>
             <div>
               <div style={{ fontSize: "1.25rem", fontWeight: 800, color: "#1e293b" }}>
-                {servicesOptions.find((s) => s.value === reservationDetail.service_name)?.label || reservationDetail.service_name}
+                {(() => {
+                  // Try to find service name from availableServices first
+                  const service = availableServices?.find(s => s.id === reservationDetail.service_name);
+                  if (service?.name) return service.name;
+                  // Fallback to servicesOptions
+                  return servicesOptions.find((s) => s.value === reservationDetail.service_name)?.label || `Servicio #${reservationDetail.service_name}`;
+                })()}
               </div>
               <div style={{ fontSize: "0.9rem", color: "#64748b", fontWeight: 600 }}>Servicio Programado</div>
             </div>
@@ -148,7 +155,7 @@ export default function ReservationDetailModal({
             <DetailItem
               icon={<MapPin size={18} />}
               label="Ubicación"
-              value={`${locationOptions.find(l => l.id === reservationDetail.location_id)?.location || "S.D."} - ${reservationDetail.address}`}
+              value={`${locationOptions.find(l => l.id === reservationDetail.location_id)?.location || `Ubicación #${reservationDetail.location_id}`} - ${reservationDetail.address}`}
             />
 
             <DetailItem
